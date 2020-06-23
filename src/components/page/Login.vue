@@ -1,7 +1,7 @@
 <template>
-  <div class="login">
+  <div class="Login">
     <div class="login-header">
-      <img src="../assets/logo1.png" />
+      <img src="../../assets/logo1.png" />
       <span class="title">蛮犀安全移动应用加固系统</span>
     </div>
     <div class="user-login-main">
@@ -13,30 +13,36 @@
           ref="ruleForm"
           class="ruleForm"
         >
-          <el-form-item>
-            <img src="../assets/user.png" />
+          <el-form-item prop="userName">
+            <img src="../../assets/user.png" />
             <el-input
               v-model="ruleForm.userName"
               placeholder="用户名"
             ></el-input>
           </el-form-item>
-          <el-form-item>
-            <img src="../assets/pwd.png" />
+          <el-form-item prop="passWord">
+            <img src="../../assets/pwd.png" />
             <el-input
-              v-model="ruleForm.password"
+              v-model="ruleForm.passWord"
               type="password"
               placeholder="密码"
             ></el-input>
           </el-form-item>
-          <el-form-item>
-            <img src="../assets/code.png" />
-            <el-input
-              v-model="ruleForm.vercode"
-              placeholder="图形验证码"
-            ></el-input>
+          <el-form-item prop="vercode">
+            <img src="../../assets/code.png" />
+            <el-input v-model="ruleForm.vercode" placeholder="图形验证码">
+            </el-input>
+            <img
+              :scr="verifyCode"
+              @click="getVerifyCode()"
+              style="position:absolute;right:0;bottom:0"
+              alt="Loading..."
+            />
           </el-form-item>
           <el-form-item>
-            <el-button class="submit">登录</el-button>
+            <el-button class="submit" @click="submitForm('ruleForm')"
+              >登录</el-button
+            >
           </el-form-item>
         </el-form>
       </div>
@@ -44,12 +50,13 @@
   </div>
 </template>
 <script>
+import https from "../../http.js";
 export default {
   name: "login",
   data() {
     return {
       ruleForm: {
-        uerName: "",
+        userName: "",
         passWord: "",
         vercode: ""
       },
@@ -62,7 +69,40 @@ export default {
       }
     };
   },
-  mounted() {}
+  methods: {
+    submitForm(formName) {
+      let data = this.ruleForm;
+      let guid = this.guid.getGuid();
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          let baseUrl = this.api.baseUrl;
+        } else {
+          this.$message({
+            message: "必填项不能为空",
+            type: "error"
+          });
+          return false;
+        }
+      });
+    },
+    getVerifyCode() {
+      let baseUrl = this.api.baseUrl;
+      let guid = this.guid.getGuid();
+     /*  https
+        .fetchGet(baseUrl + "/captcha/getCaptchaCode", { guid })
+        .then(data => {
+          console.log(data.data);
+        }); */
+
+    }
+  },
+  created() {
+    this.getVerifyCode();
+  },
+  mounted() {
+    let baseUrl = this.api.baseUrl;
+    let guid = this.guid.getGuid();
+  }
 };
 </script>
 <style>
@@ -71,7 +111,7 @@ body,
 #app {
   height: 100%;
 }
-.login {
+.Login {
   height: 100%;
   background: #2193b0;
   background: -webkit-linear-gradient(to bottom, #6dd5fa, #2193b0);
@@ -129,7 +169,7 @@ body,
   background: linear-gradient(to bottom, #6dd5ed, #2193b0);
   color: white;
   border: none;
-  font-size:22px;
-  border-radius:30px;
+  font-size: 22px;
+  border-radius: 30px;
 }
 </style>

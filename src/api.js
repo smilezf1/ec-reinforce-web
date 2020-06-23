@@ -1,4 +1,4 @@
-const baseUrl = "http://192.168.3.100:8080";
+const baseUrl = "http://192.168.3.58:9990/manxi-reinforce";
 export default {
     baseUrl
 }
