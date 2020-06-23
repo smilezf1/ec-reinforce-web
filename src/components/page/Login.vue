@@ -66,8 +66,21 @@ export default {
         ],
         passWord: [{ required: true, message: "请输入密码", trigger: "blur" }],
         vercode: [{ required: true, message: "请输入验证码", trigger: "blur" }]
-      }
+      },
+      verifyCode: ""
     };
+  },
+  created() {
+    let baseUrl = this.api.baseUrl;
+    let guid = this.guid.getGuid();
+    this.verifyCode = () => {
+      return https
+        .fetchGet(baseUrl + "/captcha/getCaptchaCode", { guid })
+        .then(data => {
+          console.log(data.data);
+        });
+    };
+    this.getVerifyCode();
   },
   methods: {
     submitForm(formName) {
@@ -86,18 +99,23 @@ export default {
       });
     },
     getVerifyCode() {
-      let baseUrl = this.api.baseUrl;
-      let guid = this.guid.getGuid();
-     /*  https
-        .fetchGet(baseUrl + "/captcha/getCaptchaCode", { guid })
+      this.verifyCode()
+        .then(res => {
+          return (
+            "data:image/png;base64," +
+            btoa(
+              new Uint8Array(res.data).reduce(
+                (data, byte) => data + String.fromCharCode(byte),
+                ""
+              )
+            )
+          );
+        })
         .then(data => {
-          console.log(data.data);
-        }); */
-
+          //图片地址 <img src='data' />
+          this.verifyCode = data;
+        });
     }
-  },
-  created() {
-    this.getVerifyCode();
   },
   mounted() {
     let baseUrl = this.api.baseUrl;
