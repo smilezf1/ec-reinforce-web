@@ -4,7 +4,7 @@
       class="sidebar-el-menu"
       :default-active="onRoutes"
       :collapse="collapse"
-      background-color="#2193b0"
+      background-color="#207BA6"
       text-color="#fff"
       active-text-color="#20a0ff"
       unique-opened
@@ -60,9 +60,8 @@ export default {
       sidebarList: [
         {
           icon: "el-icon-s-home",
-          index: "systemHome",
-          title: "系统首页",
-          subs: [{ index: "dashboard", title: "系统首页" }]
+          index: "dashboard",
+          title: "系统首页"
         },
         {
           icon: "el-icon-collection",
@@ -101,16 +100,16 @@ export default {
         },
         {
           icon: "el-icon-menu",
-          index: "systemRecommend",
-          title: "系统介绍",
-          subs: [{ index: "recommend", title: "系统介绍" }]
+          index: "recommend",
+          title: "系统介绍"
         }
       ]
     };
   },
   computed: {
     onRoutes() {
-      /*  return this.$route.path.replace("/", ""); */
+      console.log(this.$route);
+      return this.$route.path.replace("/", "");
     }
   },
   created() {
@@ -147,7 +146,7 @@ export default {
   color: #fff !important;
 }
 .el-menu-item.is-active {
-  background: #6dd5ed !important;
+  background: #409eff63 !important;
   color: white !important;
 }
 .el-submenu__icon-arrow {

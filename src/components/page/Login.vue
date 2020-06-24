@@ -14,30 +14,38 @@
           class="ruleForm"
         >
           <el-form-item prop="userName">
-            <img src="../../assets/user.png" />
+            <img src="../../assets/user.png" class="icon" />
             <el-input
               v-model="ruleForm.userName"
               placeholder="用户名"
             ></el-input>
           </el-form-item>
-          <el-form-item prop="passWord">
-            <img src="../../assets/pwd.png" />
+          <el-form-item prop="password">
+            <img src="../../assets/pwd.png" class="icon" />
             <el-input
-              v-model="ruleForm.passWord"
+              v-model="ruleForm.password"
               type="password"
               placeholder="密码"
             ></el-input>
           </el-form-item>
           <el-form-item prop="vercode">
-            <img src="../../assets/code.png" />
-            <el-input v-model="ruleForm.vercode" placeholder="图形验证码">
-            </el-input>
-            <img
-              :scr="verifyCode"
-              @click="getVerifyCode()"
-              style="position:absolute;right:0;bottom:0"
-              alt="Loading..."
-            />
+            <img src="../../assets/code.png" class="icon" />
+            <el-row>
+              <el-col :span="15">
+                <el-input v-model="ruleForm.VerCode" placeholder="图形验证码">
+                </el-input
+              ></el-col>
+              <el-col :span="7">
+                <img
+                  :src="
+                    this.api.baseUrl + '/captcha/getCaptchaCode?guid=' + Guid
+                  "
+                  @click="getVerifyCode()"
+                  class="verifyCode"
+                  ref="captcha"
+                />
+              </el-col>
+            </el-row>
           </el-form-item>
           <el-form-item>
             <el-button class="submit" @click="submitForm('ruleForm')"
@@ -47,48 +55,58 @@
         </el-form>
       </div>
     </div>
+    <div class="user-login-footer">
+      <p>Version: 5.1 Copyright © 2020 蛮犀安全. All Rights Reserved</p>
+    </div>
   </div>
 </template>
 <script>
 import https from "../../http.js";
+import md5 from "js-md5";
 export default {
   name: "login",
   data() {
     return {
       ruleForm: {
         userName: "",
-        passWord: "",
-        vercode: ""
+        password: "",
+        VerCode: ""
       },
       rules: {
         userName: [
           { required: true, message: "请输入用户名称", trigger: "blur" }
         ],
         passWord: [{ required: true, message: "请输入密码", trigger: "blur" }],
-        vercode: [{ required: true, message: "请输入验证码", trigger: "blur" }]
+        verCode: [{ required: true, message: "请输入验证码", trigger: "blur" }]
       },
-      verifyCode: ""
+      verifyCode: "",
+      Guid: this.guid.getGuid()
     };
-  },
-  created() {
-    let baseUrl = this.api.baseUrl;
-    let guid = this.guid.getGuid();
-    this.verifyCode = () => {
-      return https
-        .fetchGet(baseUrl + "/captcha/getCaptchaCode", { guid })
-        .then(data => {
-          console.log(data.data);
-        });
-    };
-    this.getVerifyCode();
   },
   methods: {
     submitForm(formName) {
-      let data = this.ruleForm;
-      let guid = this.guid.getGuid();
+      let data = this.ruleForm,
+        guid = this.guid.getGuid(),
+        userName = data.userName,
+        password = md5(data.password),
+        VerCode = data.VerCode,
+        baseUrl = this.api.baseUrl;
       this.$refs[formName].validate(valid => {
         if (valid) {
-          let baseUrl = this.api.baseUrl;
+          let params = {
+            userName: userName,
+            password: password,
+            VerCode: VerCode,
+            guid: guid
+          };
+          https.fetchPost(baseUrl + "/system/login/login", params).then(res => {
+            console.log(res);
+          });
+         /*  this.$axios
+            .post(baseUrl + "/system/login/login", params)
+            .then(res => {
+              console.log(res);
+            }); */
         } else {
           this.$message({
             message: "必填项不能为空",
@@ -98,28 +116,16 @@ export default {
         }
       });
     },
-    getVerifyCode() {
-      this.verifyCode()
-        .then(res => {
-          return (
-            "data:image/png;base64," +
-            btoa(
-              new Uint8Array(res.data).reduce(
-                (data, byte) => data + String.fromCharCode(byte),
-                ""
-              )
-            )
-          );
-        })
-        .then(data => {
-          //图片地址 <img src='data' />
-          this.verifyCode = data;
-        });
+    getVerifyCode(event) {
+      console.log("执行了嘛");
+      this.$refs.captcha.src =
+        this.api.baseUrl +
+        "/captcha/getCaptchaCode?guid=" +
+        this.guid.getGuid();
     }
   },
   mounted() {
-    let baseUrl = this.api.baseUrl;
-    let guid = this.guid.getGuid();
+    console.log(this.guid.getGuid(), "哈哈");
   }
 };
 </script>
@@ -131,9 +137,9 @@ body,
 }
 .Login {
   height: 100%;
-  background: #2193b0;
-  background: -webkit-linear-gradient(to bottom, #6dd5fa, #2193b0);
-  background: linear-gradient(to bottom, #6dd5ed, #2193b0);
+  background: #1a2980;
+  background: -webkit-linear-gradient(to right, #26d0ce, #1a2980);
+  background: linear-gradient(to right, #26d0ce, #1a2980);
   position: relative;
 }
 .login-header {
@@ -168,13 +174,20 @@ body,
 .user-login-main-box .ruleForm .el-form-item_content {
   position: relative;
 }
-.user-login-main-box .ruleForm img {
+.user-login-main-box .ruleForm .icon {
   width: 18px;
   position: absolute;
   z-index: 2;
   top: 50%;
   transform: translateY(-50%);
   left: 20px;
+}
+.user-login-main-box .ruleForm .verifyCode {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
 }
 .el-input__inner {
   padding: 0 47px;
@@ -184,10 +197,20 @@ body,
 }
 .user-login-main-box .submit {
   width: 100%;
-  background: linear-gradient(to bottom, #6dd5ed, #2193b0);
+  background: #207ba6;
   color: white;
   border: none;
   font-size: 22px;
   border-radius: 30px;
+}
+.user-login-footer p {
+  position: fixed;
+  bottom: 25px;
+  left: 50%;
+  color: white;
+  font-size: 15px;
+  transform: translateX(-50%);
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", 微软雅黑, Tahoma,
+    Arial, sans-serif;
 }
 </style>

@@ -56,7 +56,7 @@ export default {
 .Header {
   height: 60px;
   line-height: 60px;
-  background: linear-gradient(to bottom, #6dd5ed, #2193b0);
+  background: #207ba6;
   color: white;
   padding: 0px 30px 0px 10px;
 }

@@ -37,5 +37,6 @@ export default {
   position: absolute;
   padding-left: 280px;
   box-sizing:border-box;
+  
 }
 </style>
