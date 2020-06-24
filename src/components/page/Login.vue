@@ -102,11 +102,6 @@ export default {
           https.fetchPost(baseUrl + "/system/login/login", params).then(res => {
             console.log(res);
           });
-         /*  this.$axios
-            .post(baseUrl + "/system/login/login", params)
-            .then(res => {
-              console.log(res);
-            }); */
         } else {
           this.$message({
             message: "必填项不能为空",
