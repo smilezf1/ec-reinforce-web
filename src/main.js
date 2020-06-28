@@ -6,6 +6,8 @@ import router from './router'
 import api from './api';
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css'
+import iview from 'iview'
+import 'iview/dist/styles/iview.css'
 import axios from 'axios'
 //qs是一个增加了一些安全性的查询字符串解析和序列化字符串的库
 import QS from 'qs';
@@ -17,6 +19,7 @@ Vue.prototype.guid = guid;
 Vue.prototype.$axios = axios;//在其他组件中this.$http.post(get)发送请求
 Vue.prototype.qs = QS;
 Vue.use(ElementUI);
+Vue.use(iview);
 new Vue({
   el: '#app',
   router,

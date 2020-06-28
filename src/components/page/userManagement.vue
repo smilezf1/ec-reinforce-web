@@ -1,7 +1,7 @@
 <template>
   <div class="userManagement">
     <div class="userManagementHeader">
-      <p>当前位置: 用户管理界面</p>
+      <p>当前位置: 用户管理</p>
     </div>
   </div>
 </template>

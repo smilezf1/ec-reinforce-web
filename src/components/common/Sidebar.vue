@@ -47,6 +47,8 @@
           </el-menu-item>
         </template>
       </template>
+
+      
     </el-menu>
   </div>
 </template>
@@ -108,7 +110,6 @@ export default {
   },
   computed: {
     onRoutes() {
-      console.log(this.$route);
       return this.$route.path.replace("/", "");
     }
   },

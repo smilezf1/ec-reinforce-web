@@ -1,34 +1,36 @@
 import axios from 'axios';
 import qs from 'qs';
+import router from './router'
 axios.defaults.timeout = 5000;//响应时间
-//axios.defaults.headers.post['Content-Type'] = "application/x-www-form-urlencoded;charset=UTF-8"  //配置请求头 
+axios.defaults.headers.post['Content-Type'] = "application/json";
 axios.defaults.baseUrl = 'http://192.168.3.58:9990/manxi-reinforce';//配置接口地址
-//POST 传参序列化(添加请求拦截器)
-axios.interceptors.request.use((config) => {
-    //在发送请求之前判断下
-    if (config.method === "post") {
-        config.data = qs.stringify(config.data)
+//每次跳转路由,判断localStorage中有无token,没有就跳转到登录页面,有则跳转到对应路由页面,每次调用后端接口
+//都要在请求头中加token,若验证失败(token失效)就返回状态码05,若拿到状态码为05,就清除token并跳转到登录页面
+//添加请求拦截器,在请求头中加token
+axios.interceptors.request.use(config => {
+    if (localStorage.getItem('Authorization')) {
+        config.headers.Authorization = localStorage.getItem('Authorization')
     }
-    console.log(config.data);
-    return config
-}, (error) => {
-    console.log("错误的传参");
-    return Promise.reject(error);
-})
-//返回判断状态(添加响应拦截器)
-axios.interceptors.response.use((res) => {
-    //对响应数据做的事情
-    if (!res.data.success) {
-        return Promise.resolve(res);
+    return config;
+}, error => { return Promise.reject(error) })
+//返回状态判断
+axios.interceptors.response.use(res => {
+    if (res.data.code !== '00'){
+        return Promise.reject(res)
     }
-    return res;
-}, (error) => {
-    console.log("网络异常");
-    return Promise.reject(error);
+    return res
+
+  /*   if (res.data.code === "00") {
+        router.push({ path: "/dashboard" })
+    }
+    if (res.data.code === "05") 
+        router.push({ path: "/Login" })
+    } */
+},error=>{
+    console.log(error)
 })
 //返回一个Promise(发送post请求)
 export function fetchPost(url, params) {
-    console.log(params);
     return new Promise((resolve, reject) => {
         axios.post(url, params).then(res => {
             resolve(res);

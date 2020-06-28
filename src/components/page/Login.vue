@@ -28,11 +28,11 @@
               placeholder="密码"
             ></el-input>
           </el-form-item>
-          <el-form-item prop="vercode">
+          <el-form-item prop="verCode">
             <img src="../../assets/code.png" class="icon" />
             <el-row>
               <el-col :span="15">
-                <el-input v-model="ruleForm.VerCode" placeholder="图形验证码">
+                <el-input v-model="ruleForm.verCode" placeholder="图形验证码">
                 </el-input
               ></el-col>
               <el-col :span="7">
@@ -56,13 +56,14 @@
       </div>
     </div>
     <div class="user-login-footer">
-      <p>Version: 5.1 Copyright © 2020 蛮犀安全. All Rights Reserved</p>
+      <p>Version: 5.1.1 Copyright © 2020 蛮犀安全. All Rights Reserved</p>
     </div>
   </div>
 </template>
 <script>
 import https from "../../http.js";
 import md5 from "js-md5";
+import { mapMutations } from "vuex";
 export default {
   name: "login",
   data() {
@@ -70,11 +71,11 @@ export default {
       ruleForm: {
         userName: "",
         password: "",
-        VerCode: ""
+        verCode: ""
       },
       rules: {
         userName: [
-          { required: true, message: "请输入用户名称", trigger: "blur" }
+          { required: true, message: "请输入用户名", trigger: "blur" }
         ],
         passWord: [{ required: true, message: "请输入密码", trigger: "blur" }],
         verCode: [{ required: true, message: "请输入验证码", trigger: "blur" }]
@@ -84,24 +85,52 @@ export default {
     };
   },
   methods: {
+    ...mapMutations(["changeLogin"]),
     submitForm(formName) {
       let data = this.ruleForm,
-        guid = this.guid.getGuid(),
+        guid = this.Guid,
         userName = data.userName,
         password = md5(data.password),
-        VerCode = data.VerCode,
-        baseUrl = this.api.baseUrl;
+        verCode = data.verCode,
+        baseUrl = this.api.baseUrl,
+        _this = this;
       this.$refs[formName].validate(valid => {
         if (valid) {
           let params = {
             userName: userName,
             password: password,
-            VerCode: VerCode,
+            verCode: verCode,
             guid: guid
           };
-          https.fetchPost(baseUrl + "/system/login/login", params).then(res => {
-            console.log(res);
-          });
+          https
+            .fetchPost(baseUrl + "/api/system/login/login", params)
+            .then(res => {
+              console.log(res)
+              if (res.data.code === "00") {
+                const accessToken = res.data.data.accessToken,
+                  userName = res.data.data.userName;
+                localStorage.setItem("Authorization", accessToken);
+                localStorage.setItem("userName", userName);
+                _this.$message({
+                  message: "登录成功",
+                  type: "success",
+                  duration: 1000,
+                  onClose() {
+                    _this.$router.push("/dashboard");
+                  }
+                });
+              } else {
+                let message = res.data.message;
+                _this.$message({
+                  message: message,
+                  type: "error"
+                });
+                _this.Guid = this.guid.getGuid();
+              }
+            })
+            .catch(error => {
+              console.log(error);
+            });
         } else {
           this.$message({
             message: "必填项不能为空",
@@ -112,16 +141,18 @@ export default {
       });
     },
     getVerifyCode(event) {
-      console.log("执行了嘛");
       this.$refs.captcha.src =
         this.api.baseUrl +
         "/captcha/getCaptchaCode?guid=" +
         this.guid.getGuid();
     }
   },
-  mounted() {
-    console.log(this.guid.getGuid(), "哈哈");
-  }
+  /*状态码为code:05(token失效),就清除token信息并跳转到登录界面
+  localStorage.removeItem('Authorization');
+  _this.$router.push('')
+
+   */
+  mounted() {}
 };
 </script>
 <style>

@@ -10,7 +10,7 @@ import reinforce from '@/components/page/reinforce'
 import channelStrategy from '@/components/page/channelStrategy'
 import roleManagement from '@/components/page/roleManagement'
 import signature from '@/components/page/signature'
-import systemRecommend from '@/components/page/systemRecommend'
+import recommend from '@/components/page/recommend'
 import userManagement from '@/components/page/userManagement'
 import VueRouter from 'vue-router'
 Vue.use(Router);
@@ -19,7 +19,7 @@ const originalPush = VueRouter.prototype.push;
 VueRouter.prototype.push = function push(location) {
     return originalPush.call(this, location).catch(err => err);
 }
-export default new Router({
+const router = new Router({
     routes: [
         {
             path: "/",
@@ -68,7 +68,7 @@ export default new Router({
                 {
                     path: "/recommend",
                     name: "recommend",
-                    component: systemRecommend
+                    component:recommend
                 },
                 {
                     path: "/userManagement",
@@ -85,3 +85,20 @@ export default new Router({
         },
     ]
 })
+//导航守卫 使用router.beforeEach 注册一个全局前置守卫,判断用户是否登录
+router.beforeEach((to, from, next) => {
+   /*  if (to.path === "/Login") {
+        next()
+    } else {
+        let token = localStorage.getItem("Authorization");
+        if (token === "null" || token === '') {
+            next('/Login')
+        } else {
+            next()
+        }
+    } */
+    next()
+})
+
+export default router;
+

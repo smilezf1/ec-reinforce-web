@@ -6,7 +6,7 @@
     </div>
     <div class="headerRightBox">
       <el-dropdown class="userName" trigger="click" @command="handleCommand">
-        <span class="el-dropdown-link">您好,smile</span>
+        <span class="el-dropdown-link">您好,{{ userName }}</span>
         <i class="el-icon-caret-bottom"></i>
         <el-dropdown-menu>
           <el-dropdown-item command="loginout">退出登录</el-dropdown-item>
@@ -18,17 +18,22 @@
 <script>
 export default {
   name: "Header",
+  data() {
+    return {
+      name: "test"
+    };
+  },
   computed: {
-    /* userName(){
-      let userName=localStorage.getItem("userName");
-      return userName?userName:
-    } */
+    userName() {
+      let userName = localStorage.getItem("userName");
+      return userName ? userName : this.name;
+    }
   },
   methods: {
     //用户名下拉菜单选择事件
     handleCommand(command) {
       if (command == "loginout") {
-        /*  localStorage.removeItem("userName"); */
+        localStorage.removeItem("userName");
         this.$confirm("确定要退出吗?", "退出提示", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
