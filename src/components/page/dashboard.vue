@@ -15,6 +15,7 @@
             :page-size="10"
             show-total
             show-sizer
+            show-elevator
             slot="footer"
             @on-change="handlerPage"
           ></Page>
