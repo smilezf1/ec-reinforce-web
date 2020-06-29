@@ -49,7 +49,6 @@ export default {
       _this = this;
     https.fetchGet(baseUrl + "/api/system/about/findAbout").then(res => {
       _this.listItem = res.data.data;
-      console.log(_this.listItem);
     });
   }
 };

@@ -2,110 +2,56 @@
   <div class="sidebar">
     <el-menu
       class="sidebar-el-menu"
-      :default-active="onRoutes"
-      :collapse="collapse"
       background-color="#207BA6"
       text-color="#fff"
       active-text-color="#20a0ff"
-      unique-opened
       router
+      unique-opened
     >
       <template v-for="item in sidebarList">
-        <template v-if="item.subs">
-          <el-submenu :index="item.index" :key="item.index">
+        <template v-if="item.children">
+          <el-submenu :index="item.id" :key="item.id">
             <template slot="title">
               <i :class="item.icon"></i>
-              <span slot="title">{{ item.title }}</span>
+              <span slot="title">{{ item.name }}</span>
             </template>
-            <template v-for="subItem in item.subs">
+            <template v-for="subItem in item.children">
               <el-submenu
-                v-if="subItem.subs"
-                :index="subItem.index"
-                :key="subItem.index"
+                v-if="subItem.children"
+                :index="subItem.address"
+                :key="subItem.id"
               >
-                <template slot="title">{{ subItem.title }}</template>
+                <template slot="title">{{ subItem.name }}</template>
                 <el-menu-item
-                  v-for="(threeItem, i) in subItem.subs"
-                  :key="i"
-                  :index="threeItem.index"
-                  >{{ threeItem.title }}</el-menu-item
+                  v-for="threeItem in subItem.children"
+                  :key="threeItem.id"
+                  >{{ threeItem.name + "aa" }}</el-menu-item
                 >
               </el-submenu>
-              <el-menu-item
-                v-else
-                :index="subItem.index"
-                :key="subItem.index"
-                >{{ subItem.title }}</el-menu-item
-              >
+              <el-menu-item v-else :index="subItem.address" :key="subItem.id">{{
+                subItem.name
+              }}</el-menu-item>
             </template>
           </el-submenu>
         </template>
         <template v-else>
-          <el-menu-item :index="item.index" :key="item.index">
+          <el-menu-item :index="item.address" :key="item.id">
             <i :class="item.icon"></i>
-            <span slot="title">{{ item.title }}</span>
+            <span slot="title">{{ item.name }}</span>
           </el-menu-item>
         </template>
       </template>
-
-      
     </el-menu>
   </div>
 </template>
 <script>
 import bus from "../common/bus";
+import http from "../../http.js";
 export default {
   name: "Sidebar",
   data() {
     return {
-      collapse: false,
-      sidebarList: [
-        {
-          icon: "el-icon-s-home",
-          index: "dashboard",
-          title: "系统首页"
-        },
-        {
-          icon: "el-icon-collection",
-          index: "taskManager",
-          title: "任务管理",
-          subs: [
-            {
-              index: "reinforce",
-              title: "加固"
-            }
-          ]
-        },
-        {
-          icon: "el-icon-s-tools",
-          index: "reinforceAllocation",
-          title: "加固配置",
-          subs: [
-            { index: "reinforceStrategy", title: "加固策略" },
-            { index: "reinforceItem", title: "加固项" },
-            { index: "channelStrategy", title: "渠道策略" },
-            { index: "signature", title: "签名" }
-          ]
-        },
-        {
-          icon: "el-icon-s-management",
-          index: "systemManagement",
-          title: "系统管理",
-          subs: [
-            { index: "userManagement", title: "用户管理" },
-            { index: "roleManagement", title: "角色管理" },
-            {
-              index: "menuManagement",
-              title: "菜单管理"
-            }
-          ]
-        },
-        {
-          icon: "el-icon-menu",
-          index: "recommend",
-          title: "系统介绍"
-        }
-      ]
+      sidebarList: []
     };
   },
   computed: {
@@ -114,12 +60,37 @@ export default {
     }
   },
   created() {
-    //通过Event Bus 进行组件间通信,来折叠侧边栏
-    bus.$on("collapse", msg => {
-      console.log(msg);
-      this.collapse = msg;
-      bus.$emig("collapse-content", msg);
+    let baseUrl = this.api.baseUrl,
+      _this = this;
+    http.fetchGet(baseUrl + "/api/system/menu/list").then(res => {
+      _this.sidebarList = res.data.data;
+      this.sidebarList = this.toTreeData(this.sidebarList);
     });
+  },
+  methods: {
+    toTreeData(data) {
+      //删除所有的children,以防止多次调用
+      data.forEach(item => {
+        delete item.children;
+      });
+      let map = {}; //构建map
+      data.forEach(i => {
+        map[i.id] = i; //构建以id为键 当前数据为值
+      });
+      let treeData = [];
+      data.forEach(child => {
+        const mapItem = map[child.pId]; //判断当前数据的pId是否存在map中
+        if (mapItem) {
+          //不是最顶层的数据
+          //注:这里map中的数据是引用了data的它的指向还是data,当mapItem改变时,arr也会改变
+          (mapItem.children || (mapItem.children = [])).push(child); //判断mapItem是否存在child
+        } else {
+          //顶层数据
+          treeData.push(child);
+        }
+      });
+      return treeData;
+    }
   }
 };
 </script>

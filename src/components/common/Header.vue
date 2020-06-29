@@ -5,7 +5,7 @@
       <span class="title">蛮犀安全移动应用加固系统</span>
     </div>
     <div class="headerRightBox">
-      <el-dropdown class="userName" trigger="click" @command="handleCommand">
+      <el-dropdown class="userName" trigger="hover" @command="handleCommand">
         <span class="el-dropdown-link">您好,{{ userName }}</span>
         <i class="el-icon-caret-bottom"></i>
         <el-dropdown-menu>
@@ -84,7 +84,10 @@ export default {
   cursor: pointer;
 }
 .el-dropdown-menu {
-  top: 45px;
   padding: 5px 0;
+  margin: 0;
+}
+.el-popper[x-placement^="bottom"] {
+  margin-top: 0px;
 }
 </style>

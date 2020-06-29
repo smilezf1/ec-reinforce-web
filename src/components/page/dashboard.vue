@@ -10,7 +10,7 @@
       <div class="dashboardBase">
         <template>
           <Page
-            total="100"
+            :total="listItem.length"
             :current="pn"
             :page-size="10"
             show-total
@@ -60,35 +60,24 @@ export default {
     handlerPage(pn) {
       this.changePagination(pn);
     },
-    changePagination(pn) {
-      const _this = this;
-      _this.pn = pn;
-    }
+    changePagination(pn) {}
   },
   created() {
     let baseUrl = this.api.baseUrl,
       _this = this,
-      pn = _this.pn;
-    params = {
-      limit: 10,
-      pn: 1
-    };
-    console.log(params);
+      pn = _this.pn,
+      params = { limit: 10, pn };
     https
       .fetchPost(baseUrl + "/api/reinforce/info/page", params)
       .then(res => {
-        console.log(res);
         let data = res.data.data.items;
         _this.listItem = data;
-        if (_this.pn) {
-          _this.pageData = this.listItem.slice(0, 10);
-        } else {
-          this.changePagination();
-        }
+        console.log(_this.listItem.length);
       })
       .catch(error => {
         console.log(error);
       });
+    this.changePagination();
   }
 };
 </script>
