@@ -13,22 +13,21 @@ axios.interceptors.request.use(config => {
     }
     return config;
 }, error => { return Promise.reject(error) })
-//返回状态判断
-axios.interceptors.response.use(res => {
-    if (res.data.code !== '00'){
-        return Promise.reject(res)
+//测试
+axios.interceptors.response.use(response => {
+    if (response.data.code === "05") {
+        console.log("token过期")
+        localStorage.removeItem('Authorization');
+        this.$confirm("会话过期,请重新登录", '系统提示', {
+            confirmButtonText: "确定",
+            type: "warning"
+        }).then(() => {
+            router.push({ name: "Login" })
+        })
     }
-    return res
-
-  /*   if (res.data.code === "00") {
-        router.push({ path: "/dashboard" })
-    }
-    if (res.data.code === "05") 
-        router.push({ path: "/Login" })
-    } */
-},error=>{
-    console.log(error)
+    return response
 })
+
 //返回一个Promise(发送post请求)
 export function fetchPost(url, params) {
     return new Promise((resolve, reject) => {

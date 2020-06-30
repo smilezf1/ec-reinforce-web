@@ -1,7 +1,7 @@
 <template>
   <div class="reinfore">
     <div class="reinforeHeader">
-      <p>当前位置:加固</p>
+      <p>当前位置:加固服务</p>
     </div>
   </div>
 </template>

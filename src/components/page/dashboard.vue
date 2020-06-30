@@ -4,21 +4,12 @@
       <p>当前位置:我的加固任务</p>
       <div class="dashboardBody">
         <template>
-          <i-table :columns="columns" :data="listItem" :border="true"></i-table
-        ></template>
+          <i-table :columns="columns" :data="listItem"></i-table>
+        </template>
       </div>
       <div class="dashboardBase">
         <template>
-          <Page
-            :total="listItem.length"
-            :current="pn"
-            :page-size="10"
-            show-total
-            show-sizer
-            show-elevator
-            slot="footer"
-            @on-change="handlerPage"
-          ></Page>
+          <Page :total="100" show-sizer show-elevator show-total></Page>
         </template>
       </div>
     </div>
@@ -31,7 +22,8 @@ export default {
   data() {
     return {
       columns: [
-        { title: "应用程序文件名称", key: "appFileName" },
+        { title: "序号", type: "index", width: 60, align: "center" },
+        { title: "应用程序文件名称", key: "appFileName", align: "center" },
         {
           title: "应用图标",
           key: "appIcon",
@@ -42,42 +34,30 @@ export default {
             });
           }
         },
-        { title: "应用名称", key: "appName" },
-        { title: "应用版本", key: "appVersion" },
-        { title: "创建时间", key: "createTime" },
-        { title: "更新时间", key: "updateTime" },
-        { title: "上传人", key: "userName" }
+        { title: "应用名称", key: "appName", align: "center" },
+        { title: "应用版本", key: "appVersion", align: "center" },
+        { title: "创建时间", key: "createTime", align: "center" },
+        { title: "更新时间", key: "updateTime", align: "center" },
+        { title: "上传人", key: "userName", align: "center" }
       ],
-      listItem: [], //调用接口获取的数据
-      //分页
-      limit: 10, //每页显示多少条
-      pageData: [], //表格数据,随着分页变化
-      pn: 1 //当前页
+      listItem: [] //调用接口获取的数据
     };
   },
-  methods: {
-    //改变页码的方法
-    handlerPage(pn) {
-      this.changePagination(pn);
-    },
-    changePagination(pn) {}
-  },
+  methods: {},
   created() {
     let baseUrl = this.api.baseUrl,
       _this = this,
       pn = _this.pn,
-      params = { limit: 10, pn };
+      params = { limit: 10, pn: 1 };
     https
       .fetchPost(baseUrl + "/api/reinforce/info/page", params)
       .then(res => {
         let data = res.data.data.items;
         _this.listItem = data;
-        console.log(_this.listItem.length);
       })
       .catch(error => {
         console.log(error);
       });
-    this.changePagination();
   }
 };
 </script>
@@ -90,5 +70,8 @@ export default {
   line-height: 50px;
   font-size: 14px;
   padding-left: 30px;
+}
+.dashboardBody {
+  width: 99%;
 }
 </style>

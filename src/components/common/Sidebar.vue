@@ -25,7 +25,7 @@
                 <el-menu-item
                   v-for="threeItem in subItem.children"
                   :key="threeItem.id"
-                  >{{ threeItem.name + "aa" }}</el-menu-item
+                  >{{ threeItem.name }}</el-menu-item
                 >
               </el-submenu>
               <el-menu-item v-else :index="subItem.address" :key="subItem.id">{{
@@ -63,8 +63,8 @@ export default {
     let baseUrl = this.api.baseUrl,
       _this = this;
     http.fetchGet(baseUrl + "/api/system/menu/list").then(res => {
-      _this.sidebarList = res.data.data;
-      this.sidebarList = this.toTreeData(this.sidebarList);
+      /*  _this.sidebarList = res.data.data; */
+      _this.sidebarList = this.toTreeData(res.data.data);
     });
   },
   methods: {
@@ -101,6 +101,7 @@ export default {
   top: 60px;
   bottom: 0;
   box-sizing: border-box;
+  z-index: 2;
 }
 .sidebar ::-webkit-scrollbar {
   width: 0;

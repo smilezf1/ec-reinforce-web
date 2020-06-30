@@ -61,7 +61,7 @@
   </div>
 </template>
 <script>
-import https from "../../http.js";
+import http from "../../http.js";
 import md5 from "js-md5";
 import { mapMutations } from "vuex";
 export default {
@@ -102,7 +102,7 @@ export default {
             verCode: verCode,
             guid: guid
           };
-          https
+          http
             .fetchPost(baseUrl + "/api/system/login/login", params)
             .then(res => {
               console.log(res)
@@ -119,7 +119,11 @@ export default {
                     _this.$router.push("/dashboard");
                   }
                 });
-              } else {
+              } else if(res.data.code==="05"){
+                 console.log("执行了吗")
+              }
+              
+              else {
                 let message = res.data.message;
                 _this.$message({
                   message: message,

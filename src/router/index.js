@@ -13,6 +13,8 @@ import signature from '@/components/page/signature'
 import recommend from '@/components/page/recommend'
 import userManagement from '@/components/page/userManagement'
 import VueRouter from 'vue-router'
+import xx from '@/components/common/xx.vue'
+import index from '@/components/treeTable/index.vue'
 Vue.use(Router);
 //解决 Element UI 导航栏重复点击菜单报错问题
 const originalPush = VueRouter.prototype.push;
@@ -23,6 +25,7 @@ const router = new Router({
     routes: [
         {
             path: "/",
+            /* component: index */
             redirect: '/dashboard'
         },
         {
@@ -68,7 +71,7 @@ const router = new Router({
                 {
                     path: "/recommend",
                     name: "recommend",
-                    component:recommend
+                    component: recommend
                 },
                 {
                     path: "/userManagement",
@@ -87,17 +90,17 @@ const router = new Router({
 })
 //导航守卫 使用router.beforeEach 注册一个全局前置守卫,判断用户是否登录
 router.beforeEach((to, from, next) => {
-   /*  if (to.path === "/Login") {
+    if (to.path === "/Login") {
         next()
     } else {
         let token = localStorage.getItem("Authorization");
         if (token === "null" || token === '') {
+            console.log("111")
             next('/Login')
         } else {
             next()
         }
-    } */
-    next()
+    }
 })
 
 export default router;

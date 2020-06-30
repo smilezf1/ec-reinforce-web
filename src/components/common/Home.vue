@@ -2,7 +2,7 @@
   <div class="Home">
     <Header></Header>
     <Slidebar></Slidebar>
- <!--    <xx></xx> -->
+    <!-- <xx></xx> -->
     <div class="content-box" :class="{ 'content-collapse': collapse }">
       <div class="content">
         <transition name="move" mode="out-in">
