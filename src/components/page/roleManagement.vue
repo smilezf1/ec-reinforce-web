@@ -8,6 +8,19 @@
         <i-table :columns="columns" :data="listItem"></i-table>
       </template>
     </div>
+    <div class="roleManagementBase">
+      <template>
+        <Page
+          :total="dataCount"
+          show-sizer
+          show-elevator
+          show-total
+          @on-change="handleChange"
+          @on-page-size-change="handleSizeChange"
+          style="margin-top:20px"
+        ></Page>
+      </template>
+    </div>
   </div>
 </template>
 <script>
@@ -36,21 +49,41 @@ export default {
         { title: "更新时间", key: "updateTime" },
         { title: "操作", key: "" }
       ],
-      listItem: []
+      listItem: [],
+      dataCount: 0,
+      curPage: 1,
+      limit: 10
     };
   },
+  methods: {
+    //获取后台数据
+    getData() {
+      let baseUrl = this.api.baseUrl,
+        _this = this;
+      https
+        .fetchPost(baseUrl + "/api/system/role/page", {
+          pn: this.curPage,
+          limit: this.limit
+        })
+        .then(res => {
+          _this.listItem = res.data.data.items;
+          _this.dataCount = res.data.data.count;
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    handleChange(val) {
+      this.curPage = val;
+      this.getData();
+    },
+    handleSizeChange(val) {
+      this.limit = val;
+      this.getData();
+    }
+  },
   mounted() {
-    let baseUrl = this.api.baseUrl,
-      params = { limit: 10, pn: 1 },
-      _this = this;
-    https
-      .fetchPost(baseUrl + "/api/system/role/page", params)
-      .then(res => {
-        _this.listItem = res.data.data.items;
-      })
-      .catch(error => {
-        console.log(error);
-      });
+    this.getData();
   }
 };
 </script>
@@ -58,7 +91,6 @@ export default {
 .roleManagementHeader {
   height: 50px;
   line-height: 50px;
-  padding-left: 20px;
   font-size: 14px;
 }
 </style>

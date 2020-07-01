@@ -26,13 +26,13 @@
       :width="column.width"
     >
       <template slot-scope="scope">
-       <!--  <template v-if="index === 0">
+        <template v-if="index === 0">
           <span
             v-for="space in scope.row._level"
             class="ms-tree-space"
             :key="space"
           ></span>
-        </template> -->
+        </template>
         <span
           class="tree-ctrl"
           v-if="iconShow(index, scope.row)"
@@ -105,3 +105,4 @@ export default {
   }
 };
 </script>
+

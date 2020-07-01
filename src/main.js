@@ -13,6 +13,7 @@ import axios from 'axios'
 import QS from 'qs';
 import guid from './guid'
 import VueRouter from 'vue-router';
+//树形结构表
 Vue.config.productionTip = false
 Vue.prototype.api = api; //全局变量地址  this.api.baseUrl
 Vue.prototype.guid = guid;

@@ -3,10 +3,80 @@
     <div class="userManagementHeader">
       <p>当前位置: 用户管理</p>
     </div>
+    <div class="searchForm">
+      <div class="searchBox">
+        <el-form :model="ruleForm" ref="ruleForm">
+          <el-input
+            placeholder="请输入用户姓名"
+            size="small"
+            v-model="ruleForm.trueName"
+          ></el-input>
+          <el-input
+            placeholder="请输入登录名"
+            size="small"
+            v-model="ruleForm.userName"
+          ></el-input>
+          <el-input
+            placeholder="请输入手机号"
+            size="small"
+            v-model="ruleForm.mobile"
+          ></el-input>
+          <el-input
+            placeholder="请输入邮箱"
+            size="small"
+            v-model="ruleForm.email"
+          ></el-input>
+          <el-select
+            placeholder="是否有效"
+            v-model="ruleForm.status"
+            size="small"
+          >
+            <el-option
+              v-for="item in options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+        </el-form>
+      </div>
+
+      <div class="operateBox">
+        <el-button
+          type="primary"
+          icon="el-icon-search"
+          size="small"
+          @click="search()"
+        ></el-button>
+        <el-button
+          type="primary"
+          icon="el-icon-zoom-in"
+          size="small"
+        ></el-button>
+        <el-button
+          type="primary"
+          icon="el-icon-refresh-right"
+          size="small"
+          @click="refresh()"
+        ></el-button>
+      </div>
+    </div>
     <div class="userManagementBody">
       <template>
-        <!-- <i-table :columns="tableColumn" :data="listItem"></i-table> -->
-        <treeTabl :data="data" :colums="columns"></treeTabl>
+        <i-table :columns="tableColumn" :data="listItem"></i-table>
+      </template>
+    </div>
+    <div class="userManagementBase">
+      <template>
+        <Page
+          :total="dataCount"
+          show-sizer
+          show-elevator
+          show-total
+          @on-change="handleChange"
+          @on-page-size-change="handleSizeChange"
+          style="margin-top:20px"
+        ></Page>
       </template>
     </div>
   </div>
@@ -19,9 +89,20 @@ export default {
   components: {
     treeTable
   },
-  /* data() {
+  data() {
     return {
-       tableColumn: [
+      ruleForm: {
+        trueName: "",
+        userName: "",
+        mobile: "",
+        email: "",
+        status: ""
+      },
+      options: [
+        { value: "选项1", lable: "是" },
+        { value: "选项2", lable: "否" }
+      ],
+      tableColumn: [
         { title: "序号", type: "index", width: "60", align: "center" },
         { title: "用户姓名", key: "trueName", align: "center" },
         { title: "登录名", key: "userName", align: "center" },
@@ -64,129 +145,13 @@ export default {
         { title: "更新时间", key: "updateTime", align: "center" },
         { title: "操作", key: "" }
       ],
-      listItem: [], 
-    };
-  },*/
-  data() {
-    return {
-      columns: [
-        {
-          text: "事件",
-          value: "event",
-          width: 200
-        },
-        {
-          text: "ID",
-          value: "id"
-        },
-        {
-          text: "时间线",
-          value: "timeLine"
-        },
-        {
-          text: "备注",
-          value: "comment"
-        }
-      ],
-      data: [
-        {
-          id: 0,
-          event: "事件1",
-          timeLine: 50,
-          comment: "无"
-        },
-        {
-          id: 1,
-          event: "事件1",
-          timeLine: 100,
-          comment: "无",
-          children: [
-            {
-              id: 2,
-              event: "事件2",
-              timeLine: 10,
-              comment: "无"
-            },
-            {
-              id: 3,
-              event: "事件3",
-              timeLine: 90,
-              comment: "无",
-              children: [
-                {
-                  id: 4,
-                  event: "事件4",
-                  timeLine: 5,
-                  comment: "无"
-                },
-                {
-                  id: 5,
-                  event: "事件5",
-                  timeLine: 10,
-                  comment: "无"
-                },
-                {
-                  id: 6,
-                  event: "事件6",
-                  timeLine: 75,
-                  comment: "无",
-                  children: [
-                    {
-                      id: 7,
-                      event: "事件7",
-                      timeLine: 50,
-                      comment: "无",
-                      children: [
-                        {
-                          id: 71,
-                          event: "事件71",
-                          timeLine: 25,
-                          comment: "xx"
-                        },
-                        {
-                          id: 72,
-                          event: "事件72",
-                          timeLine: 5,
-                          comment: "xx"
-                        },
-                        {
-                          id: 73,
-                          event: "事件73",
-                          timeLine: 20,
-                          comment: "xx"
-                        }
-                      ]
-                    },
-                    {
-                      id: 8,
-                      event: "事件8",
-                      timeLine: 25,
-                      comment: "无"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
+      curPage: 1,
+      limit: 10,
+      dataCount: 0,
+      listItem: []
     };
   },
-
-  mounted() {
-    let baseUrl = this.api.baseUrl,
-      params = { limit: 10, pn: 1 },
-      _this = this;
-    https
-      .fetchPost(baseUrl + "/api/system/user/page", params)
-      .then(res => {
-        _this.listItem = res.data.data.items;
-      })
-      .catch(error => {
-        console.log(error);
-      });
-    _this.initTableColumn("tableColumn");
-  },
+  inject: ["reload"],
   methods: {
     //气泡提示
     initTableColumn(columnName) {
@@ -200,7 +165,11 @@ export default {
                 "span",
                 {
                   slot: "content",
-                  style: { whiteSpace: "normal", wordBreak: "break-all" }
+                  style: {
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap"
+                  }
                 },
                 params.row[params.column.key]
               )
@@ -208,7 +177,46 @@ export default {
           });
         }
       }
+    },
+    //获取后台数据
+    getData(queryInfo) {
+      let baseUrl = this.api.baseUrl;
+      https
+        .fetchPost(baseUrl + "/api/system/user/page", {
+          pn: this.curPage,
+          limit: this.limit,
+          queryInfo
+        })
+        .then(res => {
+          console.log(res.data.data.items);
+          this.listItem = res.data.data.items;
+          this.dataCount = res.data.data.count;
+        });
+    },
+    handleChange(val) {
+      this.curPage = val;
+      this.getData();
+    },
+    handleSizeChange(val) {
+      this.limit = val;
+      this.getData();
+    },
+    search() {
+      let trueName = this.ruleForm.trueName,
+        userName = this.ruleForm.userName,
+        mobile = this.ruleForm.mobile,
+        email = this.ruleForm.email,
+        status = this.ruleForm.status,
+        queryInfo = { trueName, userName, mobile, email, status, queryInfo };
+      this.getData(queryInfo);
+    },
+    refresh() {
+      this.reload();
     }
+  },
+  mounted() {
+    this.getData();
+    this.initTableColumn("tableColumn");
   }
 };
 </script>
@@ -216,7 +224,25 @@ export default {
 .userManagementHeader {
   height: 50px;
   line-height: 50px;
-  padding-left: 20px;
   font-size: 14px;
+}
+.userManagementBody {
+  width: 99%;
+}
+.searchBox .el-input {
+  margin-right: 5px;
+}
+.el-input {
+  width: auto;
+}
+.searchForm {
+  display: flex;
+}
+.searchBox {
+  margin-bottom: 10px;
+  display: flex;
+}
+.operateBox {
+  margin-left: 20px;
 }
 </style>

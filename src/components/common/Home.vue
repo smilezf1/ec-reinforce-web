@@ -48,4 +48,7 @@ export default {
   padding-left: 280px;
   box-sizing: border-box;
 }
+.content{
+  padding-left:20px;
+}
 </style>

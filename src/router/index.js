@@ -14,6 +14,7 @@ import recommend from '@/components/page/recommend'
 import userManagement from '@/components/page/userManagement'
 import VueRouter from 'vue-router'
 import xx from '@/components/common/xx.vue'
+import yy from '@/components/common/yy.vue'
 import index from '@/components/treeTable/index.vue'
 Vue.use(Router);
 //解决 Element UI 导航栏重复点击菜单报错问题
@@ -26,7 +27,7 @@ const router = new Router({
         {
             path: "/",
             /* component: index */
-            redirect: '/dashboard'
+            component: yy
         },
         {
             path: "/",

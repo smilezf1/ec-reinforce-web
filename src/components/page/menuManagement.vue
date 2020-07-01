@@ -173,6 +173,7 @@ export default {
     https
       .fetchGet(baseUrl + "/api/system/menu/list")
       .then(res => {
+        console.log(res);
         _this.listItem = _this.toTreeData(res.data.data);
       })
       .catch(error => {
@@ -221,7 +222,6 @@ export default {
 .menuManagementHeader {
   line-height: 50px;
   line-height: 50px;
-  padding-left: 20px;
   font-size: 14px;
 }
 </style>

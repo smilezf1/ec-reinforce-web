@@ -4,12 +4,19 @@
       <p>当前位置:我的加固任务</p>
       <div class="dashboardBody">
         <template>
-          <i-table :columns="columns" :data="listItem"></i-table>
+          <i-table :columns="columns" :data="listItem.slice((curPage-1)*limit,curPage*limit)"></i-table>
         </template>
       </div>
       <div class="dashboardBase">
         <template>
-          <Page :total="100" show-sizer show-elevator show-total></Page>
+          <Page
+            :total="dataCount"
+            show-sizer
+            show-elevator
+            show-total
+            @on-change="handleChange"
+            @on-page-size-change="handleSizeChange"
+          ></Page>
         </template>
       </div>
     </div>
@@ -40,24 +47,38 @@ export default {
         { title: "更新时间", key: "updateTime", align: "center" },
         { title: "上传人", key: "userName", align: "center" }
       ],
+      curPage: 1,
+      limit: 10,
+      dataCount:0,
       listItem: [] //调用接口获取的数据
     };
   },
-  methods: {},
-  created() {
-    let baseUrl = this.api.baseUrl,
-      _this = this,
-      pn = _this.pn,
-      params = { limit: 10, pn: 1 };
-    https
-      .fetchPost(baseUrl + "/api/reinforce/info/page", params)
-      .then(res => {
-        let data = res.data.data.items;
-        _this.listItem = data;
-      })
-      .catch(error => {
-        console.log(error);
-      });
+  methods: {
+    //获取后台数据
+    getData() {
+      let baseUrl = this.api.baseUrl;
+      https
+        .fetchPost(baseUrl + "/api/reinforce/info/page", {
+          pn: this.curPage,
+          limit: this.limit
+        })
+        .then(res => {
+          this.listItem = res.data.data.items;
+          this.dataCount=res.data.data.count;
+        });
+    },
+    handleChange(val) {
+      this.curPage = val;
+      this.getData();
+    },
+    handleSizeChange(val) {
+      this.limit = val;
+      this.getData();
+    }
+  },
+  mounted() {
+    this.getData();
+    console.log(this.listItem);
   }
 };
 </script>
@@ -73,5 +94,13 @@ export default {
 }
 .dashboardBody {
   width: 99%;
+}
+.el-table thead {
+  color: #515a6e;
+  font-size: 15px;
+  font-weight: 500;
+}
+th {
+  font-weight: normal;
 }
 </style>

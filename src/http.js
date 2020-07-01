@@ -16,7 +16,7 @@ axios.interceptors.request.use(config => {
 //测试
 axios.interceptors.response.use(response => {
     if (response.data.code === "05") {
-        console.log("token过期")
+        console.log(this, "token过期")
         localStorage.removeItem('Authorization');
         this.$confirm("会话过期,请重新登录", '系统提示', {
             confirmButtonText: "确定",
