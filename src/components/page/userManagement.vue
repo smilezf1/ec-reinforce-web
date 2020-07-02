@@ -42,23 +42,30 @@
       </div>
 
       <div class="operateBox">
-        <el-button
-          type="primary"
-          icon="el-icon-search"
-          size="small"
-          @click="search()"
-        ></el-button>
-        <el-button
-          type="primary"
-          icon="el-icon-zoom-in"
-          size="small"
-        ></el-button>
-        <el-button
-          type="primary"
-          icon="el-icon-refresh-right"
-          size="small"
-          @click="refresh()"
-        ></el-button>
+        <el-tooltip effect="dark" content="查询" placement="top-start">
+          <el-button
+            type="primary"
+            icon="el-icon-search"
+            size="small"
+            @click="search()"
+          ></el-button>
+        </el-tooltip>
+        <el-tooltip effect="dark" content="新增" placement="top-start">
+          <el-button
+            type="primary"
+            icon="el-icon-zoom-in"
+            size="small"
+            @click="add()"
+          ></el-button>
+        </el-tooltip>
+        <el-tooltip effect="dark" content="刷新" placement="top-start">
+          <el-button
+            type="primary"
+            icon="el-icon-refresh-right"
+            size="small"
+            @click="refresh()"
+          ></el-button>
+        </el-tooltip>
       </div>
     </div>
     <div class="userManagementBody">
@@ -209,6 +216,9 @@ export default {
         status = this.ruleForm.status,
         queryInfo = { trueName, userName, mobile, email, status, queryInfo };
       this.getData(queryInfo);
+    },
+    add() {
+      console.log("新增");
     },
     refresh() {
       this.reload();

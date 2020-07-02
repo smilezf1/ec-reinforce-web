@@ -1,21 +1,22 @@
 <template>
   <div class="yy">
-    <el-table
-      ref="menusTable"
-      :row-style="showRow"
-      :data="menusTable"
-      v-bind="$attrs"
-    >
-      <el-table-column prop="name" lable="资源名称">
+    <el-table ref="menusTable" :row-style="showRow" :data="menusTable">
+      <el-table-column prop="name" label="资源名称">
         <template slot-scope="scope">
-          <span :class="['level' + scope.row.level]">
+          <span :class="['type' + scope.row.type]">
             <i
               v-if="scope.row.children"
-              @click="opentToggle(scope.row)"
+              @click="openToggle(scope.row)"
               :class="[
                 scope.row.open ? 'el-icon-caret-bottom' : 'el-icon-caret-right'
               ]"
             ></i>
+            <span v-if="scope.row.type === 'M'"
+              ><i class="el-icon-folder"></i
+            ></span>
+            <span v-if="scope.row.type === 'T'"
+              ><i class="el-icon-document"></i
+            ></span>
             {{ scope.row.name }}
           </span>
         </template>
@@ -52,6 +53,7 @@
 </template>
 <script>
 import http from "../../http";
+import Vue from "vue";
 export default {
   data() {
     return {
@@ -59,12 +61,6 @@ export default {
       menusTree: [],
       menusTable: []
     };
-  },
-  mounted() {
-    let baseUrl = this.api.baseUrl;
-    http.fetchGet(baseUrl + "/api/system/menu/list").then(res => {
-      this.menusTable = this.toTreeData(res.data.data);
-    });
   },
   methods: {
     toTreeData(data) {
@@ -91,20 +87,16 @@ export default {
       return treeData;
     },
     showRow(row) {
-      console.log(row.row.parent);
       const show = row.row.parent
-        ? row.row.parent._expanded && row.row.parent._show
-        : true;
-      /* const show = row.row.parent
         ? row.row.parent._expanded && row.row.parent._show
         : true;
       row.row._show = show;
       return show
         ? "animation:treeTableShow 1s;-webkit-animation:treeTableShow 1s;"
-        : "display:none;"; */
+        : "display:none;";
     },
     //树节点开关操作
-    opentToggle(item) {
+    openToggle(item) {
       //展开和关闭样式的变换方法
       Vue.set(item, "open", !item.open);
       //展开的时候,显示子节点,关闭的时候隐藏子节点,遍历所有的子节点,加入到menusTable
@@ -114,6 +106,7 @@ export default {
           continue;
         }
         if (item.open) {
+          console.log("哈哈");
           let menusTable = this.menusTable;
           item.children.forEach((child, index) => {
             menusTable.splice(j + index + 1, 0, child); //添加子节点
@@ -124,26 +117,21 @@ export default {
         break;
       }
     }
+  },
+  created() {
+    let baseUrl = this.api.baseUrl;
+    http.fetchGet(baseUrl + "/api/system/menu/list").then(res => {
+      this.menusTable = this.toTreeData(res.data.data);
+    });
   }
 };
 </script>
 <style>
-.level1,
-.level2,
-.level3 {
-  display: inline-block;
-  width: 20px;
-}
-
-.level1 {
+.typeM {
   margin-left: 5px;
 }
 
-.level2 {
+.typeT {
   margin-left: 20px;
-}
-
-.level3 {
-  margin-left: 35px;
 }
 </style>

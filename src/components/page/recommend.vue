@@ -9,22 +9,28 @@
         <div class="section">
           <div class="left">
             <p class="name">
-              平台名称:<span>{{ listItem.companyName }}</span>
+              <span> 平台名称:</span>
+              <span>{{ listItem.companyName }}</span>
             </p>
             <p class="version">
-              版本:<span>{{ listItem.version }}</span>
+              <span>版&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本:</span>
+              <span>{{ listItem.version }}</span>
             </p>
             <p class="describe">
-              内容描述:<span>{{ listItem.description }}</span>
+              <span>内容描述:</span>
+              <span>{{ listItem.description }}</span>
             </p>
             <p class="copyright">
-              版权所有:<span>{{ listItem.copyright }}</span>
+              <span>版权所有:</span>
+              <span>{{ listItem.copyright }}</span>
             </p>
             <p class="phone">
-              客服电话:<span>{{ listItem.servicePhone }}</span>
+              <span>客服电话:</span>
+              <span>{{ listItem.servicePhone }}</span>
             </p>
             <p class="address">
-              地址:<span>{{ listItem.address }}</span>
+              <span>地&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;址:</span>
+              <span>{{ listItem.address }}</span>
             </p>
           </div>
           <div class="right">
@@ -95,12 +101,18 @@ export default {
 }
 .recommendContentBody p {
   font-size: 14px;
-  font-weight: bold;
   margin: 20px 0;
+  text-align: justify;
+}
+.recommendContentBody p span:first-child {
+  font-weight: bold;
+  text-align: justify;
+}
+.recommendContentBody .nameText {
+  font-weight: bold;
 }
 .recommendContentBody span {
   font-weight: normal;
-  padding-left:10px;
 }
 .recommendContentBody .describe {
   line-height: 30px;

@@ -44,7 +44,7 @@ export default {
         { title: "应用名称", key: "appName", align: "center" },
         { title: "应用版本", key: "appVersion", align: "center" },
         { title: "创建时间", key: "createTime", align: "center" },
-        { title: "更新时间", key: "updateTime", align: "center" },
+      /*   { title: "更新时间", key: "updateTime", align: "center" }, */
         { title: "上传人", key: "userName", align: "center" }
       ],
       curPage: 1,

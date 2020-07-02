@@ -5,180 +5,137 @@
     </div>
     <div class="menuManagementBody">
       <template>
-        <!--  <i-table :columns="tableColumns()" :data="listItem"></i-table> -->
-        <treeTable :data="data" :colums="columns"></treeTable>
+        <el-table ref="menusTable" :row-style="showRow" :data="menusTable">
+          <el-table-column prop="name" label="资源名称">
+            <template slot-scope="scope">
+              <span :class="['type' + scope.row.type]">
+                <i
+                  v-if="scope.row.children"
+                  @click="openToggle(scope.row)"
+                  :class="[
+                    scope.row.open
+                      ? 'el-icon-caret-bottom'
+                      : 'el-icon-caret-right'
+                  ]"
+                ></i>
+                <span v-if="scope.row.type === 'M'"
+                  ><i class="el-icon-folder"></i
+                ></span>
+                <span v-if="scope.row.type === 'T'"
+                  ><i class="el-icon-document"></i
+                ></span>
+                {{ scope.row.name }}
+              </span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="address" label="资源路径">
+            <template slot-scope="scope">
+              {{ scope.row.address }}
+            </template>
+          </el-table-column>
+          <el-table-column prop="icon" label="资源图标">
+            <template slot-scope="scope">
+              <span>{{ scope.row.icon }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="type" label="资源类型">
+            <template slot-scope="scope">
+              <span v-if="scope.row.type === 'M'">目录</span>
+              <span v-if="scope.row.type === 'T'">链接</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="operation" label="操作">
+            <template slot-scope="scope">
+              <el-tooltip effect="dark" content="编辑" placement="top-start">
+                <i
+                  class="el-icon-edit-outline editIcon"
+                  @click="edit(scope.row.id)"
+                ></i>
+              </el-tooltip>
+              <el-drawer
+                title="编辑"
+                :visible.sync="editDrawer"
+                :with-header="false"
+                :wrapperClosable="false"
+                :close-on-press-escape="false"
+                ref="editDrawer"
+              >
+                <div class="el-drawer-header">
+                  <h3>编辑</h3>
+                </div>
+                <div class="el-drawer-content">
+                  <el-form :model="form">
+                    <el-form-item label="资源名称">
+                      <el-input
+                        v-model="form.name"
+                        auto-complete="off"
+                      ></el-input>
+                    </el-form-item>
+                    <el-form-item label="资源类型">
+                      <el-input v-model="form.type" :disabled="true"
+                        >目录</el-input
+                      >
+                    </el-form-item>
+                    <el-form-item label="资源图标">
+                      <el-input
+                        v-model="form.icon"
+                        auto-complete="off"
+                      ></el-input>
+                    </el-form-item>
+                  </el-form>
+                </div>
+                <div class="el-drawer-footer">
+                  <el-button type="primary" @click="save(form)">保存</el-button>
+                  <el-button @click="cancelForm" plain>取消</el-button>
+                </div>
+              </el-drawer>
+              <el-tooltip effect="dark" content="新增目录" placement="top-start"
+                ><i class="el-icon-document-add addCatalogueIcon"></i
+              ></el-tooltip>
+              <!-- 只有在资源类型为目录时才能显示新增链接 -->
+              <el-tooltip
+                effect="dark"
+                content="新增链接"
+                placement="top-start"
+              >
+                <i
+                  class="el-icon-link addLinkIcon"
+                  v-if="scope.row.children"
+                ></i>
+              </el-tooltip>
+              <el-tooltip effect="dark" content="停用" placement="top-start">
+                <i class="el-icon-circle-close closeIcon"></i>
+              </el-tooltip>
+              <!--    <el-tooltip effect="dark" content="启用" placement="top-start">
+                <i class="el-icon-circle-check checkIcon"></i>
+              </el-tooltip> -->
+              {{ scope.row.operation }}
+            </template>
+          </el-table-column>
+        </el-table>
       </template>
     </div>
   </div>
 </template>
 <script>
 import https from "../../http.js";
-import treeTable from "@/components/treeTable";
+import Vue from "vue";
 export default {
   name: "menuManagement",
-  components: { treeTable },
-  /*  data() {
-    return {
-      columns: [
-        { title: "资源名称", key: "name" },
-        { title: "资源路径", key: "address" },
-        { title: "资源图标", key: "icon" },
-        {
-          title: "资源类型",
-          key: "type",
-          render: (h, params) => {
-            let text = "";
-            if (params.row.type === "M") {
-              text = "目录";
-            }
-            if (params.row.type === "T") {
-              text = "链接";
-            }
-            return h("div", text);
-            console.log(params.row.type);
-          }
-        },
-        { title: "操作", key: "" }
-      ],
-      listItem: [],
-      columns1: [
-        {
-          text: "事件",
-          value: "event",
-          width: 200
-        },
-        {
-          text: "ID",
-          value: "id"
-        },
-        {
-          text: "时间线",
-          value: "timeLine"
-        },
-        {
-          text: "备注",
-          value: "comment"
-        }
-      ]
-    };
-  }, */
   data() {
     return {
-      columns: [
-        {
-          text: "事件",
-          value: "event",
-          width: 200
-        },
-        {
-          text: "ID",
-          value: "id"
-        },
-        {
-          text: "时间线",
-          value: "timeLine"
-        },
-        {
-          text: "备注",
-          value: "comment"
-        }
-      ],
-      data: [
-        {
-          id: 0,
-          event: "事件1",
-          timeLine: 50,
-          comment: "无"
-        },
-        {
-          id: 1,
-          event: "事件1",
-          timeLine: 100,
-          comment: "无",
-          children: [
-            {
-              id: 2,
-              event: "事件2",
-              timeLine: 10,
-              comment: "无"
-            },
-            {
-              id: 3,
-              event: "事件3",
-              timeLine: 90,
-              comment: "无",
-              children: [
-                {
-                  id: 4,
-                  event: "事件4",
-                  timeLine: 5,
-                  comment: "无"
-                },
-                {
-                  id: 5,
-                  event: "事件5",
-                  timeLine: 10,
-                  comment: "无"
-                },
-                {
-                  id: 6,
-                  event: "事件6",
-                  timeLine: 75,
-                  comment: "无",
-                  children: [
-                    {
-                      id: 7,
-                      event: "事件7",
-                      timeLine: 50,
-                      comment: "无",
-                      children: [
-                        {
-                          id: 71,
-                          event: "事件71",
-                          timeLine: 25,
-                          comment: "xx"
-                        },
-                        {
-                          id: 72,
-                          event: "事件72",
-                          timeLine: 5,
-                          comment: "xx"
-                        },
-                        {
-                          id: 73,
-                          event: "事件73",
-                          timeLine: 20,
-                          comment: "xx"
-                        }
-                      ]
-                    },
-                    {
-                      id: 8,
-                      event: "事件8",
-                      timeLine: 25,
-                      comment: "无"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
+      //菜单树结构数据
+      menusTree: [],
+      menusTable: [],
+      editDrawer: false,
+      form: {
+        name: "",
+        type: "",
+        icon: ""
+      },
+      formLabelWidth: "80px",
+      id: null
     };
-  },
-  created() {
-    let baseUrl = this.api.baseUrl,
-      _this = this;
-    https
-      .fetchGet(baseUrl + "/api/system/menu/list")
-      .then(res => {
-        console.log(res);
-        _this.listItem = _this.toTreeData(res.data.data);
-      })
-      .catch(error => {
-        console.log(error);
-      });
   },
   methods: {
     toTreeData(data) {
@@ -204,17 +161,91 @@ export default {
       });
       return treeData;
     },
-    tableColumns() {
-      let renderCols = Object.assign([], this.columns); //复制一份columns
-      //设置render
-      let expandRender = {
-        type: "expand",
-        width: 50, //展开列的宽度(箭头符号)
-        render: (h, params) => {
-          //复制属性,如果Vue中没有props
+    showRow(row) {
+      const show = row.row.parent
+        ? row.row.parent._expanded && row.row.parent._show
+        : true;
+      row.row._show = show;
+      return show
+        ? "animation:treeTableShow 1s;-webkit-animation:treeTableShow 1s;"
+        : "display:none;";
+    },
+    //树节点开关操作
+    openToggle(item) {
+      //展开和关闭样式的变换方法
+      Vue.set(item, "open", !item.open);
+      //展开的时候,显示子节点,关闭的时候隐藏子节点,遍历所有的子节点,加入到menusTable
+      for (let j = 0; j < this.menusTable.length; j++) {
+        //找到父节点的id,然后依次把子节点放到数组里面父节点里面
+        if (this.menusTable[j].id !== item.id) {
+          continue;
         }
-      };
+        if (item.open) {
+          let menusTable = this.menusTable;
+          item.children.forEach((child, index) => {
+            menusTable.splice(j + index + 1, 0, child); //添加子节点
+          });
+        } else {
+          this.menusTable.splice(j + 1, item.children.length);
+        }
+        break;
+      }
+    },
+    cancelForm() {
+      this.editDrawer = false;
+    },
+    edit(id) {
+      let baseUrl = this.api.baseUrl,
+        ids = id;
+      this.editDrawer = true;
+      https
+        .fetchGet(baseUrl + "/api/system/menu/detail", { id: ids })
+        .then(res => {
+          let form = this.form,
+            data = res.data.data;
+          form.name = data.name;
+          form.type = data.type;
+          form.icon = data.icon;
+          this.id = data.id;
+          if (data.type === "M") {
+            form.type = "目录";
+          }
+          if (data.type === "T") {
+            form.type = "链接";
+          }
+          form.icon = data.icon;
+        });
+    },
+    save(form) {
+      let id = parseInt(this.id),
+        baseUrl = this.api.baseUrl,
+        name = form.name,
+        icon = form.icon,
+        type = form.type;
+      this.$refs.editDrawer.closeDrawer();
+      console.log(id, name, icon, type);
+      https
+        .fetchPost(baseUrl + "/api/system/menu/save", { id, name, icon, type })
+        .then(res => {
+          console.log(res);
+        });
+      https
+        .fetchGet(baseUrl + "/api/system/menu/detail", { id: 1 })
+        .then(res => {
+          console.log(res);
+        });
+      /*  this.$notify.success({
+        message: "保存成功",
+        showClose: false
+      }); */
     }
+  },
+
+  created() {
+    let baseUrl = this.api.baseUrl;
+    https.fetchGet(baseUrl + "/api/system/menu/list").then(res => {
+      this.menusTable = this.toTreeData(res.data.data);
+    });
   }
 };
 </script>
@@ -223,5 +254,57 @@ export default {
   line-height: 50px;
   line-height: 50px;
   font-size: 14px;
+}
+.typeM {
+  margin-left: 5px;
+}
+
+.typeT {
+  margin-left: 20px;
+}
+.el-table {
+  font-size: 12px;
+  border: 1px solid #dcdee2;
+}
+.el-table thead {
+  color: #515a6e;
+}
+.el-table__header-wrapper {
+  background: #f8f8f9;
+}
+.el-table__header-wrapper th {
+  background: #f2f5f7;
+}
+.editIcon,
+.addCatalogueIcon,
+.addLinkIcon,
+.closeIcon,
+.checkIcon {
+  font-size: 22px;
+  color: #207ba6;
+  margin-right: 5px;
+  cursor: pointer;
+}
+.el-table ::before {
+  background: white;
+}
+.el-drawer-header {
+  height: 50px;
+  padding: 17px 20px;
+  border-bottom: 1px solid #ebebeb;
+}
+.el-drawer-header h3 {
+  color: #333;
+  font-size: 16px;
+  font-weight: 600;
+}
+.el-form {
+  margin-top: 20px;
+  padding-left: 20px;
+}
+.el-drawer-footer {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
 }
 </style>

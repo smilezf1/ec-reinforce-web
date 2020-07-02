@@ -119,7 +119,7 @@ export default {
   color: #fff !important;
 }
 .el-menu-item.is-active {
-  background: #409eff63 !important;
+  background: #409eff !important;
   color: white !important;
 }
 .el-submenu__icon-arrow {

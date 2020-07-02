@@ -1,6 +1,8 @@
 import axios from 'axios';
 import qs from 'qs';
 import router from './router'
+import Vue from 'vue';//引入vue
+let v = new Vue();
 axios.defaults.timeout = 5000;//响应时间
 axios.defaults.headers.post['Content-Type'] = "application/json";
 axios.defaults.baseUrl = 'http://192.168.3.58:9990/manxi-reinforce';//配置接口地址
@@ -16,13 +18,13 @@ axios.interceptors.request.use(config => {
 //测试
 axios.interceptors.response.use(response => {
     if (response.data.code === "05") {
-        console.log(this, "token过期")
+        console.log(this, "token过期");
         localStorage.removeItem('Authorization');
-        this.$confirm("会话过期,请重新登录", '系统提示', {
-            confirmButtonText: "确定",
-            type: "warning"
-        }).then(() => {
-            router.push({ name: "Login" })
+        v.$alert('会话过期,请重新登录', '系统提示', {
+            confirmButtonText: '确定',
+            callback: action => {
+                router.push({ name: "Login" })
+            }
         })
     }
     return response
@@ -30,6 +32,7 @@ axios.interceptors.response.use(response => {
 
 //返回一个Promise(发送post请求)
 export function fetchPost(url, params) {
+    console.log(url, params);
     return new Promise((resolve, reject) => {
         axios.post(url, params).then(res => {
             resolve(res);

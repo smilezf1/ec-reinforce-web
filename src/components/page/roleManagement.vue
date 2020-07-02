@@ -3,6 +3,55 @@
     <div class="roleManagementHeader">
       <p>当前位置: 角色管理</p>
     </div>
+    <div class="searchForm">
+      <div class="searchBox">
+        <el-form :model="ruleForm" ref="ruleForm">
+          <el-input
+            placeholder="请输入角色名称"
+            size="small"
+            v-model="ruleForm.name"
+          ></el-input>
+          <el-select
+            placeholder="是否有效"
+            v-model="ruleForm.status"
+            size="small"
+          >
+            <el-option
+              v-for="item in options"
+              :key="item.value"
+              :label="item.lable"
+              :value="item.value"
+            ></el-option>
+          </el-select>
+        </el-form>
+      </div>
+      <div class="operateBox">
+        <el-tooltip effect="dark" content="查询" placement="top-start">
+          <el-button
+            type="primary"
+            icon="el-icon-search"
+            size="small"
+            @click="search()"
+          ></el-button>
+        </el-tooltip>
+        <el-tooltip effect="dark" content="新增" placement="top-start">
+          <el-button
+            type="primary"
+            icon="el-icon-zoom-in"
+            size="small"
+            @click="add()"
+          ></el-button>
+        </el-tooltip>
+        <el-tooltip effect="dark" content="刷新" placement="top-start">
+          <el-button
+            type="primary"
+            icon="el-icon-refresh-right"
+            size="small"
+            @click="refresh()"
+          ></el-button>
+        </el-tooltip>
+      </div>
+    </div>
     <div class="roleManagementBody">
       <template>
         <i-table :columns="columns" :data="listItem"></i-table>
@@ -29,6 +78,14 @@ export default {
   name: "roleManagement",
   data() {
     return {
+      ruleForm: {
+        name: "",
+        status: ""
+      },
+      options: [
+        { value: "选项1", label: "是" },
+        { value: "选项2", label: "否" }
+      ],
       columns: [
         { title: "序号", type: "index", width: 60, align: "center" },
         { title: "角色名称", key: "name" },
@@ -55,6 +112,7 @@ export default {
       limit: 10
     };
   },
+  inject: ["reload"],
   methods: {
     //获取后台数据
     getData() {
@@ -80,6 +138,15 @@ export default {
     handleSizeChange(val) {
       this.limit = val;
       this.getData();
+    },
+    search() {
+      consol.log("查询");
+    },
+    add() {
+      console.log("新增");
+    },
+    refresh() {
+      this.reload();
     }
   },
   mounted() {
@@ -92,5 +159,21 @@ export default {
   height: 50px;
   line-height: 50px;
   font-size: 14px;
+}
+.searchBox .el-input {
+  margin-right: 5px;
+}
+.el-input {
+  width: auto;
+}
+.searchForm {
+  display: flex;
+}
+.searchBox {
+  margin-bottom: 10px;
+  display: flex;
+}
+.operateBox {
+  margin-left: 20px;
 }
 </style>

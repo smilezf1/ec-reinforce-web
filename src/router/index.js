@@ -27,7 +27,7 @@ const router = new Router({
         {
             path: "/",
             /* component: index */
-            component: yy
+            component: Login
         },
         {
             path: "/",

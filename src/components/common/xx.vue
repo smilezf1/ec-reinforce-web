@@ -120,11 +120,9 @@ export default {
   },
   methods: {
     showRow: function(row) {
-      console.log(row.row.parent);
       const show = row.row.parent
         ? row.row.parent._expanded && row.row.parent._show
         : true;
-      console.log(show);
       row.row._show = show;
       return show
         ? "animation:treeTableShow 1s;-webkit-animation:treeTableShow 1s;"
@@ -133,7 +131,7 @@ export default {
 
     // 树节点开关操作
     openToggle: function(item) {
-      // 这里只是展开和关闭样式的变换方法
+      // 这里只是展开和关闭样式的变换方法 item源数据 open 要修改数据的键  !item.open要修改的数据
       Vue.set(item, "open", !item.open);
       // 展开的时候，显示子节点，关闭的时候隐藏子节点
       // 遍历所有的子节点，加入到menuTable中
@@ -144,7 +142,6 @@ export default {
         }
         if (item.open) {
           // open => close
-          console.log(item.children);
           let menusTable = this.menusTable;
           item.children.forEach(function(child, index) {
             menusTable.splice(j + index + 1, 0, child); // 添加子节点
@@ -159,13 +156,13 @@ export default {
 };
 </script>
 
-<style scoped>
+ <style>
 .level1,
 .level2,
 .level3 {
   display: inline-block;
   width: 20px;
-}
+} 
 
 .level1 {
   margin-left: 5px;
