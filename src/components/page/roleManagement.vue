@@ -241,14 +241,24 @@ export default {
     },
     add() {},
     edit(id) {
-      console.log(this.editDrawer);
       this.editDrawer = true;
+      let baseUrl = this.api.baseUrl;
+      https.fetchGet(baseUrl + "/api/system/role/detail", { id }).then(res => {
+        console.log(res.data.data);
+      });
     },
     refresh() {
       this.reload();
     },
     saveEditForm(formName, editForm) {
-      console.log(formName, editForm);
+      /* let baseUrl = this.api.baseUrl,
+        name = editForm.name,
+        status = editForm.status;
+      https
+        .fetchPost(baseUrl + "/api/system/role/save", { name, status })
+        .then(res => {
+          console.log(res);
+        }); */
     },
     cancelForm() {
       this.editDrawer = false;
