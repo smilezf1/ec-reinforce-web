@@ -22,6 +22,7 @@ axios.interceptors.response.use(response => {
         localStorage.removeItem('Authorization');
         v.$alert('会话过期,请重新登录', '系统提示', {
             confirmButtonText: '确定',
+            type: 'warning',
             callback: action => {
                 router.push({ name: "Login" })
             }
@@ -32,7 +33,6 @@ axios.interceptors.response.use(response => {
 
 //返回一个Promise(发送post请求)
 export function fetchPost(url, params) {
-    console.log(url, params);
     return new Promise((resolve, reject) => {
         axios.post(url, params).then(res => {
             resolve(res);

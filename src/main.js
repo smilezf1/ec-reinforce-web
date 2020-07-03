@@ -27,3 +27,31 @@ new Vue({
   components: { App },
   template: '<App/>'
 })
+router.beforeEach((to, from, next) => {
+  console.log(to)
+  if (to.meta.requireAuth) {//判断路由是否需要登录权限
+    if (localStorage.getItem('Authorization')) {
+      next()
+    } else {
+      if (to.path === '/Login') {
+        next()
+      } else {
+        next({
+          path: "/Login"
+        })
+      }
+    }
+
+  } else {
+    next()
+  }
+  if (to.fullPath == "/Login") {
+    if (localStorage.getItem("Authorization")) {
+      next({
+        path: from.fullPath
+      })
+    } else {
+      next()
+    }
+  }
+})

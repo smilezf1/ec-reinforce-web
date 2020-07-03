@@ -26,60 +26,69 @@ const router = new Router({
     routes: [
         {
             path: "/",
-            /* component: index */
+            name: "Login",
             component: Login
         },
         {
-            path: "/",
+            path: "/Home",
             component: Home,
+            meta: { requireAuth: true },//判断是否需要登录
             children: [
-                { path: "/dashboard", name: "dashboard", component: dashboard },
+                { path: "/dashboard", name: "dashboard", component: dashboard, meta: { requireAuth: true } },
                 {
                     path: "/menuManagement",
                     name: "menuManagement",
-                    component: menuManagement
+                    component: menuManagement,
+                    meta: { requireAuth: true }
                 },
                 {
                     path: "/reinforceItem",
                     name: "reinforceItem",
-                    component: reinforceItem
+                    component: reinforceItem,
+                    meta: { requireAuth: true }
                 },
                 {
                     path: "/reinforceStrategy",
                     name: "reinforceStrategy",
-                    component: reinforceStrategy
+                    component: reinforceStrategy,
+                    meta: { requireAuth: true }
                 },
                 {
                     path: "/channelStrategy",
                     name: "channelStrategy",
-                    component: channelStrategy
+                    component: channelStrategy,
+                    meta: { requireAuth: true }
                 },
                 {
                     path: "/reinforce",
                     name: "reinforce",
-                    component: reinforce
+                    component: reinforce,
+                    meta: { requireAuth: true }
                 },
                 {
                     path: "/roleManagement",
                     name: "roleManagement",
-                    component: roleManagement
+                    component: roleManagement,
+                    meta: { requireAuth: true }
                 },
                 {
                     path: "/signature",
                     name: "signature",
-                    component: signature
+                    component: signature,
+                    meta: { requireAuth: true }
                 },
                 {
                     path: "/recommend",
                     name: "recommend",
-                    component: recommend
+                    component: recommend,
+                    meta: { requireAuth: true }
                 },
                 {
                     path: "/userManagement",
                     name: "userManagement",
-                    component: userManagement
+                    component: userManagement,
+                    meta: { requireAuth: true }
                 }
-
             ]
         },
         {
@@ -89,20 +98,5 @@ const router = new Router({
         },
     ]
 })
-//导航守卫 使用router.beforeEach 注册一个全局前置守卫,判断用户是否登录
-router.beforeEach((to, from, next) => {
-    if (to.path === "/Login") {
-        next()
-    } else {
-        let token = localStorage.getItem("Authorization");
-        if (token === "null" || token === '') {
-            console.log("111")
-            next('/Login')
-        } else {
-            next()
-        }
-    }
-})
-
 export default router;
 

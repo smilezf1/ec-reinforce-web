@@ -10,7 +10,11 @@
     >
       <template v-for="item in sidebarList">
         <template v-if="item.children">
-          <el-submenu :index="item.id" :key="item.id">
+          <el-submenu
+            :index="item.id"
+            :key="item.id"
+            v-if="item.status === '1'"
+          >
             <template slot="title">
               <i :class="item.icon"></i>
               <span slot="title">{{ item.name }}</span>
@@ -28,14 +32,18 @@
                   >{{ threeItem.name }}</el-menu-item
                 >
               </el-submenu>
-              <el-menu-item v-else :index="subItem.address" :key="subItem.id">{{
-                subItem.name
+              <el-menu-item v-if="subItem.children==''||subItem.status==1" :index="subItem.address" :key="subItem.id">{{
+                subItem.name 
               }}</el-menu-item>
             </template>
           </el-submenu>
         </template>
         <template v-else>
-          <el-menu-item :index="item.address" :key="item.id">
+          <el-menu-item
+            :index="item.id"
+            :key="item.id"
+            v-if="item.status === '1'"
+          >
             <i :class="item.icon"></i>
             <span slot="title">{{ item.name }}</span>
           </el-menu-item>

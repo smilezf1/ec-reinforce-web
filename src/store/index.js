@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import { use } from 'vue/types/umd';
 Vue.use(Vuex);
+let loginstatus = true;
 const store = new Vuex.Store({
     state: {
         //存储token
@@ -12,7 +13,7 @@ const store = new Vuex.Store({
         changeLogin(state, user) {
             state.Authorization = user.Authorization;
             localStorage.setItem('Authorization', user.Authorization)
-        }
+        },
     }
 })
 export default store;

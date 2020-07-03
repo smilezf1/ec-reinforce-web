@@ -3,6 +3,62 @@
     <div class="menuManagementHeader">
       <p>当前位置:菜单管理</p>
     </div>
+    <div class="operateBox">
+      <el-tooltip effect="dark" content="新增目录" placement="top-start">
+        <el-button
+          type="primary"
+          icon="el-icon-plus"
+          size="small"
+          @click="addCatalogue()"
+        ></el-button>
+      </el-tooltip>
+      <el-drawer
+        title="新增目录"
+        :visible.sync="addDrawer"
+        :with-header="false"
+        :wrapperClosable="false"
+        :close-on-press-escape="false"
+        ref="addDrawer"
+      >
+        <div class="el-drawer-header">
+          <h3>新增目录</h3>
+        </div>
+        <div class="el-drawer-content">
+          <el-form
+            :model="addCatalogueForm"
+            :rules="rules"
+            ref="addCatalogueForm"
+          >
+            <el-form-item label="资源名称" prop="name">
+              <el-input v-model="addCatalogueForm.name" auto-complete="off"
+                >11</el-input
+              >
+            </el-form-item>
+            <el-form-item label="资源类型">
+              <el-input
+                v-model="addCatalogueForm.type"
+                :disabled="true"
+                placeholder="目录"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="资源图标">
+              <el-input
+                v-model="addCatalogueForm.icon"
+                auto-complete="off"
+              ></el-input>
+            </el-form-item>
+          </el-form>
+        </div>
+        <div class="el-drawer-footer">
+          <el-button
+            type="primary"
+            @click="saveAddCatalogue('addCatalogueForm', addCatalogueForm)"
+            >保存</el-button
+          >
+          <el-button @click="cancelAddCatalogueForm" plain>取消</el-button>
+        </div>
+      </el-drawer>
+    </div>
     <div class="menuManagementBody">
       <template>
         <el-table ref="menusTable" :row-style="showRow" :data="menusTable">
@@ -64,17 +120,15 @@
                   <h3>编辑</h3>
                 </div>
                 <div class="el-drawer-content">
-                  <el-form :model="form">
-                    <el-form-item label="资源名称">
+                  <el-form :model="form" :rules="rules" ref="form">
+                    <el-form-item label="资源名称" prop="name">
                       <el-input
                         v-model="form.name"
                         auto-complete="off"
                       ></el-input>
                     </el-form-item>
                     <el-form-item label="资源类型">
-                      <el-input v-model="form.type" :disabled="true"
-                        >目录</el-input
-                      >
+                      <el-input v-model="form.type" :disabled="true"></el-input>
                     </el-form-item>
                     <el-form-item label="资源图标">
                       <el-input
@@ -85,13 +139,18 @@
                   </el-form>
                 </div>
                 <div class="el-drawer-footer">
-                  <el-button type="primary" @click="save(form)">保存</el-button>
+                  <el-button type="primary" @click="save('form', form)"
+                    >保存</el-button
+                  >
                   <el-button @click="cancelForm" plain>取消</el-button>
                 </div>
               </el-drawer>
-              <el-tooltip effect="dark" content="新增目录" placement="top-start"
-                ><i class="el-icon-document-add addCatalogueIcon"></i
-              ></el-tooltip>
+              <!--    <el-tooltip effect="dark" content="新增目录" placement="top-start"
+                ><i
+                  class="el-icon-document-add addCatalogueIcon"
+                  @click="addCatalogue()"
+                ></i
+              ></el-tooltip> -->
               <!-- 只有在资源类型为目录时才能显示新增链接 -->
               <el-tooltip
                 effect="dark"
@@ -100,15 +159,78 @@
               >
                 <i
                   class="el-icon-link addLinkIcon"
-                  v-if="scope.row.children"
+                  v-if="scope.row.type === 'M'"
+                  @click="addLink(scope.row.id)"
                 ></i>
               </el-tooltip>
-              <el-tooltip effect="dark" content="停用" placement="top-start">
-                <i class="el-icon-circle-close closeIcon"></i>
+              <el-drawer
+                title="新增链接"
+                :visible.sync="addLinkDrawer"
+                :with-header="false"
+                :wrapperClosable="false"
+                :close-on-press-escape="false"
+                ref="addLinkDrawer"
+              >
+                <div class="el-drawer-header">
+                  <h3>新增链接</h3>
+                </div>
+                <div class="el-drawer-content">
+                  <el-form
+                    :model="addLinkForm"
+                    :rules="rules"
+                    ref="addLinkForm"
+                  >
+                    <el-form-item label="资源名称" prop="name">
+                      <el-input
+                        v-model="addLinkForm.name"
+                        auto-complete="off"
+                      ></el-input>
+                    </el-form-item>
+                    <el-form-item label="资源类型">
+                      <el-input
+                        v-model="addLinkForm.type"
+                        :disabled="true"
+                      ></el-input>
+                    </el-form-item>
+                    <el-form-item label="资源图标">
+                      <el-input
+                        v-model="addLinkForm.icon"
+                        auto-complete="off"
+                      ></el-input>
+                    </el-form-item>
+                  </el-form>
+                </div>
+                <div class="el-drawer-footer">
+                  <el-button
+                    type="primary"
+                    @click="saveAddLink('addLinkForm', addLinkForm)"
+                    >保存</el-button
+                  >
+                  <el-button @click="cancelAddLinkForm" plain>取消</el-button>
+                </div>
+              </el-drawer>
+              <el-tooltip
+                effect="dark"
+                content="停用"
+                placement="top-start"
+                v-if="scope.row.status == 1"
+              >
+                <i
+                  class="el-icon-circle-close closeIcon"
+                  @click="blockUp(scope.row.id, scope.row.type)"
+                ></i>
               </el-tooltip>
-              <!--    <el-tooltip effect="dark" content="启用" placement="top-start">
-                <i class="el-icon-circle-check checkIcon"></i>
-              </el-tooltip> -->
+              <el-tooltip
+                effect="dark"
+                content="启用"
+                placement="top-start"
+                v-if="scope.row.status == 0"
+              >
+                <i
+                  class="el-icon-circle-check checkIcon"
+                  @click="launch(scope.row.id)"
+                ></i>
+              </el-tooltip>
               {{ scope.row.operation }}
             </template>
           </el-table-column>
@@ -125,18 +247,35 @@ export default {
   data() {
     return {
       //菜单树结构数据
-      menusTree: [],
       menusTable: [],
       editDrawer: false,
+      addDrawer: false,
+      addLinkDrawer: false,
       form: {
         name: "",
         type: "",
+        address:"",
         icon: ""
       },
+      addCatalogueForm: {
+        name: "",
+        type: "目录",
+        icon: ""
+      },
+      addLinkForm: {
+        name: "",
+        type: "链接",
+        icon: ""
+      },
+      rules: {
+        name: [{ required: true, message: "请输入资源名称", trigger: "blur" }]
+      },
       formLabelWidth: "80px",
-      id: null
+      id: null,
+      linkID: null
     };
   },
+  inject: ["reload"],
   methods: {
     toTreeData(data) {
       //删除所有的children,以防止多次调用
@@ -194,6 +333,12 @@ export default {
     cancelForm() {
       this.editDrawer = false;
     },
+    cancelAddCatalogueForm() {
+      this.addDrawer = false;
+    },
+    cancelAddLinkForm() {
+      this.addLinkDrawer = false;
+    },
     edit(id) {
       let baseUrl = this.api.baseUrl,
         ids = id;
@@ -216,31 +361,152 @@ export default {
           form.icon = data.icon;
         });
     },
-    save(form) {
+    save(formName, form) {
       let id = parseInt(this.id),
         baseUrl = this.api.baseUrl,
         name = form.name,
         icon = form.icon,
-        type = form.type;
-      this.$refs.editDrawer.closeDrawer();
-      console.log(id, name, icon, type);
-      https
-        .fetchPost(baseUrl + "/api/system/menu/save", { id, name, icon, type })
-        .then(res => {
-          console.log(res);
-        });
-      https
-        .fetchGet(baseUrl + "/api/system/menu/detail", { id: 1 })
-        .then(res => {
-          console.log(res);
-        });
-      /*  this.$notify.success({
-        message: "保存成功",
-        showClose: false
-      }); */
+        type = null;
+      if (form.type === "目录") {
+        type = "M";
+      }
+      if (form.type === "链接") {
+        type = "T";
+      }
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          https
+            .fetchPost(baseUrl + "/api/system/menu/save", {
+              id,
+              name,
+              icon,
+              type
+            })
+            .then(res => {
+              if (res.data.code === "00") {
+                this.reload();
+                this.$notify.success({
+                  message: "保存成功",
+                  showClose: false
+                });
+              }
+            });
+        } else {
+          console.log("222");
+          return false;
+        }
+      });
+    },
+    //新增目录
+    addCatalogue() {
+      this.addDrawer = true;
+    },
+    //保存新增的目录
+    saveAddCatalogue(formName, addCatalogueForm) {
+      let baseUrl = this.api.baseUrl,
+        name = addCatalogueForm.name,
+        icon = addCatalogueForm.icon,
+        type = null;
+      if (addCatalogueForm.type == "目录") {
+        type = "M";
+      }
+      if (addCatalogueForm.type == "链接") {
+        type = " T";
+      }
+      this.$refs[formName].validate(valid => {
+        console.log(valid);
+        if (valid) {
+          https
+            .fetchPost(baseUrl + "/api/system/menu/save", {
+              name,
+              icon,
+              type,
+              pId: ""
+            })
+            .then(res => {
+              if (res.data.code === "00") {
+                this.reload();
+                this.$notify.success({
+                  message: "新增成功",
+                  showClose: false
+                });
+              }
+            });
+        } else {
+          return false;
+        }
+      });
+    },
+    //新增链接
+    addLink(id) {
+      this.addLinkDrawer = true;
+      this.linkID = id;
+    },
+    //保存新增的链接
+    saveAddLink(formName, addLinkForm) {
+      let baseUrl = this.api.baseUrl,
+        name = addLinkForm.name,
+        icon = addLinkForm.icon,
+        type = null,
+        pId = this.linkID;
+      if (addLinkForm.type == "目录") {
+        type = "M";
+      }
+      if (addLinkForm.type == "链接") {
+        type = "T";
+      }
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          https
+            .fetchPost(baseUrl + "/api/system/menu/save", {
+              pId,
+              name,
+              icon,
+              type
+            })
+            .then(res => {
+              if (res.data.code === "00") {
+                this.reload();
+                this.$notify.success({
+                  message: "新增成功",
+                  showClose: false
+                });
+              }
+            });
+        } else {
+          return false;
+        }
+      });
+    },
+
+    //停用
+    blockUp(id, type) {
+      console.log(id, type);
+      let baseUrl = this.api.baseUrl;
+      https.fetchGet(baseUrl + "/api/system/menu/invalid", { id }).then(res => {
+        if (res.data.code === "00") {
+          this.reload();
+          this.$notify.success({
+            message: "停用成功",
+            showClose: false
+          });
+        }
+      });
+    },
+    //启用
+    launch(id) {
+      let baseUrl = this.api.baseUrl;
+      https.fetchGet(baseUrl + "/api/system/menu/active", { id }).then(res => {
+        if (res.data.code === "00") {
+          this.reload();
+          this.$notify.success({
+            message: "启用成功",
+            showClose: false
+          });
+        }
+      });
     }
   },
-
   created() {
     let baseUrl = this.api.baseUrl;
     https.fetchGet(baseUrl + "/api/system/menu/list").then(res => {
@@ -306,5 +572,16 @@ export default {
   position: fixed;
   bottom: 20px;
   right: 20px;
+}
+.operateBox {
+  margin-bottom: 10px;
+}
+.el-button--primary {
+  background: #207ba6;
+  border-color: #207ba6;
+}
+.el-button--primary:hover {
+  background: #207ba6bd;
+  border-color: #207ba6bd;
 }
 </style>

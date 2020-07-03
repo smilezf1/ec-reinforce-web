@@ -31,7 +31,7 @@
             type="primary"
             icon="el-icon-search"
             size="small"
-            @click="search()"
+            @click="search(ruleForm)"
           ></el-button>
         </el-tooltip>
         <el-tooltip effect="dark" content="新增" placement="top-start">
@@ -42,6 +42,8 @@
             @click="add()"
           ></el-button>
         </el-tooltip>
+        <el-drawer title=""></el-drawer>
+
         <el-tooltip effect="dark" content="刷新" placement="top-start">
           <el-button
             type="primary"
@@ -54,7 +56,99 @@
     </div>
     <div class="roleManagementBody">
       <template>
-        <i-table :columns="columns" :data="listItem"></i-table>
+        <el-table ref="listItem" :data="listItem">
+          <el-table-column prop="name" label="角色名称">
+            <template slot-scope="scope">{{ scope.row.name }}</template>
+          </el-table-column>
+          <el-table-column prop="status" label="是否有效">
+            <template slot-scope="scope">
+              <span v-if="scope.row.status === '1'">是</span>
+              <span v-if="scope.row.status === '0'">否</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="createTime" label="创建时间">
+            <template slot-scope="scope">{{ scope.row.createTime }}</template>
+          </el-table-column>
+          <el-table-column prop="updateTime" label="更新时间">
+            <template slot-scope="scope">{{ scope.row.updateTime }}</template>
+          </el-table-column>
+          <el-table-column prop="operation" label="操作">
+            <template slot-scope="scope">
+              <el-tooltip effect="dark" content="编辑" placement="top-start">
+                <i
+                  class="el-icon-edit-outline editIcon"
+                  @click="edit(scope.row.id)"
+                ></i>
+              </el-tooltip>
+              <el-drawer
+                title="编辑"
+                :visible.sync="editDrawer"
+                :with-header="false"
+                :wrapperClosable="false"
+                :close-on-press-escape="false"
+                ref="editDrawer"
+              >
+                <div class="el-drawer-header">
+                  <h3>编辑</h3>
+                </div>
+                <div class="el-drawer-content">
+                  <el-form :model="editForm" ref="editForm">
+                    <el-form-item label="角色名称">
+                      <el-input v-model="editForm.name"></el-input>
+                    </el-form-item>
+                    <el-form-item label="是否有效">
+                      <el-select v-model="editForm.status">
+                        <el-option label="是" value="选项1"></el-option>
+                        <el-option label="否" value="选项2"></el-option>
+                      </el-select>
+                    </el-form-item>
+                  </el-form>
+                </div>
+                <div class="el-drawer-footer">
+                  <el-button
+                    type="primary"
+                    @click="saveEditForm('editForm', editForm)"
+                    >保存</el-button
+                  >
+                  <el-button @click="cancelForm" plain>取消</el-button>
+                </div>
+              </el-drawer>
+
+              <el-tooltip
+                effect="dark"
+                content="设置菜单"
+                placement="top-start"
+              >
+                <i
+                  class=" el-icon-setting settingIcon"
+                  @click="setting(scope.row.id)"
+                ></i>
+              </el-tooltip>
+              <el-tooltip
+                effect="dark"
+                content="停用"
+                placement="top-start"
+                v-if="scope.row.status == 1"
+              >
+                <i
+                  class="el-icon-circle-close closeIcon"
+                  @click="blockUp(scope.row.id, scope.row.type)"
+                ></i>
+              </el-tooltip>
+              <el-tooltip
+                effect="dark"
+                content="启用"
+                placement="top-start"
+                v-if="scope.row.status == 0"
+              >
+                <i
+                  class="el-icon-circle-check checkIcon"
+                  @click="launch(scope.row.id)"
+                ></i>
+              </el-tooltip>
+            </template>
+          </el-table-column>
+        </el-table>
       </template>
     </div>
     <div class="roleManagementBase">
@@ -83,33 +177,18 @@ export default {
         status: ""
       },
       options: [
-        { value: "选项1", label: "是" },
-        { value: "选项2", label: "否" }
-      ],
-      columns: [
-        { title: "序号", type: "index", width: 60, align: "center" },
-        { title: "角色名称", key: "name" },
-        {
-          title: "是否有效",
-          key: "status",
-          render: (h, params) => {
-            let text = "";
-            if (params.row.status === "1") {
-              text = "是";
-            } else if (params.row.status === "0") {
-              text = "否";
-            }
-            return h("div", text);
-          }
-        },
-        { title: "创建时间", key: "createTime" },
-        { title: "更新时间", key: "updateTime" },
-        { title: "操作", key: "" }
+        { value: "是", label: "是" },
+        { value: "否", label: "否" }
       ],
       listItem: [],
       dataCount: 0,
       curPage: 1,
-      limit: 10
+      limit: 10,
+      editDrawer: false,
+      editForm: {
+        name: "",
+        status: ""
+      }
     };
   },
   inject: ["reload"],
@@ -139,14 +218,40 @@ export default {
       this.limit = val;
       this.getData();
     },
-    search() {
-      consol.log("查询");
+    search(ruleForm) {
+      let baseUrl = this.api.baseUrl,
+        name = ruleForm.name,
+        status = null;
+      if (ruleForm.status == "是") {
+        status = "1";
+      } else if (ruleForm.status == "否") {
+        status = "0";
+      }
+
+      https
+        .fetchPost(baseUrl + "/api/system/role/page", {
+          limit: 10,
+          pn: 1,
+          queryInfo: { name, status }
+        })
+        .then(res => {
+          this.listItem = res.data.data.items;
+          console.log(res.data.data.items);
+        });
     },
-    add() {
-      console.log("新增");
+    add() {},
+    edit(id) {
+      console.log(this.editDrawer);
+      this.editDrawer = true;
     },
     refresh() {
       this.reload();
+    },
+    saveEditForm(formName, editForm) {
+      console.log(formName, editForm);
+    },
+    cancelForm() {
+      this.editDrawer = false;
     }
   },
   mounted() {
@@ -163,9 +268,6 @@ export default {
 .searchBox .el-input {
   margin-right: 5px;
 }
-.el-input {
-  width: auto;
-}
 .searchForm {
   display: flex;
 }
@@ -175,5 +277,49 @@ export default {
 }
 .operateBox {
   margin-left: 20px;
+}
+.editIcon,
+.settingIcon,
+.closeIcon,
+.checkIcon {
+  font-size: 22px;
+  color: #207ba6;
+  margin-right: 5px;
+  cursor: pointer;
+}
+.el-table {
+  font-size: 12px;
+  border: 1px solid #dcdee2;
+}
+.el-table thead {
+  color: #515a6e;
+}
+.el-table__header-wrapper {
+  background: #f8f8f9;
+}
+.el-table__header-wrapper th {
+  background: #f2f5f7;
+}
+.el-table ::before {
+  background: white;
+}
+.el-drawer-header {
+  height: 50px;
+  padding: 17px 20px;
+  border-bottom: 1px solid #ebebeb;
+}
+.el-drawer-header h3 {
+  color: #333;
+  font-size: 16px;
+  font-weight: 600;
+}
+.el-form {
+  margin-top: 20px;
+  padding-left: 20px;
+}
+.el-drawer-footer {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
 }
 </style>
