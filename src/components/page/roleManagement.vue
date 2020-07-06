@@ -50,6 +50,7 @@
             icon="el-icon-refresh-right"
             size="small"
             @click="refresh()"
+            style="margin-left:10px"
           ></el-button>
         </el-tooltip>
       </div>
@@ -57,6 +58,11 @@
     <div class="roleManagementBody">
       <template>
         <el-table ref="listItem" :data="listItem">
+          <el-table-column
+            type="index"
+            label="序号"
+            width="60"
+          ></el-table-column>
           <el-table-column prop="name" label="角色名称">
             <template slot-scope="scope">{{ scope.row.name }}</template>
           </el-table-column>
@@ -96,12 +102,6 @@
                     <el-form-item label="角色名称">
                       <el-input v-model="editForm.name"></el-input>
                     </el-form-item>
-                    <el-form-item label="是否有效">
-                      <el-select v-model="editForm.status">
-                        <el-option label="是" value="选项1"></el-option>
-                        <el-option label="否" value="选项2"></el-option>
-                      </el-select>
-                    </el-form-item>
                   </el-form>
                 </div>
                 <div class="el-drawer-footer">
@@ -128,7 +128,7 @@
                 effect="dark"
                 content="停用"
                 placement="top-start"
-                v-if="scope.row.status == 1"
+                v-if="scope.row.status === '1'"
               >
                 <i
                   class="el-icon-circle-close closeIcon"
@@ -139,7 +139,7 @@
                 effect="dark"
                 content="启用"
                 placement="top-start"
-                v-if="scope.row.status == 0"
+                v-if="scope.row.status === '0'"
               >
                 <i
                   class="el-icon-circle-check checkIcon"
@@ -153,15 +153,18 @@
     </div>
     <div class="roleManagementBase">
       <template>
-        <Page
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage4"
+          :page-sizes="[10, 20, 30, 40, 50]"
+          :page-size="10"
+          layout="total, sizes, prev, pager, next, jumper"
           :total="dataCount"
-          show-sizer
-          show-elevator
-          show-total
-          @on-change="handleChange"
-          @on-page-size-change="handleSizeChange"
-          style="margin-top:20px"
-        ></Page>
+          class="pagingBox"
+          background
+        >
+        </el-pagination>
       </template>
     </div>
   </div>
@@ -186,9 +189,9 @@ export default {
       limit: 10,
       editDrawer: false,
       editForm: {
-        name: "",
-        status: ""
-      }
+        name: ""
+      },
+      editId: null
     };
   },
   inject: ["reload"],
@@ -205,6 +208,7 @@ export default {
         .then(res => {
           _this.listItem = res.data.data.items;
           _this.dataCount = res.data.data.count;
+          console.log(_this.listItem);
         })
         .catch(error => {
           console.log(error);
@@ -218,6 +222,10 @@ export default {
       this.limit = val;
       this.getData();
     },
+    handleCurrentChange(val) {
+      this.curPage = val;
+      this.getData();
+    },
     search(ruleForm) {
       let baseUrl = this.api.baseUrl,
         name = ruleForm.name,
@@ -227,7 +235,6 @@ export default {
       } else if (ruleForm.status == "否") {
         status = "0";
       }
-
       https
         .fetchPost(baseUrl + "/api/system/role/page", {
           limit: 10,
@@ -242,26 +249,80 @@ export default {
     add() {},
     edit(id) {
       this.editDrawer = true;
+      this.editId = id;
       let baseUrl = this.api.baseUrl;
       https.fetchGet(baseUrl + "/api/system/role/detail", { id }).then(res => {
-        console.log(res.data.data);
+        this.editForm.name = res.data.data.name;
       });
     },
     refresh() {
       this.reload();
     },
     saveEditForm(formName, editForm) {
-      /* let baseUrl = this.api.baseUrl,
+      let baseUrl = this.api.baseUrl,
         name = editForm.name,
-        status = editForm.status;
+        id = this.editId;
       https
-        .fetchPost(baseUrl + "/api/system/role/save", { name, status })
+        .fetchPost(baseUrl + "/api/system/role/save", { id, name })
         .then(res => {
-          console.log(res);
-        }); */
+          this.reload();
+          this.editDrawer = false;
+        });
     },
     cancelForm() {
       this.editDrawer = false;
+    },
+    //停用
+    blockUp(id) {
+      let baseUrl = this.api.baseUrl;
+      this.$alert("确定要停用吗?", "确定停用", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          https
+            .fetchGet(baseUrl + "/api/system/role/invalid", { id })
+            .then(res => {
+              if (res.data.code === "00") {
+                this.reload();
+                
+                this.$notify.success({
+                  message: "停用成功",
+                  showClose: false
+                });
+              }
+            });
+        })
+        .catch(() => {
+          console.log("取消停用");
+        });
+      console.log(id, type);
+    },
+    //启用
+    launch(id) {
+      let baseUrl = this.api.baseUrl;
+      this.$alert("确定要启用吗?", "确定启用", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "success"
+      })
+        .then(() => {
+          https
+            .fetchGet(baseUrl + "/api/system/role/invalid", { id })
+            .then(res => {
+              if (res.data.code === "00") {
+                this.reload();
+                this.$notify.success({
+                  message: "启用成功",
+                  showClose: false
+                });
+              }
+            });
+        })
+        .catch(() => {
+          console.log("取消启用");
+        });
     }
   },
   mounted() {
@@ -269,7 +330,7 @@ export default {
   }
 };
 </script>
-<style>
+<style scoped>
 .roleManagementHeader {
   height: 50px;
   line-height: 50px;
@@ -300,6 +361,7 @@ export default {
 .el-table {
   font-size: 12px;
   border: 1px solid #dcdee2;
+  border-bottom: 1px solid transparent;
 }
 .el-table thead {
   color: #515a6e;
@@ -318,18 +380,27 @@ export default {
   padding: 17px 20px;
   border-bottom: 1px solid #ebebeb;
 }
+.el-drawer-content {
+  padding: 20px;
+}
 .el-drawer-header h3 {
   color: #333;
   font-size: 16px;
   font-weight: 600;
 }
-.el-form {
-  margin-top: 20px;
-  padding-left: 20px;
-}
 .el-drawer-footer {
   position: fixed;
   bottom: 20px;
   right: 20px;
+}
+.el-input {
+  width: auto;
+}
+.el-button--primary {
+  background: #207ba6;
+  border-color: #207ba6;
+}
+.roleManagementBase {
+  margin-top: 20px;
 }
 </style>

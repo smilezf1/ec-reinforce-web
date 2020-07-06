@@ -55,9 +55,78 @@
             type="primary"
             icon="el-icon-zoom-in"
             size="small"
-            @click="add()"
+            @click="addUser()"
           ></el-button>
         </el-tooltip>
+        <el-drawer
+          title="新增用户"
+          :visible.sync="addUserDrawer"
+          :with-header="false"
+          :wrapperClosable="false"
+          :close-on-press-escape="false"
+          ref="addUserDrawer"
+        >
+          <div class="el-drawer-header">
+            <h3>新增用户</h3>
+          </div>
+          <div class="el-drawer-content">
+            <el-form
+              :model="addUserForm"
+              ref="addUserForm"
+              :rules="editRules"
+              :label-position="labelPosition"
+            >
+              <el-form-item label="用户名" prop="trueName">
+                <el-input
+                  v-model="addUserForm.trueName"
+                  autocomplete="off"
+                ></el-input>
+              </el-form-item>
+              <el-form-item label="登录名" prop="userName">
+                <el-input
+                  v-model="addUserForm.userName"
+                  autocomplete="off"
+                ></el-input>
+              </el-form-item>
+              <el-form-item label="性别" prop="sex">
+                <el-select v-model="value">
+                  <el-option
+                    v-for="item in addUserForm.sex"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="手机号" prop="mobile">
+                <el-input
+                  v-model="addUserForm.mobile"
+                  autocomplete="off"
+                ></el-input>
+              </el-form-item>
+              <el-form-item label="电子邮箱" prop="email">
+                <el-input
+                  v-model="addUserForm.email"
+                  autocomplete="off"
+                ></el-input>
+              </el-form-item>
+              <el-form-item label="是否有效" prop="status">
+                <el-select v-model="value" placeholder="请选择">
+                  <!--  <el-option value="否" label="否"></el-option>
+                  <el-option value="是" label="是"></el-option> -->
+                </el-select>
+              </el-form-item>
+            </el-form>
+          </div>
+          <div class="el-drawer-footer">
+            <el-button
+              type="primary"
+              @click="saveaddUserForm('addUserForm', addUserForm)"
+              >保存</el-button
+            >
+            <el-button @click="cancel" plain>取消</el-button>
+          </div>
+        </el-drawer>
         <el-tooltip effect="dark" content="刷新" placement="top-start">
           <el-button
             type="primary"
@@ -70,21 +139,199 @@
     </div>
     <div class="userManagementBody">
       <template>
-        <i-table :columns="tableColumn" :data="listItem"></i-table>
+        <el-table :data="listItem" ref="listItem">
+          <el-table-column
+            type="index"
+            label="序号"
+            width="60"
+          ></el-table-column>
+          <el-table-column prop="trueName" label="用户名" width="150">
+          </el-table-column>
+          <el-table-column
+            prop="userName"
+            label="登录名"
+            width="150"
+          ></el-table-column>
+          <el-table-column prop="sex" label="性别" width="100">
+            <template slot-scope="scope">
+              <span v-if="scope.row.sex == '1'">男</span>
+              <span v-else>女</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="mobile" label="手机号"></el-table-column>
+          <el-table-column prop="email" label="电子邮箱"></el-table-column>
+          <el-table-column prop="status" label="是否有效">
+            <template slot-scope="scope">
+              <span v-if="scope.row.status == '1'">是</span>
+              <span v-else>否</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="createTime" label="创建时间"></el-table-column>
+          <el-table-column prop="operate" label="操作">
+            <template slot-scope="scope">
+              <el-tooltip effect="dark" content="编辑" placement="top-start">
+                <i
+                  class="el-icon-edit-outline editIcon"
+                  @click="edit(scope.row.id)"
+                ></i>
+              </el-tooltip>
+              <el-drawer
+                title="编辑"
+                :visible.sync="editDrawer"
+                :with-header="false"
+                :wrapperClosable="false"
+                :close-on-press-escape="false"
+                ref="editDrawer"
+              >
+                <div class="el-drawer-header">
+                  <h3>编辑</h3>
+                </div>
+                <div class="el-drawer-content">
+                  <el-form
+                    :model="editForm"
+                    ref="editForm"
+                    :rules="editRules"
+                    :label-position="labelPosition"
+                  >
+                    <el-form-item label="用户名" prop="trueName">
+                      <el-input
+                        v-model="editForm.trueName"
+                        autocomplete="off"
+                      ></el-input>
+                    </el-form-item>
+                    <el-form-item label="登录名" prop="userName">
+                      <el-input
+                        v-model="editForm.userName"
+                        autocomplete="off"
+                      ></el-input>
+                    </el-form-item>
+                    <el-form-item label="性别" prop="sex">
+                      <el-select v-model="editForm.sex">
+                        <el-option
+                          v-for="item in genderoptions"
+                          :key="item.value"
+                          :label="item.label"
+                          :value="item.value"
+                        ></el-option>
+                      </el-select>
+                    </el-form-item>
+                    <el-form-item label="手机号" prop="mobile">
+                      <el-input
+                        v-model="editForm.mobile"
+                        autocomplete="off"
+                      ></el-input>
+                    </el-form-item>
+                    <el-form-item label="电子邮箱" prop="email">
+                      <el-input
+                        v-model="editForm.email"
+                        autocomplete="off"
+                      ></el-input>
+                    </el-form-item>
+                    <el-form-item label="是否有效" prop="status">
+                      <el-select v-model="editForm.status">
+                        <el-option
+                          v-for="item in statusOptions"
+                          :key="item.value"
+                          :label="item.label"
+                          :value="item.value"
+                        ></el-option>
+                      </el-select>
+                    </el-form-item>
+                  </el-form>
+                </div>
+                <div class="el-drawer-footer">
+                  <el-button
+                    type="primary"
+                    @click="editFormSave('editForm', editForm)"
+                  >
+                    保存</el-button
+                  >
+                  <el-button plain @click="editFormCancel">取消</el-button>
+                </div>
+              </el-drawer>
+              <el-tooltip
+                effect="dark"
+                content="重置密码"
+                placement="top-start"
+              >
+                <i
+                  class="el-icon-unlock resetIcon"
+                  @click="resetPassword(scope.row.id)"
+                ></i>
+              </el-tooltip>
+              <el-drawer
+                title="重置密码"
+                :visible.sync="resetPasswordDrawer"
+                :with-header="false"
+                :wrapperClosable="false"
+                :close-on-press-escape="false"
+                ref="resetPasswordDrawer"
+              >
+                <div class="el-drawer-header">
+                  <h3>重置密码</h3>
+                </div>
+                <div class="el-drawer-content">
+                  <el-form
+                    :model="resetPasswordForm"
+                    ref="resetPasswordForm"
+                    :rules="resetPasswordRules"
+                  >
+                    <el-form-item label="用户密码" prop="pass">
+                      <el-input
+                        show-password
+                        v-model="resetPasswordForm.pass"
+                      ></el-input>
+                    </el-form-item>
+                    <el-form-item label="确认密码" prop="checkPass">
+                      <el-input
+                        show-password
+                        v-model="resetPasswordForm.checkPass"
+                      ></el-input>
+                    </el-form-item>
+                  </el-form>
+                </div>
+                <div class="el-drawer-footer">
+                  <el-button
+                    type="primary"
+                    @click="saveresetPassword('resetPasswordForm')"
+                    >保存</el-button
+                  >
+                  <el-button @click="cancelresetPassword()" plain
+                    >取消</el-button
+                  >
+                </div>
+              </el-drawer>
+              <el-tooltip
+                effect="dark"
+                content="设置角色"
+                placement="top-start"
+              >
+                <i class="el-icon-setting settingIcon"></i>
+              </el-tooltip>
+              <el-tooltip effect="dark" content="停用" placement="top-start">
+                <i class="el-icon-close closeIcon"></i>
+              </el-tooltip>
+              <el-tooltip effect="dark" content="启用" placement="top-start">
+                <i class="el-icon-check closeIcon"></i>
+              </el-tooltip>
+            </template>
+          </el-table-column>
+        </el-table>
       </template>
     </div>
     <div class="userManagementBase">
-      <template>
-        <Page
-          :total="dataCount"
-          show-sizer
-          show-elevator
-          show-total
-          @on-change="handleChange"
-          @on-page-size-change="handleSizeChange"
-          style="margin-top:20px"
-        ></Page>
-      </template>
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage4"
+        :page-sizes="[10, 20, 30, 40, 50]"
+        :page-size="10"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="dataCount"
+        class="pagingBox"
+        background
+      >
+      </el-pagination>
     </div>
   </div>
 </template>
@@ -97,6 +344,25 @@ export default {
     treeTable
   },
   data() {
+    var validatePass = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请输入密码"));
+      } else {
+        if (this.resetPasswordForm.checkPass !== "") {
+          this.$refs.resetPasswordForm.validateField("checkPass");
+        }
+        callback();
+      }
+    };
+    var validatePass2 = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请再次输入密码"));
+      } else if (value !== this.resetPasswordForm.pass) {
+        callback(new Error("两次输入密码不一致!"));
+      } else {
+        callback();
+      }
+    };
     return {
       ruleForm: {
         trueName: "",
@@ -105,57 +371,74 @@ export default {
         email: "",
         status: ""
       },
-      options: [
-        { value: "选项1", lable: "是" },
-        { value: "选项2", lable: "否" }
-      ],
-      tableColumn: [
-        { title: "序号", type: "index", width: "60", align: "center" },
-        { title: "用户姓名", key: "trueName", align: "center" },
-        { title: "登录名", key: "userName", align: "center" },
-        {
-          title: "性别",
-          key: "sex",
-          align: "center",
-          render: (h, params) => {
-            let text = "";
-            if (params.row.sex === "0") {
-              text = "女";
-            } else if (params.row.sex === "1") {
-              text = "男";
-            }
-            return h("div", text);
-          }
-        },
-        { title: "手机号", key: "mobile", align: "center" },
-        {
-          title: "电子邮箱",
-          key: "email",
-          align: "center",
-          ellipsis: "true"
-        },
-        {
-          title: "是否有效",
-          key: "status",
-          align: "center",
-          render: (h, params) => {
-            let text = "";
-            if (params.row.status === "1") {
-              text = "是";
-            } else if (params.row.status === "0") {
-              text = "否";
-            }
-            return h("div", text);
-          }
-        },
-        { title: "创建时间", key: "createTime", align: "center" },
-        { title: "更新时间", key: "updateTime", align: "center" },
-        { title: "操作", key: "" }
-      ],
       curPage: 1,
       limit: 10,
       dataCount: 0,
-      listItem: []
+      listItem: [],
+      editDrawer: false,
+      editId: null,
+      resetPasswordDrawer: false,
+      addUserDrawer: false,
+      genderoptions: [
+        { value: "男", label: "男" },
+        { value: "女", label: "女" }
+      ],
+      statusOptions: [
+        { value: "是", label: "是" },
+        { value: "否", label: "否" }
+      ],
+      resetPasswordForm: {
+        pass: "",
+        checkPass: ""
+      },
+      editForm: {
+        trueName: "",
+        userName: "",
+        sex: "",
+        mobile: "",
+        email: "",
+        status: ""
+      },
+      addUserForm: {
+        trueName: "",
+        userName: "",
+        sex: "",
+        mobile: "",
+        email: "",
+        status: ""
+      },
+      labelPosition: "right",
+      editRules: {
+        trueName: [
+          { required: true, message: "请输入用户名", trigger: "blur" }
+        ],
+        userName: [
+          { required: true, message: "请输入登录名", trigger: "blur" }
+        ],
+        mobile: [
+          { required: true, message: "请输入手机号", trigger: "blur" },
+          {
+            pattern: /^[1][3|4|5|6|7|8|9][0-9]{9}$/,
+            message: "请输入正确的手机号"
+          }
+        ],
+        email: [
+          { required: true, message: "请输入邮箱", trigger: "blur" },
+          {
+            type: "email",
+            message: "请输入正确的邮箱地址",
+            trigger: ["blur", "change"]
+          }
+        ],
+        sex: [{ required: true, message: "请输入性别", trigger: "change" }],
+        status: [
+          { required: true, message: "请输入是否有效", trigger: "change" }
+        ]
+      },
+      resetPasswordRules: {
+        pass: [{ validator: validatePass, trigger: "blur" }],
+        checkPass: [{ validator: validatePass2, trigger: "blur" }]
+      }
     };
   },
   inject: ["reload"],
@@ -195,7 +478,6 @@ export default {
           queryInfo
         })
         .then(res => {
-          console.log(res.data.data.items);
           this.listItem = res.data.data.items;
           this.dataCount = res.data.data.count;
         });
@@ -208,6 +490,10 @@ export default {
       this.limit = val;
       this.getData();
     },
+    handleCurrentChange(val) {
+      this.curPage = val;
+      this.getData();
+    },
     search() {
       let trueName = this.ruleForm.trueName,
         userName = this.ruleForm.userName,
@@ -217,20 +503,123 @@ export default {
         queryInfo = { trueName, userName, mobile, email, status, queryInfo };
       this.getData(queryInfo);
     },
-    add() {
-      console.log("新增");
+    addUser() {
+      this.addUserDrawer = true;
     },
     refresh() {
       this.reload();
+    },
+    edit(id) {
+      this.editDrawer = true;
+      this.editId = id;
+      let baseUrl = this.api.baseUrl;
+      https.fetchGet(baseUrl + "/api/system/user/detail", { id }).then(res => {
+        let data = res.data.data,
+          editForm = this.editForm;
+        console.log(data);
+        editForm.trueName = data.trueName;
+        editForm.userName = data.userName;
+        editForm.sex = data.sex;
+        if (data.sex === "1") {
+          editForm.sex = "男";
+        } else if (data.sex === "0") {
+          editForm.sex = "女";
+        }
+        editForm.mobile = data.mobile;
+        editForm.email = data.email;
+        if (data.status === "1") {
+          editForm.status = "是";
+        } else if (data.status === "0") {
+          editForm.status = "否";
+        }
+      });
+    },
+    editFormCancel() {
+      this.editDrawer = false;
+    },
+    editFormSave(formName, form) {
+      let baseUrl = this.api.baseUrl,
+        id = this.editId,
+        trueName = form.trueName,
+        userName = form.userName,
+        email = form.email,
+        mobile = form.mobile,
+        status = form.status,
+        sex = form.sex;
+      if (form.status == "是") {
+        status = 1;
+      } else if (form.status == "否") {
+        status = 0;
+      }
+      if (form.sex == "女") {
+        sex = 0;
+      } else if (form.sex == "男") {
+        sex = 1;
+      }
+      this.$refs[formName].validate(valid => {
+        console.log(valid);
+        if (valid) {
+          https
+            .fetchPost(baseUrl + "/api/system/user/save", {
+              id,
+              trueName,
+              userName,
+              email,
+              mobile,
+              status,
+              sex
+            })
+            .then(res => {
+              if (res.data.code == "00") {
+                this.editDrawer = false;
+                this.reload();
+                this.$notify.success({
+                  message: "编辑成功",
+                  showClose: false
+                });
+              }
+            });
+        } else {
+          return false;
+        }
+      });
+    },
+    //重置密码
+    resetPassword(id) {
+      this.resetPasswordDrawer = true;
+    },
+    cancelresetPassword() {
+      this.resetPasswordDrawer = false;
+    },
+    saveresetPassword(formName) {
+      this.$refs[formName].validate(valid => {
+        console.log(valid);
+        if (valid) {
+          this.resetPasswordDrawer = false;
+        } else {
+          return false;
+        }
+      });
+    },
+    //保存新增的用户
+    saveaddUserForm(formName, form) {
+      console.log(formName, form);
+      let baseUrl = this.api.baseUrl;
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          /* https.fetchPost(baseUrl+"/api/system/user/save") */
+        } else {
+          return false;
+        }
+      });
     }
   },
   mounted() {
     this.getData();
-    this.initTableColumn("tableColumn");
   }
 };
 </script>
-<style>
+<style scoped>
 .userManagementHeader {
   height: 50px;
   line-height: 50px;
@@ -254,5 +643,62 @@ export default {
 }
 .operateBox {
   margin-left: 20px;
+}
+.editIcon,
+.resetIcon,
+.settingIcon,
+.closeIcon {
+  font-size: 22px;
+  color: #207ba6;
+  margin-right: 5px;
+  cursor: pointer;
+}
+/* Drawer抽屉 */
+.el-drawer-header {
+  height: 50px;
+  padding: 17px 20px;
+  border-bottom: 1px solid #ebebeb;
+}
+.el-drawer-header h3 {
+  color: #333;
+  font-size: 16px;
+  font-weight: 600;
+}
+.el-drawer-content {
+  padding: 20px;
+}
+.el-drawer-content .el-input {
+  width: 80%;
+}
+.el-drawer-footer {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+}
+th {
+  font-weight: normal;
+}
+.el-table {
+  font-size: 12px;
+}
+.el-table thead {
+  color: #515a6e;
+  font-size: 12px;
+}
+.el-table__header-wrapper {
+  background: #f8f8f9;
+}
+.el-table__header-wrapper th {
+  background: #f2f5f7;
+}
+.el-table ::before {
+  background: white;
+}
+.el-button--primary {
+  background: #207ba6;
+  border-color: #207ba6;
+}
+.userManagementBase {
+  margin-top: 20px;
 }
 </style>

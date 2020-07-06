@@ -49,6 +49,8 @@ export default {
   box-sizing: border-box;
 }
 .content{
-  padding-left:20px;
+  padding:10px 10px 40px 20px;
+  overflow-y:auto;
+  margin-top:60px;
 }
 </style>

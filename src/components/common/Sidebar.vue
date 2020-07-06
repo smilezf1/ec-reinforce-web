@@ -32,9 +32,12 @@
                   >{{ threeItem.name }}</el-menu-item
                 >
               </el-submenu>
-              <el-menu-item v-if="subItem.children==''||subItem.status==1" :index="subItem.address" :key="subItem.id">{{
-                subItem.name 
-              }}</el-menu-item>
+              <el-menu-item
+                v-if="subItem.children == '' || subItem.status == 1"
+                :index="subItem.address"
+                :key="subItem.id"
+                >{{ subItem.name }}</el-menu-item
+              >
             </template>
           </el-submenu>
         </template>
@@ -105,11 +108,15 @@ export default {
 <style>
 .sidebar {
   display: block;
-  position: absolute;
+  position: fixed;
   top: 60px;
   bottom: 0;
   box-sizing: border-box;
   z-index: 2;
+  overflow-y: auto;
+}
+.sidebar > ul {
+  height: 100%;
 }
 .sidebar ::-webkit-scrollbar {
   width: 0;

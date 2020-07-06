@@ -2,24 +2,45 @@
   <div class="dashboard">
     <div class="dashboardHeader">
       <p>当前位置:我的加固任务</p>
-      <div class="dashboardBody">
-        <template>
-          <i-table :columns="columns" :data="listItem.slice((curPage-1)*limit,curPage*limit)"></i-table>
-        </template>
-      </div>
-      <div class="dashboardBase">
-        <template>
-          <Page
-            :total="dataCount"
-            show-sizer
-            show-elevator
-            show-total
-            @on-change="handleChange"
-            @on-page-size-change="handleSizeChange"
-          ></Page>
-        </template>
-      </div>
     </div>
+    <div class="dashboardBody">
+      <template>
+        <el-table :data="listItem" ref="listItem">
+          <el-table-column
+            type="index"
+            label="序号"
+            width="60"
+          ></el-table-column>
+          <el-table-column prop="appFileName" label="应用程序文件名称">
+          </el-table-column>
+          <el-table-column prop="appName" label="应用名称">
+            <template slot-scope="scope">
+              <img :src="'data:image/jpg;base64,' + scope.row.appIcon" />
+              <span style="margin-left:7px"
+                >{{ scope.row.appName }}
+              </span></template
+            >
+          </el-table-column>
+          <el-table-column prop="appVersion" label="应用版本"></el-table-column>
+          <el-table-column prop="createTime" label="创建时间">
+          </el-table-column>
+          <el-table-column prop="userName" label="创建人"></el-table-column>
+        </el-table>
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage4"
+          :page-sizes="[10, 20, 30, 40, 50]"
+          :page-size="10"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="dataCount"
+          class="pagingBox"
+          background
+        >
+        </el-pagination>
+      </template>
+    </div>
+    <div class="dashboardBase"></div>
   </div>
 </template>
 <script>
@@ -28,28 +49,9 @@ export default {
   name: "dashboard",
   data() {
     return {
-      columns: [
-        { title: "序号", type: "index", width: 60, align: "center" },
-        { title: "应用程序文件名称", key: "appFileName", align: "center" },
-        {
-          title: "应用图标",
-          key: "appIcon",
-          render: (h, params) => {
-            return h("img", {
-              style: { width: "30px" },
-              attrs: { src: "data:image/jpg;base64," + params.row.appIcon }
-            });
-          }
-        },
-        { title: "应用名称", key: "appName", align: "center" },
-        { title: "应用版本", key: "appVersion", align: "center" },
-        { title: "创建时间", key: "createTime", align: "center" },
-      /*   { title: "更新时间", key: "updateTime", align: "center" }, */
-        { title: "上传人", key: "userName", align: "center" }
-      ],
       curPage: 1,
       limit: 10,
-      dataCount:0,
+      dataCount: 0,
       listItem: [] //调用接口获取的数据
     };
   },
@@ -64,15 +66,18 @@ export default {
         })
         .then(res => {
           this.listItem = res.data.data.items;
-          this.dataCount=res.data.data.count;
+          this.dataCount = res.data.data.count;
+          console.log(this.dataCount);
         });
     },
-    handleChange(val) {
-      this.curPage = val;
-      this.getData();
-    },
+    //显示的页面条数
     handleSizeChange(val) {
       this.limit = val;
+      this.getData();
+    },
+    //鼠标点击哪一页
+    handleCurrentChange(val) {
+      this.curPage = val;
       this.getData();
     }
   },
@@ -90,17 +95,37 @@ export default {
   height: 50px;
   line-height: 50px;
   font-size: 14px;
-  padding-left: 30px;
 }
 .dashboardBody {
   width: 99%;
 }
+.dashboard img {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #eaeaea;
+  border-radius: 3px;
+  vertical-align: middle;
+}
+
+.el-table {
+  font-size: 12px;
+  border: 1px solid #dcdee2;
+  border-bottom: 1px solid transparent;
+}
 .el-table thead {
   color: #515a6e;
-  font-size: 15px;
-  font-weight: 500;
+  font-size: 12px;
 }
-th {
-  font-weight: normal;
+.el-table__header-wrapper {
+  background: #f8f8f9;
+}
+.el-table__header-wrapper th {
+  background: #f2f5f7;
+}
+.el-table ::before {
+  background: white;
+}
+.pagingBox {
+  margin-top: 20px;
 }
 </style>

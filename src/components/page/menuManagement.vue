@@ -62,6 +62,7 @@
     <div class="menuManagementBody">
       <template>
         <el-table ref="menusTable" :row-style="showRow" :data="menusTable">
+          <el-table-column type="index" label="序号" width="60"></el-table-column>
           <el-table-column prop="name" label="资源名称">
             <template slot-scope="scope">
               <span :class="['type' + scope.row.type]">
@@ -254,7 +255,7 @@ export default {
       form: {
         name: "",
         type: "",
-        address:"",
+        address: "",
         icon: ""
       },
       addCatalogueForm: {
@@ -515,7 +516,7 @@ export default {
   }
 };
 </script>
-<style>
+<style scoped>
 .menuManagementHeader {
   line-height: 50px;
   line-height: 50px;
@@ -531,6 +532,7 @@ export default {
 .el-table {
   font-size: 12px;
   border: 1px solid #dcdee2;
+  border-bottom: 1px solid transparent;
 }
 .el-table thead {
   color: #515a6e;
@@ -566,7 +568,9 @@ export default {
 }
 .el-form {
   margin-top: 20px;
-  padding-left: 20px;
+}
+.el-drawer-content {
+  padding: 20px;
 }
 .el-drawer-footer {
   position: fixed;

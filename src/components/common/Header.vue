@@ -65,11 +65,14 @@ export default {
 </script>
 <style scoped>
 .Header {
+  width: 100%;
   height: 60px;
   line-height: 60px;
   background: #207ba6;
   color: white;
   padding: 0px 30px 0px 10px;
+  position: fixed;
+  z-index:99;
 }
 .headerLeftBox {
   display: flex;
