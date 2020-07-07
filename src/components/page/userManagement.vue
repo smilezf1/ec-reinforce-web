@@ -346,7 +346,7 @@
                   :load="loadNode"
                   node-key="id"
                   show-checkbox
-                  :default-checked-keys="changeRoleList"
+                  :default-checked-keys="roleList"
                   @check="handleCheck"
                 ></el-tree>
                 <div class="el-dialog-footer" style="text-align:center">
@@ -811,23 +811,27 @@ export default {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
-      }).then(res => {
-        https
-          .fetchPost(baseUrl + "/api/system/user/saveUserRole", {
-            roleList,
-            userId: id
-          })
-          .then(res => {
-            if (res.data.code == "00") {
-              this.$notify({
-                title: "成功",
-                message: "更新成功",
-                type: "success"
-              });
-              this.dialogVisible = false;
-            }
-          });
-      });
+      })
+        .then(res => {
+          https
+            .fetchPost(baseUrl + "/api/system/user/saveUserRole", {
+              roleList,
+              userId: id
+            })
+            .then(res => {
+              if (res.data.code == "00") {
+                this.$notify({
+                  title: "成功",
+                  message: "更新成功",
+                  type: "success"
+                });
+                this.dialogVisible = false;
+              }
+            });
+        })
+        .catch(() => {
+          console.log("取消操作");
+        });
     },
     //设置角色结束
     //启用
@@ -862,9 +866,7 @@ export default {
   mounted() {
     this.getData();
   },
-  updated() {
-    console.log(this.changeRoleList, "---");
-  }
+  updated() {}
 };
 </script>
 <style scoped>
