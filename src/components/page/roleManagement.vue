@@ -34,15 +34,44 @@
             @click="search(ruleForm)"
           ></el-button>
         </el-tooltip>
-        <el-tooltip effect="dark" content="新增" placement="top-start">
+        <el-tooltip effect="dark" content="新增角色" placement="top-start">
           <el-button
             type="primary"
             icon="el-icon-zoom-in"
             size="small"
-            @click="add()"
+            @click="addRole()"
           ></el-button>
         </el-tooltip>
-        <el-drawer title=""></el-drawer>
+        <el-drawer
+          title="新增角色"
+          :visible.sync="addRoleDrawer"
+          :with-header="false"
+          :wrapperClosable="false"
+          :close-on-press-escape="false"
+          ref="addRoleDrawer"
+        >
+          <div class="el-drawer-header">
+            <h3>新增角色</h3>
+          </div>
+          <div class="el-drawer-content">
+            <el-form :model="addRoleForm" :rules="rules" ref="addRoleForm">
+              <el-form-item label="角色名称" prop="name">
+                <el-input
+                  v-model="addRoleForm.name"
+                  auto-complete="off"
+                ></el-input>
+              </el-form-item>
+            </el-form>
+          </div>
+          <div class="el-drawer-footer">
+            <el-button
+              type="primary"
+              @click="saveaddRole('addRoleForm', addRoleForm)"
+              >保存</el-button
+            >
+            <el-button @click="cancelSaveaddRole()" plain>取消</el-button>
+          </div>
+        </el-drawer>
 
         <el-tooltip effect="dark" content="刷新" placement="top-start">
           <el-button
@@ -100,7 +129,16 @@
                 <div class="el-drawer-content">
                   <el-form :model="editForm" ref="editForm">
                     <el-form-item label="角色名称">
-                      <el-input v-model="editForm.name"></el-input>
+                      <el-input
+                        v-model="editForm.name"
+                        auto-complete="off"
+                      ></el-input>
+                    </el-form-item>
+                    <el-form-item label="是否有效">
+                      <el-input
+                        v-model="editForm.status"
+                        :disabled="true"
+                      ></el-input>
                     </el-form-item>
                   </el-form>
                 </div>
@@ -188,8 +226,16 @@ export default {
       curPage: 1,
       limit: 10,
       editDrawer: false,
-      editForm: {
+      addRoleDrawer: false,
+      rules: {
+        name: [{ required: true, message: "请输入角色名称", tirgger: "blur" }]
+      },
+      addRoleForm: {
         name: ""
+      },
+      editForm: {
+        name: "",
+        status: ""
       },
       editId: null
     };
@@ -197,18 +243,18 @@ export default {
   inject: ["reload"],
   methods: {
     //获取后台数据
-    getData() {
+    getData(queryInfo) {
       let baseUrl = this.api.baseUrl,
         _this = this;
       https
         .fetchPost(baseUrl + "/api/system/role/page", {
           pn: this.curPage,
-          limit: this.limit
+          limit: this.limit,
+          queryInfo
         })
         .then(res => {
           _this.listItem = res.data.data.items;
           _this.dataCount = res.data.data.count;
-          console.log(_this.listItem);
         })
         .catch(error => {
           console.log(error);
@@ -235,24 +281,51 @@ export default {
       } else if (ruleForm.status == "否") {
         status = "0";
       }
-      https
-        .fetchPost(baseUrl + "/api/system/role/page", {
-          limit: 10,
-          pn: 1,
-          queryInfo: { name, status }
-        })
-        .then(res => {
-          this.listItem = res.data.data.items;
-          console.log(res.data.data.items);
-        });
+      let queryInfo = { name, status };
+      this.getData(queryInfo);
+      this.reload();
     },
-    add() {},
+    //新增角色开始
+    addRole() {
+      this.addRoleDrawer = true;
+    },
+    saveaddRole(formName, form) {
+      let baseUrl = this.api.baseUrl,
+        name = form.name;
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          https
+            .fetchPost(baseUrl + "/api/system/role/save", { name })
+            .then(res => {
+              if (res.data.code === "00") {
+                this.reload();
+                this.$$notify.success({
+                  title: "成功",
+                  message: "新增角色成功",
+                  showClose: false
+                });
+              }
+            });
+        } else {
+          return false;
+        }
+      });
+      /*  this.addRoleDrawer = false; */
+    },
+    cancelSaveaddRole() {
+      this.addRoleDrawer = false;
+    },
     edit(id) {
       this.editDrawer = true;
       this.editId = id;
       let baseUrl = this.api.baseUrl;
       https.fetchGet(baseUrl + "/api/system/role/detail", { id }).then(res => {
         this.editForm.name = res.data.data.name;
+        if (res.data.data.status === "1") {
+          this.editForm.status = "是";
+        } else if (res.data.data.status === "0") {
+          this.editForm.status = "否";
+        }
       });
     },
     refresh() {
@@ -286,9 +359,10 @@ export default {
             .then(res => {
               if (res.data.code === "00") {
                 this.reload();
-                
+
                 this.$notify.success({
                   message: "停用成功",
+                  type: "warning",
                   showClose: false
                 });
               }

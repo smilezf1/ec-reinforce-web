@@ -56,6 +56,7 @@
             icon="el-icon-zoom-in"
             size="small"
             @click="addUser()"
+            style="margin-right:10px"
           ></el-button>
         </el-tooltip>
         <el-drawer
@@ -88,10 +89,24 @@
                   autocomplete="off"
                 ></el-input>
               </el-form-item>
+              <el-form-item label="用户密码" prop="pass">
+                <el-input
+                  show-password
+                  v-model="addUserForm.pass"
+                  auto-complete="off"
+                ></el-input>
+              </el-form-item>
+              <el-form-item label="确认密码" prop="checkPass">
+                <el-input
+                  show-password
+                  v-model="addUserForm.checkPass"
+                  auto-complete="off"
+                ></el-input>
+              </el-form-item>
               <el-form-item label="性别" prop="sex">
-                <el-select v-model="value">
+                <el-select v-model="addUserForm.sex">
                   <el-option
-                    v-for="item in addUserForm.sex"
+                    v-for="item in genderoptions"
                     :key="item.value"
                     :label="item.label"
                     :value="item.value"
@@ -111,9 +126,13 @@
                 ></el-input>
               </el-form-item>
               <el-form-item label="是否有效" prop="status">
-                <el-select v-model="value" placeholder="请选择">
-                  <!--  <el-option value="否" label="否"></el-option>
-                  <el-option value="是" label="是"></el-option> -->
+                <el-select v-model="addUserForm.status" placeholder="请选择">
+                  <el-option
+                    v-for="item in statusOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  ></el-option>
                 </el-select>
               </el-form-item>
             </el-form>
@@ -124,7 +143,7 @@
               @click="saveaddUserForm('addUserForm', addUserForm)"
               >保存</el-button
             >
-            <el-button @click="cancel" plain>取消</el-button>
+            <el-button @click="canceladdUserForm()" plain>取消</el-button>
           </div>
         </el-drawer>
         <el-tooltip effect="dark" content="刷新" placement="top-start">
@@ -202,7 +221,7 @@
                     <el-form-item label="登录名" prop="userName">
                       <el-input
                         v-model="editForm.userName"
-                        autocomplete="off"
+                        :disabled="true"
                       ></el-input>
                     </el-form-item>
                     <el-form-item label="性别" prop="sex">
@@ -280,12 +299,14 @@
                       <el-input
                         show-password
                         v-model="resetPasswordForm.pass"
+                        auto-complete="off"
                       ></el-input>
                     </el-form-item>
                     <el-form-item label="确认密码" prop="checkPass">
                       <el-input
                         show-password
                         v-model="resetPasswordForm.checkPass"
+                        auto-complete="off"
                       ></el-input>
                     </el-form-item>
                   </el-form>
@@ -293,7 +314,9 @@
                 <div class="el-drawer-footer">
                   <el-button
                     type="primary"
-                    @click="saveresetPassword('resetPasswordForm')"
+                    @click="
+                      saveresetPassword('resetPasswordForm', resetPasswordForm)
+                    "
                     >保存</el-button
                   >
                   <el-button @click="cancelresetPassword()" plain
@@ -305,14 +328,54 @@
                 effect="dark"
                 content="设置角色"
                 placement="top-start"
+                v-if="scope.row.status == 1"
               >
-                <i class="el-icon-setting settingIcon"></i>
+                <i
+                  class="el-icon-setting settingIcon"
+                  @click="setRole(scope.row.id)"
+                ></i>
               </el-tooltip>
-              <el-tooltip effect="dark" content="停用" placement="top-start">
-                <i class="el-icon-close closeIcon"></i>
+              <el-dialog
+                title="角色列表"
+                :visible.sync="dialogVisible"
+                width="20%"
+                :before-close="handleClose"
+              >
+                <el-tree
+                  :data="roleTreeData"
+                  :load="loadNode"
+                  node-key="id"
+                  show-checkbox
+                  :default-checked-keys="changeRoleList"
+                  @check="handleCheck"
+                ></el-tree>
+                <div class="el-dialog-footer" style="text-align:center">
+                  <el-button type="primary" @click="setRoleSave"
+                    >确定</el-button
+                  >
+                </div>
+              </el-dialog>
+              <el-tooltip
+                effect="dark"
+                content="停用"
+                placement="top-start"
+                v-if="scope.row.status == 1"
+              >
+                <i
+                  class="el-icon-close closeIcon"
+                  @click="blockUp(scope.row.id)"
+                ></i>
               </el-tooltip>
-              <el-tooltip effect="dark" content="启用" placement="top-start">
-                <i class="el-icon-check closeIcon"></i>
+              <el-tooltip
+                effect="dark"
+                content="启用"
+                placement="top-start"
+                v-if="scope.row.status == 0"
+              >
+                <i
+                  class="el-icon-check closeIcon"
+                  @click="launch(scope.row.id)"
+                ></i>
               </el-tooltip>
             </template>
           </el-table-column>
@@ -338,6 +401,7 @@
 <script>
 import https from "../../http.js";
 import treeTable from "@/components/treeTable";
+import md5 from "js-md5";
 export default {
   name: "userManagement",
   components: {
@@ -363,6 +427,25 @@ export default {
         callback();
       }
     };
+    var validatePass3 = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请输入密码"));
+      } else {
+        if (this.addUserForm.checkPass !== "") {
+          this.$refs.addUserForm.validateField("checkPass");
+        }
+        callback();
+      }
+    };
+    var validatePass4 = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请再次输入密码"));
+      } else if (value !== this.addUserForm.pass) {
+        callback(new Error("两次输入密码不一致!"));
+      } else {
+        callback();
+      }
+    };
     return {
       ruleForm: {
         trueName: "",
@@ -377,8 +460,13 @@ export default {
       listItem: [],
       editDrawer: false,
       editId: null,
+      resetPasswordId: null,
       resetPasswordDrawer: false,
       addUserDrawer: false,
+      dialogVisible: false,
+      roleTreeData: [],
+      checkedNodes: [], //角色列表选中的数据
+      roleList: [],
       genderoptions: [
         { value: "男", label: "男" },
         { value: "女", label: "女" }
@@ -402,6 +490,8 @@ export default {
       addUserForm: {
         trueName: "",
         userName: "",
+        pass: "",
+        checkPass: "",
         sex: "",
         mobile: "",
         email: "",
@@ -414,6 +504,10 @@ export default {
         ],
         userName: [
           { required: true, message: "请输入登录名", trigger: "blur" }
+        ],
+        pass: [{ required: true, validator: validatePass3, trigger: "blur" }],
+        checkPass: [
+          { required: true, validator: validatePass4, trigger: "blur" }
         ],
         mobile: [
           { required: true, message: "请输入手机号", trigger: "blur" },
@@ -436,10 +530,17 @@ export default {
         ]
       },
       resetPasswordRules: {
-        pass: [{ validator: validatePass, trigger: "blur" }],
-        checkPass: [{ validator: validatePass2, trigger: "blur" }]
+        pass: [{ required: true, validator: validatePass, trigger: "blur" }],
+        checkPass: [
+          { required: true, validator: validatePass2, trigger: "blur" }
+        ]
       }
     };
+  },
+  computed: {
+    changeRoleList: function() {
+      return this.roleList.map(Number);
+    }
   },
   inject: ["reload"],
   methods: {
@@ -494,6 +595,11 @@ export default {
       this.curPage = val;
       this.getData();
     },
+    //设置角色开始
+    handleCheck(checkedNodes, checkedKeys) {
+      this.checkedNodes = checkedKeys.checkedNodes;
+    },
+    //设置角色结束
     search() {
       let trueName = this.ruleForm.trueName,
         userName = this.ruleForm.userName,
@@ -502,12 +608,16 @@ export default {
         status = this.ruleForm.status,
         queryInfo = { trueName, userName, mobile, email, status, queryInfo };
       this.getData(queryInfo);
+      this.reload();
     },
     addUser() {
       this.addUserDrawer = true;
     },
     refresh() {
       this.reload();
+    },
+    canceladdUserForm() {
+      this.addUserDrawer = false;
     },
     edit(id) {
       this.editDrawer = true;
@@ -516,7 +626,6 @@ export default {
       https.fetchGet(baseUrl + "/api/system/user/detail", { id }).then(res => {
         let data = res.data.data,
           editForm = this.editForm;
-        console.log(data);
         editForm.trueName = data.trueName;
         editForm.userName = data.userName;
         editForm.sex = data.sex;
@@ -557,7 +666,6 @@ export default {
         sex = 1;
       }
       this.$refs[formName].validate(valid => {
-        console.log(valid);
         if (valid) {
           https
             .fetchPost(baseUrl + "/api/system/user/save", {
@@ -574,6 +682,7 @@ export default {
                 this.editDrawer = false;
                 this.reload();
                 this.$notify.success({
+                  title: "成功",
                   message: "编辑成功",
                   showClose: false
                 });
@@ -586,15 +695,37 @@ export default {
     },
     //重置密码
     resetPassword(id) {
+      this.resetPasswordId = id;
       this.resetPasswordDrawer = true;
     },
     cancelresetPassword() {
       this.resetPasswordDrawer = false;
     },
-    saveresetPassword(formName) {
+    saveresetPassword(formName, form) {
+      let baseUrl = this.api.baseUrl,
+        id = this.resetPasswordId,
+        password = md5(form.pass),
+        checkPass = md5(form.checkPass);
       this.$refs[formName].validate(valid => {
-        console.log(valid);
         if (valid) {
+          https
+            .fetchPost(baseUrl + "/api/system/user/resetPwd", {
+              id,
+              password,
+              checkPass
+            })
+            .then(res => {
+              if (res.data.code == "00") {
+                this.$notify({
+                  title: "成功",
+                  message: "重置密码成功",
+                  type: "success",
+                  showClose: false
+                });
+              }
+              console.log(res);
+            });
+
           this.resetPasswordDrawer = false;
         } else {
           return false;
@@ -602,20 +733,137 @@ export default {
       });
     },
     //保存新增的用户
+    // status 1:有效 0:无效  sex 1:男 0:女
     saveaddUserForm(formName, form) {
-      console.log(formName, form);
-      let baseUrl = this.api.baseUrl;
+      let baseUrl = this.api.baseUrl,
+        trueName = form.trueName,
+        userName = form.userName,
+        password = md5(form.pass),
+        mobile = form.mobile,
+        email = form.email,
+        sex = form.sex,
+        status = form.status;
+      if (sex == "女") {
+        sex = 0;
+      } else if (sex == "男") {
+        sex = 1;
+      }
+      if (status == "是") {
+        status = 1;
+      } else if (status == "否") {
+        status = 0;
+      }
       this.$refs[formName].validate(valid => {
         if (valid) {
-          /* https.fetchPost(baseUrl+"/api/system/user/save") */
+          https
+            .fetchPost(baseUrl + "/api/system/user/save", {
+              trueName,
+              userName,
+              password,
+              mobile,
+              email,
+              sex,
+              status
+            })
+            .then(res => {
+              if (res.data.code === "00") {
+                this.addUserDrawer = false;
+                this.reload();
+                this.$notify.success({
+                  title: "成功",
+                  message: "新增用户成功",
+                  showClose: false
+                });
+              }
+            });
         } else {
           return false;
+        }
+      });
+    },
+    //设置角色开始
+    setRole(id) {
+      this.setRoleId = id;
+      let baseUrl = this.api.baseUrl;
+      this.dialogVisible = true;
+      https
+        .fetchGet(baseUrl + "/api/system/role/roleTree", { id })
+        .then(res => {
+          let data = res.data.data;
+          data = JSON.parse(JSON.stringify(data).replace(/name/g, "label"));
+          this.roleTreeData = data;
+        });
+    },
+    setRoleSave() {
+      let baseUrl = this.api.baseUrl,
+        id = this.setRoleId,
+        nodes = this.checkedNodes,
+        roleList = this.roleList;
+      if (nodes && nodes.length != 0) {
+        for (var i = 0; i < nodes.length; i++) {
+          if (!nodes[i].parent) {
+            roleList.push(nodes[i].id);
+            roleList = Array.from(new Set(roleList));
+          }
+        }
+      }
+      this.$confirm("确定要更新用户角色吗?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(res => {
+        https
+          .fetchPost(baseUrl + "/api/system/user/saveUserRole", {
+            roleList,
+            userId: id
+          })
+          .then(res => {
+            if (res.data.code == "00") {
+              this.$notify({
+                title: "成功",
+                message: "更新成功",
+                type: "success"
+              });
+              this.dialogVisible = false;
+            }
+          });
+      });
+    },
+    //设置角色结束
+    //启用
+    launch(id) {
+      console.log("启用", id);
+      let baseUrl = this.api.baseUrl;
+      https.fetchGet(baseUrl + "/api/system/user/active", { id }).then(res => {
+        if (res.data.code === "00") {
+          this.reload();
+          this.$notify.success({
+            message: "启用成功",
+            showClose: false
+          });
+        }
+      });
+    },
+    //停用
+    blockUp(id) {
+      let baseUrl = this.api.baseUrl;
+      https.fetchGet(baseUrl + "/api/system/user/invalid", { id }).then(res => {
+        if (res.data.code === "00") {
+          this.reload();
+          this.$notify.success({
+            message: "停用成功",
+            type: "warning",
+            showClose: false
+          });
         }
       });
     }
   },
   mounted() {
     this.getData();
+  },
+  updated() {
+    console.log(this.changeRoleList, "---");
   }
 };
 </script>
@@ -650,7 +898,7 @@ export default {
 .closeIcon {
   font-size: 22px;
   color: #207ba6;
-  margin-right: 5px;
+  margin-right: 10px;
   cursor: pointer;
 }
 /* Drawer抽屉 */
@@ -680,6 +928,8 @@ th {
 }
 .el-table {
   font-size: 12px;
+  border: 1px solid #dcdee2;
+  border-bottom: 1px solid transparent;
 }
 .el-table thead {
   color: #515a6e;

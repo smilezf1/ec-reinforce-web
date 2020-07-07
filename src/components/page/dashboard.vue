@@ -11,8 +11,6 @@
             label="序号"
             width="60"
           ></el-table-column>
-          <el-table-column prop="appFileName" label="应用程序文件名称">
-          </el-table-column>
           <el-table-column prop="appName" label="应用名称">
             <template slot-scope="scope">
               <img :src="'data:image/jpg;base64,' + scope.row.appIcon" />
@@ -21,6 +19,9 @@
               </span></template
             >
           </el-table-column>
+          <el-table-column prop="appFileName" label="应用名称">
+          </el-table-column>
+
           <el-table-column prop="appVersion" label="应用版本"></el-table-column>
           <el-table-column prop="createTime" label="创建时间">
           </el-table-column>
@@ -100,8 +101,8 @@ export default {
   width: 99%;
 }
 .dashboard img {
-  width: 40px;
-  height: 40px;
+  width: 33px;
+  height: 33px;
   border: 1px solid #eaeaea;
   border-radius: 3px;
   vertical-align: middle;
