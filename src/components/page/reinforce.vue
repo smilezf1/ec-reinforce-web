@@ -58,12 +58,57 @@
               action="/"
               multiple
               :http-request="addFileToFormData"
+              v-show="uploadShow"
             >
               <i class="el-icon-upload"></i>
               <div class="el-upload__text">
                 将文件拖到此处，或<em>点击上传</em>
               </div>
             </el-upload>
+            <!-- 上传文件的列表 -->
+            <div
+              class="addApplicationForm"
+              v-for="item in uploadFileItems"
+              :key="item.id"
+            >
+              <div class="appInfo">
+                <div class="left">
+                  <img :src="'data:image/jpg;base64,' + item.appIcon" />
+                </div>
+                <div class="right">
+                  <p class="appName">{{ item.appName }}</p>
+                  <p class="appPackage">
+                    包名:&nbsp;&nbsp;{{ item.appPackage }}
+                  </p>
+                  <p>
+                    <span style="margin-right:10px;"
+                      >版本:&nbsp;&nbsp;{{ item.appVersion }}
+                    </span>
+                    <span>大小:&nbsp;&nbsp;{{ item.appSize }}</span>
+                  </p>
+                  <!-- 策略名称 -->
+                  <p class="strategyName">
+                    <span>策略名称:&nbsp;&nbsp;</span
+                    ><el-select
+                      v-model="strategyOptions.label"
+                      placeholder="请选择策略"
+                    >
+                      <el-option
+                        v-for="item in strategyOptions"
+                        :key="item.id"
+                        :label="item.label"
+                        :value="item.id"
+                      ></el-option>
+                    </el-select>
+                  </p>
+                  <!-- 多渠道打包 -->
+                  <p class="channelPack">
+                    <span>多渠道打包:&nbsp;&nbsp;</span>
+                    <el-select></el-select>
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="el-drawer-footer">
             <el-button
@@ -103,14 +148,14 @@
           <el-table-column prop="appFileName" label="文件名称">
           </el-table-column>
           <el-table-column prop="appVersion" label="应用版本"></el-table-column>
-          <el-table-column prop="createTime" label="加固时间">
+          <el-table-column prop="createTime" label="创建时间">
           </el-table-column>
-          <el-table-column prop="userName" label="创建人"></el-table-column>
           <el-table-column prop="status" label="加固状态">
             <template slot-scope="scope">
               <span v-if="scope.row.status == 1">已完成</span>
             </template>
           </el-table-column>
+          <el-table-column prop="userName" label="创建人"></el-table-column>
           <el-table-column prop="operate" label="操作">
             <template slot-scope="scope">
               <el-tooltip effect="dark" content="加固" placement="top-start">
@@ -125,6 +170,26 @@
                   @click="detail(scope.row.id)"
                 ></i>
               </el-tooltip>
+              <!--  <el-drawer
+                title="加固详情"
+                :visible.sync="reinforceDetailDrawer"
+                :with-header="false"
+                :wrapperClosable="false"
+                :close-on-press-escape="false"
+                ref="reinforceDetailDrawer"
+                size="60%"
+              >
+                <div class="el-drawer-header">
+                  <h3>加固详情</h3>
+                </div>
+                <div class="el-drawer-content">
+                <el-table></el-table>
+                </div>
+                <div class="el-drawer-footer">
+                  <el-button type="primary">保存</el-button>
+                  <el-button plain>取消</el-button>
+                </div>
+              </el-drawer> -->
               <el-tooltip effect="dark" content="删除" placement="top-start">
                 <i
                   class="el-icon-delete deleteIcon"
@@ -168,8 +233,12 @@ export default {
       },
       dateValue: "",
       addTaskDrawer: false,
-      fileFormData: null, //将要上传的formData数据
-      percentage: 0 //存放上传的百分比
+      percentage: 0, //存放上传的百分比
+      uploadFileItems: [],
+      uploadShow: true,
+      strategyOptions: [],
+      channelPackOptions: [],
+      reinforceDetailDrawer: false
     };
   },
   inject: ["reload"],
@@ -230,18 +299,78 @@ export default {
     },
     //上传-----开始
     addFileToFormData(file) {
-      /* 每选一个文件都会执行一次该函数 */
-      this.fileFormData.append("file[]", file.file);
-      let formData = this.fileFormData,
-        uploadProgress = this.uploadProgress,
+      let params = new FormData(),
         baseUrl = this.api.baseUrl;
-      https.fetchPost(baseUrl + "/api/reinforce/info/uploadReinforceFile", {
-        file: formData
-      });
+      params.append("file", file.file);
+      //进度条配置
+      let config = {
+        onUploadProgress: ProgressEvent => {
+          let progressPercent =
+            ((ProgressEvent.loaded / ProgressEvent.total) * 100) | 0;
+          //多个文件显示多个进度条
+          file.onProgress({ percent: progressPercent });
+        }
+      };
+      https
+        .uploadFile(
+          baseUrl + "/api/reinforce/info/uploadReinforceFile",
+          params,
+          config
+        )
+        .then(res => {
+          if (res.data.code === "00") {
+            this.uploadFileItems.push(res.data.data);
+            this.uploadShow = false;
+          }
+        });
+    },
+    //上传结束---
+    //详情
+    detail(id) {
+      /*   this.reinforceDetailDrawer = true;
+      let baseUrl = this.api.baseUrl;
+      https
+        .fetchGet(baseUrl + "/api/reinforce/info/findReinforceDetailById", {
+          reinforceId: id
+        })
+        .then(res => {
+          console.log(res.data.data);
+        }); */
+      this.$router.push({ path: "/reinforce/id="+id+"" });
     }
   },
   mounted() {
+    let baseUrl = this.api.baseUrl;
     this.getData();
+    //查询策略列表
+    https
+      .fetchPost(baseUrl + "/api/reinforce/strategy/page", {
+        pn: 1,
+        limit: 20
+      })
+      .then(res => {
+        let data = res.data.data.items;
+        data = JSON.parse(
+          JSON.stringify(data).replace(/reinforce_strategy_name/g, "label")
+        );
+        console.log(data, "hahh");
+        this.strategyOptions = data;
+      });
+    //查询渠道策略分页列表 是否多渠道打包
+    https
+      .fetchPost(baseUrl + "/api/channel/strategy/findChannelStrategyByPage", {
+        pn: 1,
+        limit: 20
+      })
+      .then(res => {
+        console.log(res.data.data.items, "-----");
+      });
+    //查询签名列表 签名策略列表
+    https
+      .fetchPost(baseUrl + "/api/reinforce/sign/page", { pn: 1, limit: 20 })
+      .then(res => {
+        console.log(res.data.data.items, "++++");
+      });
   }
 };
 </script>
@@ -289,6 +418,28 @@ export default {
   width: 100%;
   height: 230px;
   margin-top: 20px;
+}
+.addApplicationForm .appInfo {
+  display: flex;
+  margin: 30px 0;
+  padding: 20px;
+}
+.addApplicationForm img {
+  width: 110px;
+  border-radius: 15px;
+  margin: 30px 35px 0 0;
+  vertical-align: middle;
+}
+.addApplicationForm p {
+  line-height: 36px;
+  color: #606266;
+  margin: 10px 0;
+}
+.addApplicationForm .appName {
+  line-height: 40px;
+  font-size: 16px;
+  color: #333;
+  font-weight: 700;
 }
 .searchBox {
   margin-bottom: 10px;

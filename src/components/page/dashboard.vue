@@ -25,6 +25,11 @@
           <el-table-column prop="appVersion" label="应用版本"></el-table-column>
           <el-table-column prop="createTime" label="创建时间">
           </el-table-column>
+          <el-table-column prop="status" label="加固状态">
+            <template slot-scope="scope">
+              <span v-if="scope.row.status == 1">已完成</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="userName" label="创建人"></el-table-column>
         </el-table>
         <el-pagination

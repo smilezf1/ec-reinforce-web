@@ -517,6 +517,9 @@ export default {
     https.fetchGet(baseUrl + "/api/system/menu/list").then(res => {
       this.menusTable = this.toTreeData(res.data.data);
     });
+  },
+  mounted(){
+    
   }
 };
 </script>

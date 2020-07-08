@@ -339,14 +339,12 @@
                 title="角色列表"
                 :visible.sync="dialogVisible"
                 width="20%"
-                :before-close="handleClose"
               >
                 <el-tree
                   :data="roleTreeData"
-                  :load="loadNode"
                   node-key="id"
                   show-checkbox
-                  :default-checked-keys="roleList"
+                  :default-checked-keys="setRoleList"
                   @check="handleCheck"
                 ></el-tree>
                 <div class="el-dialog-footer" style="text-align:center">
@@ -400,13 +398,9 @@
 </template>
 <script>
 import https from "../../http.js";
-import treeTable from "@/components/treeTable";
 import md5 from "js-md5";
 export default {
   name: "userManagement",
-  components: {
-    treeTable
-  },
   data() {
     var validatePass = (rule, value, callback) => {
       if (value === "") {
@@ -467,6 +461,7 @@ export default {
       roleTreeData: [],
       checkedNodes: [], //角色列表选中的数据
       roleList: [],
+      setRoleList: [], //测试
       genderoptions: [
         { value: "男", label: "男" },
         { value: "女", label: "女" }
@@ -792,6 +787,15 @@ export default {
           let data = res.data.data;
           data = JSON.parse(JSON.stringify(data).replace(/name/g, "label"));
           this.roleTreeData = data;
+          this.roleTreeData.forEach((v, i) => {
+            if (v.checked == true) {
+              this.setRoleList.push(v.id);
+              this.setRoleList = Array.from(new Set(this.setRoleList));
+              console.log(this.setRoleList);
+            } else {
+              console.log("11");
+            }
+          });
         });
     },
     setRoleSave() {
@@ -803,6 +807,7 @@ export default {
         for (var i = 0; i < nodes.length; i++) {
           if (!nodes[i].parent) {
             roleList.push(nodes[i].id);
+            console.log(roleList, "---");
             roleList = Array.from(new Set(roleList));
           }
         }
@@ -825,6 +830,7 @@ export default {
                   message: "更新成功",
                   type: "success"
                 });
+                this.reload();
                 this.dialogVisible = false;
               }
             });
@@ -865,8 +871,7 @@ export default {
   },
   mounted() {
     this.getData();
-  },
-  updated() {}
+  }
 };
 </script>
 <style scoped>

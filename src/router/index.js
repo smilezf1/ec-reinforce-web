@@ -13,9 +13,9 @@ import signature from '@/components/page/signature'
 import recommend from '@/components/page/recommend'
 import userManagement from '@/components/page/userManagement'
 import VueRouter from 'vue-router'
-import xx from '@/components/common/xx.vue'
-import yy from '@/components/common/yy.vue'
 import index from '@/components/treeTable/index.vue'
+//加固服务详情
+import Detail from '@/components/page/Detail.vue'
 Vue.use(Router);
 //解决 Element UI 导航栏重复点击菜单报错问题
 const originalPush = VueRouter.prototype.push;
@@ -63,6 +63,12 @@ const router = new Router({
                     path: "/reinforce",
                     name: "reinforce",
                     component: reinforce,
+                    meta: { requireAuth: true }
+                },
+                {
+                    path: "/reinforce/:id",
+                    name: 'Detail',
+                    component: Detail,
                     meta: { requireAuth: true }
                 },
                 {

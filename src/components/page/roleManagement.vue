@@ -21,7 +21,7 @@
               :key="item.value"
               :label="item.lable"
               :value="item.value"
-            ></el-option>
+            ></el-option> 
           </el-select>
         </el-form>
       </div>
@@ -156,17 +156,37 @@
                 effect="dark"
                 content="设置菜单"
                 placement="top-start"
+                v-if="scope.row.status == 1"
               >
                 <i
                   class=" el-icon-setting settingIcon"
                   @click="setting(scope.row.id)"
                 ></i>
               </el-tooltip>
+              <el-dialog
+                title="菜单列表"
+                :visible.sync="menuDialog"
+                width="20%"
+              >
+                <el-tree
+                  :data="menuTreeData"
+                  node-key="id"
+                  show-checkbox
+                  :default-checked-keys="setMenuList"
+                  :props="defaultProps"
+                  @check="handleCheck"
+                ></el-tree>
+                <div class="el-dialog-footer" style="text-align:center">
+                  <el-button type="primary" @click="setMenuSave"
+                    >确定</el-button
+                  >
+                </div>
+              </el-dialog>
               <el-tooltip
                 effect="dark"
                 content="停用"
                 placement="top-start"
-                v-if="scope.row.status === '1'"
+                v-if="scope.row.status == 1"
               >
                 <i
                   class="el-icon-circle-close closeIcon"
@@ -177,7 +197,7 @@
                 effect="dark"
                 content="启用"
                 placement="top-start"
-                v-if="scope.row.status === '0'"
+                v-if="scope.row.status == 0"
               >
                 <i
                   class="el-icon-circle-check checkIcon"
@@ -227,6 +247,16 @@ export default {
       limit: 10,
       editDrawer: false,
       addRoleDrawer: false,
+      menuDialog: false,
+      menuTreeData: [],
+      menuList: [],
+      setMenuList: [],
+      setParMentList: [],
+      checkedNodes: [], //菜单列表选中的数据
+      defaultProps: {
+        children: "children",
+        label: "label"
+      },
       rules: {
         name: [{ required: true, message: "请输入角色名称", tirgger: "blur" }]
       },
@@ -340,11 +370,130 @@ export default {
         .then(res => {
           this.reload();
           this.editDrawer = false;
+          this.$notify.success({
+            title: "成功",
+            message: "编辑成功",
+            showClose: false
+          });
         });
     },
     cancelForm() {
       this.editDrawer = false;
     },
+    //将数据转化成树形格式
+    toTreeData(data) {
+      //删除所有的children,以防止多次调用
+      data.forEach(item => {
+        delete item.children;
+      });
+      let map = {}; //构建map
+      data.forEach(i => {
+        map[i.id] = i; //构建以id为键 当前数据为值
+      });
+      let treeData = [];
+      data.forEach(child => {
+        const mapItem = map[child.pId]; //判断当前数据的pId是否存在map中
+        if (mapItem) {
+          //不是最顶层的数据
+          //注:这里map中的数据是引用了data的它的指向还是data,当mapItem改变时,arr也会改变
+          (mapItem.children || (mapItem.children = [])).push(child); //判断mapItem是否存在child
+        } else {
+          //顶层数据
+          treeData.push(child);
+        }
+      });
+      return treeData;
+    },
+    //设置菜单开始
+    handleCheck(checkedNodes, checkedKeys) {
+      this.checkedNodes = checkedKeys.checkedNodes;
+    },
+    setting(id) {
+      let baseUrl = this.api.baseUrl;
+      this.menuDialog = true;
+      this.setMenuId = id;
+      https
+        .fetchGet(baseUrl + "/api/system/menu/menuTree", { roleId: id })
+        .then(res => {
+          let data = res.data.data;
+          (data = JSON.parse(JSON.stringify(data).replace(/name/g, "label"))),
+            (this.menuTreeData = this.toTreeData(data));
+          for (var j = 0; j < this.menuTreeData.length; j++) {
+            if (this.menuTreeData[j].children) {
+              for (var k = 0; k < this.menuTreeData[j].children.length; k++) {
+                if (this.menuTreeData[j].children[k].id.startsWith("T")) {
+                  this.menuTreeData[j].children[k].id = this.menuTreeData[
+                    j
+                  ].children[k].id.substring(1);
+                }
+              }
+            }
+            if (this.menuTreeData[j].id.startsWith("M")) {
+              this.menuTreeData[j].id = this.menuTreeData[j].id.substring(1);
+            }
+          }
+          this.menuTreeData.forEach((v, i) => {
+            if (v.children) {
+              v.children.forEach((v, i) => {
+                if (v.checked == true) {
+                  if (v.pId.startsWith("M")) {
+                    console.log(v.pId, "pId---");
+                    this.setParMentList.push(v.pId.substring(1));
+                    this.setParMentList = Array.from(
+                      new Set(this.setParMentList)
+                    );
+                  }
+                  console.log(v.id, "id---");
+                  this.setMenuList.push(v.id);
+                  this.setMenuList = Array.from(new Set(this.setMenuList));
+                }
+              });
+            } else {
+              if (v.checked == true) {
+                this.setMenuList.push(v.id);
+                this.setMenuList = Array.from(new Set(this.setMenuList));
+              }
+            }
+          });
+        });
+    },
+    setMenuSave() {
+      let baseUrl = this.api.baseUrl,
+        id = this.setMenuId,
+        nodes = this.checkedNodes,
+        menuList = this.menuList;
+      if (nodes && nodes.length != 0) {
+        for (var i = 0; i < nodes.length; i++) {
+          menuList.push(nodes[i].id);
+          menuList = Array.from(new Set(menuList));
+          console.log(menuList);
+        }
+      }
+      this.$confirm("确定要更新菜单列表吗?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(res => {
+        https
+          .fetchPost(baseUrl + "/api/system/role/saveRoleItem", {
+            btnList: [],
+            itemList: menuList,
+            roleId: id
+          })
+          .then(res => {
+            if (res.data.code == "00") {
+              this.$notify({
+                title: "成功",
+                message: "更新成功",
+                type: "success"
+              });
+              this.reload();
+              this.menuDialog = false;
+            }
+          });
+      });
+    },
+    //设置菜单结束
     //停用
     blockUp(id) {
       let baseUrl = this.api.baseUrl;
@@ -383,7 +532,7 @@ export default {
       })
         .then(() => {
           https
-            .fetchGet(baseUrl + "/api/system/role/invalid", { id })
+            .fetchGet(baseUrl + "/api/system/role/active", { id })
             .then(res => {
               if (res.data.code === "00") {
                 this.reload();

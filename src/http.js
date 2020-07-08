@@ -24,8 +24,12 @@ axios.interceptors.response.use(response => {
             confirmButtonText: '确定',
             type: 'warning',
             callback: action => {
+                console.log("用户点击了❌ 测试")
                 router.push({ name: "Login" })
             }
+        }).then(() => {
+            console.log("用户点击了确定 测试---");
+            router.push({ name: "Login" })
         })
     }
     return response
@@ -55,6 +59,22 @@ export function fetchGet(url, params, responseType) {
         })
     })
 }
+
+//测试
+export function uploadFile(url, param, config) {
+    console.log(url, param, config)
+    let axiosConfig = {
+        url: url,
+        method: 'post',
+        data: param,
+    }
+    if (config instanceof Object) {
+        for (let key in config) {
+            axiosConfig[key] = config[key]
+        }
+    }
+    return axios(axiosConfig)
+}
 export default {
-    fetchGet, fetchPost
+    fetchGet, fetchPost, uploadFile
 }
