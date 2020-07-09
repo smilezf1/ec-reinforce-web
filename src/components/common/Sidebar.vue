@@ -74,7 +74,6 @@ export default {
     let baseUrl = this.api.baseUrl,
       _this = this;
     http.fetchGet(baseUrl + "/api/system/menu/list").then(res => {
-      /*  _this.sidebarList = res.data.data; */
       _this.sidebarList = this.toTreeData(res.data.data);
     });
   },

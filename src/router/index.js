@@ -3,19 +3,19 @@ import Router from 'vue-router'
 import Login from '@/components/page/Login.vue'
 import Home from '@/components/common/Home.vue'
 import dashboard from '@/components/page/dashboard'
-import menuManagement from '@/components/page/menuManagement'
-import reinforceItem from '@/components/page/reinforceItem'
-import reinforceStrategy from '@/components/page/reinforceStrategy'
-import reinforce from '@/components/page/reinforce'
-import channelStrategy from '@/components/page/channelStrategy'
-import roleManagement from '@/components/page/roleManagement'
-import signature from '@/components/page/signature'
+import menuManagement from '@/components/systemManagement/menuManagement'
+import reinforceItem from '@/components/reinforceConfiguration/reinforceItem'
+import reinforceStrategy from '@/components/reinforceConfiguration/reinforceStrategy'
+import reinforce from '@/components/taskManagement/reinforce'
+import channelStrategy from '@/components/reinforceConfiguration/channelStrategy'
+import roleManagement from '@/components/systemManagement/roleManagement'
+import signature from '@/components/reinforceConfiguration/signature'
 import recommend from '@/components/page/recommend'
-import userManagement from '@/components/page/userManagement'
+import userManagement from '@/components/systemManagement/userManagement'
 import VueRouter from 'vue-router'
 import index from '@/components/treeTable/index.vue'
 //加固服务详情
-import Detail from '@/components/page/Detail.vue'
+import Detail from '@/components/taskManagement/Detail.vue'
 Vue.use(Router);
 //解决 Element UI 导航栏重复点击菜单报错问题
 const originalPush = VueRouter.prototype.push;
@@ -66,11 +66,12 @@ const router = new Router({
                     meta: { requireAuth: true }
                 },
                 {
-                    path: "/reinforce/:id",
+                    path: "/Detail:id",
                     name: 'Detail',
                     component: Detail,
                     meta: { requireAuth: true }
                 },
+
                 {
                     path: "/roleManagement",
                     name: "roleManagement",

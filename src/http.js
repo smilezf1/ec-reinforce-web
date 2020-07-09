@@ -24,11 +24,14 @@ axios.interceptors.response.use(response => {
             confirmButtonText: '确定',
             type: 'warning',
             callback: action => {
-                console.log("用户点击了❌ 测试")
+              /*   console.log("用户点击了❌ 测试") */
                 router.push({ name: "Login" })
             }
         }).then(() => {
             console.log("用户点击了确定 测试---");
+            router.push({ name: "Login" })
+        }).catch(() => {
+            console.log("用户点击了❌号")
             router.push({ name: "Login" })
         })
     }
