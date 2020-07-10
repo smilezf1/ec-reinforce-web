@@ -46,6 +46,7 @@
           :with-header="false"
           :wrapperClosable="false"
           :close-on-press-escape="false"
+          :destroy-on-close="true"
           ref="addTaskDrawer"
           size="40%"
         >
@@ -67,87 +68,232 @@
               </div>
             </el-upload>
             <!-- 上传文件的列表 -->
-            <el-collapse v-model="activeNames" class="addApplicationForm">
-              <el-collapse-item
-                title="应用信息"
-                v-for="(item, index) in uploadFileItems"
-                :key="item.id"
-                :name="index + 1"
+            <el-form :model="addRoleForm" :rules="rules" ref="addRoleForm">
+              <el-collapse
+                class="addApplicationForm"
+                v-model="activeNames"
+                v-if="uploadFileItems.length !== 0"
               >
-                <el-row>
-                  <el-col :span="6">
-                    <el-image
-                      :src="'data:image/jpg;base64,' + item.appIcon"
-                      :fit="contain"
-                    ></el-image>
-                  </el-col>
-                  <el-col :span="18">
-                    <p class="appName">{{ item.appName }}</p>
-                    <p class="appPackage">
-                      包名:&nbsp;&nbsp;{{ item.appPackage }}
-                    </p>
-                    <p>
-                      <span style="margin-right:10px;"
-                        >版本:&nbsp;&nbsp;{{ item.appVersion }}
-                      </span>
-                      <span>大小:&nbsp;&nbsp;{{ item.appSize }}KB</span>
-                    </p>
-                  </el-col>
-                </el-row>
-                <!-- 策略名称 -->
-                <el-row class="strategyName">
-                  <el-col :span="24">
-                    <p class="strategyName">
-                      <span>加固策略:&nbsp;&nbsp;</span
-                      ><el-select
-                        v-model="strategyOptions.label"
-                        placeholder="请选择策略"
-                        size="small"
-                      >
-                        <el-option
-                          v-for="item in strategyOptions"
-                          :key="item.id"
-                          :label="item.label"
-                          :value="item.id"
-                        ></el-option>
-                      </el-select>
-                    </p>
-                  </el-col>
-                </el-row>
-                <!-- 多渠道打包 -->
-                <el-row class="channelPack">
-                  <el-span :span="24">
-                    <p class="channelPack">
-                      <span>是否多渠道打包:&nbsp;&nbsp;</span>
-                      <el-select size="small" v-model="options.label">
-                        <el-option
-                          v-for="item in options"
-                          :key="item.value"
-                          :label="item.label"
-                          :value="item.value"
-                        ></el-option>
-                      </el-select>
-                    </p>
-                  </el-span>
-                </el-row>
-                <!-- 签名策略 -->
-                <el-row>
-                  <el-span :span="24">
-                    <p class="signature">
-                      <span>是否签名:&nbsp;&nbsp;&nbsp;</span>
-                      <el-select size="small" v-model="options.label">
-                        <el-option
-                          v-for="item in options"
-                          :key="item.value"
-                          :label="item.label"
-                          :value="item.value"
-                        ></el-option>
-                      </el-select>
-                    </p>
-                  </el-span>
-                </el-row>
-              </el-collapse-item>
-            </el-collapse>
+                <el-collapse-item
+                  title="应用信息"
+                  v-for="(item, index) in uploadFileItems"
+                  :key="item.id"
+                  :name="index + 1"
+                >
+                  <el-row>
+                    <el-col :span="6">
+                      <el-image
+                        :src="'data:image/jpg;base64,' + item.appIcon"
+                        :fit="contain"
+                      ></el-image>
+                    </el-col>
+                    <el-col :span="18">
+                      <p class="appName">{{ item.appName }}</p>
+                      <p class="appPackage">
+                        包名:&nbsp;&nbsp;{{ item.appPackage }}
+                      </p>
+                      <p>
+                        <span style="margin-right:10px;"
+                          >版本:&nbsp;&nbsp;{{ item.appVersion }}
+                        </span>
+                        <span>大小:&nbsp;&nbsp;{{ item.appSize }}KB</span>
+                      </p>
+                    </el-col>
+                  </el-row>
+                  <!-- 策略名称 -->
+                  <el-row class="strategyName">
+                    <el-col :span="24">
+                      <p class="strategyName">
+                        <span>加固策略:&nbsp;&nbsp;</span>
+                        <el-form-item
+                          prop="curPrinter1"
+                          style="width:60%;display:inline-block"
+                        >
+                          <el-select
+                            v-model="addRoleForm.curPrinter1"
+                            placeholder="请选择策略"
+                            size="small"
+                            @change="
+                              strategyChange(addRoleForm.curPrinter1, index)
+                            "
+                          >
+                            <el-option
+                              v-for="item in strategyOptions"
+                              :key="item.id"
+                              :value="item.label"
+                              :label="item.label"
+                            ></el-option>
+                          </el-select>
+                        </el-form-item>
+                      </p>
+                    </el-col>
+                  </el-row>
+                  <!-- 多渠道打包 -->
+                  <el-row class="channelPack">
+                    <el-span :span="24">
+                      <p class="channelPack">
+                        <span>是否多渠道打包:&nbsp;&nbsp;</span>
+                        <template>
+                          <el-radio
+                            v-model="radio"
+                            label="1"
+                            @change="channelPackChange(radio)"
+                            >是</el-radio
+                          >
+                          <el-radio
+                            v-model="radio"
+                            label="2"
+                            @change="channelPackChange(radio)"
+                            >否</el-radio
+                          >
+                        </template>
+                        <template v-if="radio == 1">
+                          <el-form-item>
+                            <span>多渠道打包策略:</span>
+                            <el-select
+                              size="small"
+                              placeholder="请选择多渠道打包策略"
+                              v-model="channelPackList"
+                            >
+                              <el-option
+                                v-for="item in channelPackList"
+                                :key="item.id"
+                                :label="item.channel_strategy_name"
+                                :value="item.channel_strategy_name"
+                              ></el-option>
+                            </el-select>
+                          </el-form-item>
+                        </template>
+
+                        <!--   <el-form-item
+                          prop="curPrinter2"
+                          style="width:60%;display:inline-block"
+                        >
+                          <el-select
+                            size="small"
+                            v-model="addRoleForm.curPrinter2"
+                            @change="channelPackChange(addRoleForm.curPrinter2)"
+                          >
+                            <el-option
+                              v-for="item in channelPackOptions"
+                              :key="item.value"
+                              :label="item.label"
+                              :value="item.value"
+                            ></el-option>
+                          </el-select>
+                        </el-form-item> -->
+                        <!--  <el-collapse v-if="addRoleForm.curPrinter2 === '是'">
+                          <el-collapse-item title="多渠道策略信息">
+                            <div v-for="item in channelPackList" :key="item.id">
+                              <el-row>
+                                <el-col :span="12"
+                                  >多渠道策略名称:&nbsp;&nbsp;&nbsp;&nbsp;{{
+                                    item.channel_strategy_name
+                                  }}</el-col
+                                >
+                                <el-col :span="12"
+                                  >多渠道策略描述:&nbsp;&nbsp;&nbsp;&nbsp;{{
+                                    item.channel_strategy_describe
+                                  }}</el-col
+                                >
+                              </el-row>
+                              <el-row>
+                                <el-col :span="12"
+                                  >多渠道策略数量:&nbsp;&nbsp;&nbsp;&nbsp;{{
+                                    item.channel_strategy_count
+                                  }}</el-col
+                                >
+                                <el-col :span="12"
+                                  >创建时间:&nbsp;&nbsp;&nbsp;&nbsp;{{
+                                    item.create_time
+                                  }}</el-col
+                                >
+                              </el-row>
+                            </div>
+                          </el-collapse-item>
+                        </el-collapse> -->
+                      </p>
+                    </el-span>
+                  </el-row>
+                  <!-- 签名策略 -->
+                  <el-row>
+                    <el-span :span="24">
+                      <p class="signature">
+                        <span>是否签名:&nbsp;&nbsp;&nbsp;</span>
+                        <el-form-item
+                          prop="curPrinter3"
+                          style="width:60%;display:inline-block"
+                        >
+                          <el-select
+                            size="small"
+                            v-model="addRoleForm.curPrinter3"
+                            @change="signatureChange(addRoleForm.curPrinter3)"
+                          >
+                            <el-option
+                              v-for="item in signatureOptions"
+                              :key="item.value"
+                              :label="item.label"
+                              :value="item.value"
+                            ></el-option>
+                          </el-select>
+                        </el-form-item>
+                        <el-collapse v-if="addRoleForm.curPrinter3 == '是'">
+                          <el-collapse-item title="签名信息">
+                            <div v-for="item in signatureList" :key="item.id">
+                              <el-row>
+                                <el-col :span="12"
+                                  >签名名称:&nbsp;&nbsp;&nbsp;&nbsp;{{
+                                    item.signName
+                                  }}</el-col
+                                >
+                                <el-col :span="12" class="password"
+                                  >签名密码:&nbsp;&nbsp;&nbsp;&nbsp;
+                                  <el-input
+                                    v-model="item.signPwd"
+                                    show-password
+                                    readonly
+                                    size="small"
+                                    style="width:20%"
+                                  ></el-input>
+                                </el-col>
+                              </el-row>
+                              <el-row>
+                                <el-col :span="12"
+                                  >签名别名:&nbsp;&nbsp;&nbsp;&nbsp;{{
+                                    item.signAliasName
+                                  }}</el-col
+                                >
+                                <el-col :span="12" class="password"
+                                  >别名密码:&nbsp;&nbsp;&nbsp;&nbsp;
+                                  <el-input
+                                    v-model="item.signAliasPwd"
+                                    readonly
+                                    size="small"
+                                    style="width:20%;border"
+                                    show-password
+                                  ></el-input>
+                                </el-col>
+                              </el-row>
+                              <el-row>
+                                <el-col :span="12"
+                                  >签名状态:&nbsp;&nbsp;&nbsp;&nbsp;
+                                  <span v-if="item.status == 1">已完成</span>
+                                </el-col>
+                                <el-col :span="12"
+                                  >创建时间:&nbsp;&nbsp;&nbsp;&nbsp;{{
+                                    item.createTime
+                                  }}</el-col
+                                >
+                              </el-row>
+                            </div>
+                          </el-collapse-item>
+                        </el-collapse>
+                      </p>
+                    </el-span>
+                  </el-row>
+                </el-collapse-item>
+              </el-collapse>
+            </el-form>
           </div>
           <div class="el-drawer-footer">
             <el-button
@@ -247,6 +393,20 @@ export default {
         appVersion: "",
         createTime: ""
       },
+      addRoleForm: {
+        curPrinter1: null,
+        curPrinter2: null,
+        curPrinter3: null
+      },
+      rules: {
+        curPrinter1: [
+          { required: true, message: "请选择加固策略", trigger: true }
+        ],
+        curPrinter2: [
+          { required: true, message: "是否多渠道打包", trigger: true }
+        ],
+        curPrinter3: [{ required: true, message: "是否签名", trigger: true }]
+      },
       dateValue: "",
       addTaskDrawer: false,
       percentage: 0, //存放上传的百分比
@@ -255,17 +415,28 @@ export default {
       strategyOptions: [],
       channelPackOptions: [],
       reinforceDetailDrawer: false,
-      activeNames: [],
-      options: [
+      signatureOptions: [
         { value: "是", label: "是" },
         { value: "否", label: "否" }
-      ]
+      ],
+      channelPackList: [],
+      signatureList: [],
+      activeNames: [],
+      signAliasPwd: {
+        appIcon: "",
+        appName: "",
+        appPackage: "",
+        appSize: "",
+        appVersion: "",
+        reinforceSign: {}
+      },
+      xx: {},
+      label: "",
+      radio: 0,
+      strategyItemDto: []
     };
   },
   inject: ["reload"],
-  created() {
-    this.fileFormData = new FormData();
-  },
   methods: {
     //获取后台数据
     getData(queryInfo) {
@@ -309,12 +480,29 @@ export default {
       this.addTaskDrawer = true;
     },
     //保存加固任务
-    saveaddTask() {
-      this.addTaskDrawer = false;
+    saveaddTask(formName, form) {
+      let baseUrl = this.api.baseUrl;
+      data = this.uploadFileItems
+        .concat(this.signatureList)
+        .concat(this.strategyItemDto);
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          /*  https
+        .fetchPost(baseUrl + "/api/reinforce/info/saveReinforceInfoOrUpdate", {
+          reinforceInfoDto: data1
+        })
+        .then(res => {
+          console.log(res);
+        }); */
+        } else {
+          console.log("必选项没有填");
+        }
+      });
     },
     //取消加固任务
     cancelSaveaddTask() {
       this.addTaskDrawer = false;
+      this.reload();
     },
     //上传-----开始
     addFileToFormData(file) {
@@ -338,12 +526,12 @@ export default {
         )
         .then(res => {
           if (res.data.code === "00") {
+            console.log(res.data.data);
             this.uploadFileItems.push(res.data.data);
             for (var i = 0; i < this.uploadFileItems.length; i++) {
-              this.activeNames.push(i+1);
+              this.activeNames.push(i + 1);
               this.activeNames = Array.from(new Set(this.activeNames));
             }
-            console.log(this.activeNames, "+++"); /*  */
             this.uploadShow = false;
           }
         });
@@ -352,6 +540,50 @@ export default {
     //详情
     detail(id) {
       this.$router.push({ path: "/Detail" + id + "" });
+    },
+    //测试
+
+    //加固策略
+    strategyChange(item, index) {
+      console.log(this.addRoleForm);
+      let data = this.strategyOptions.filter(val => {
+        return val["reinforce_describe"] == item;
+      });
+      this.strategyItemDto = data;
+      console.log(item, index);
+    },
+    //是否多渠道打包
+    channelPackChange(item) {
+      let baseUrl = this.api.baseUrl;
+      if (item === "1") {
+        https
+          .fetchPost(
+            baseUrl + "/api/channel/strategy/findChannelStrategyByPage",
+            { limit: 20, pn: 1 }
+          )
+          .then(res => {
+            this.channelPackList = res.data.data.items;
+            console.log(this.channelPackList, "哈哈");
+          });
+      } else {
+        console.log("不做操作");
+      }
+    },
+    //是否签名
+    signatureChange(item) {
+      console.log(item);
+      let baseUrl = this.api.baseUrl;
+      if (item == "是") {
+        https
+          .fetchPost(baseUrl + "/api/reinforce/sign/page", {
+            limit: 20,
+            pn: 1
+          })
+          .then(res => {
+            this.signatureList = res.data.data.items;
+            console.log(this.signatureList);
+          });
+      }
     }
   },
   mounted() {
@@ -369,7 +601,7 @@ export default {
           JSON.stringify(data).replace(/reinforce_strategy_name/g, "label")
         );
         this.strategyOptions = data;
-        console.log(this.strategyOptions, "hahahhaha");
+        console.log(this.strategyOptions, "哈哈哈哈哈");
       });
     //查询渠道策略分页列表 是否多渠道打包
     https
@@ -433,6 +665,16 @@ export default {
   width: 100%;
   height: 230px;
   margin-top: 20px;
+}
+.el-drawer-content .el-collapse {
+  margin-top: 10px;
+}
+.el-drawer-content .el-collapse .el-row {
+  /*  padding: 20px 0; */
+  text-align: justify;
+}
+.el-drawer-content .el-collapse .password .el-input__inner {
+  border: none;
 }
 .addApplicationForm {
   padding: 20px;
@@ -527,7 +769,7 @@ export default {
   font-size: 16px;
   font-weight: 600;
 }
-.el-drawer-footer {
+.reinfore .el-drawer-footer {
   width: 100%;
   position: fixed;
   bottom: 0px;
