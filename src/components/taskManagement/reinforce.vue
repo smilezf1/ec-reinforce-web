@@ -460,6 +460,7 @@ export default {
               this.activeNames.push(i + 1);
               this.activeNames = Array.from(new Set(this.activeNames));
             }
+            console.log(this.uploadFileItems,"-----")
             this.uploadShow = false;
           }
         });
