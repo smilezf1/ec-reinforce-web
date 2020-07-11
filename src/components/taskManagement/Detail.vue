@@ -295,7 +295,7 @@ export default {
   vertical-align: middle;
   margin-left: 15px;
 }
-.detailBody .el-row{
+.detailBody .el-row {
   border-bottom: 1px solid #ebeef5;
   display: flex;
   align-items: center;
