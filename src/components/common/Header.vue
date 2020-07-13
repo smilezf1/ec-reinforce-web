@@ -72,7 +72,8 @@ export default {
   color: white;
   padding: 0px 30px 0px 10px;
   position: fixed;
-  z-index:99;
+  z-index: 99;
+  box-shadow: 0px 0px 10px #00000036;
 }
 .headerLeftBox {
   display: flex;

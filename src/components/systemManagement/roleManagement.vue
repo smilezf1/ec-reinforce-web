@@ -87,27 +87,37 @@
     <div class="roleManagementBody">
       <template>
         <el-table ref="listItem" :data="listItem">
-          <el-table-column
-            type="index"
-            label="序号"
-            width="60"
-          ></el-table-column>
-          <el-table-column prop="name" label="角色名称">
+          <el-table-column type="index" label="序号" width="150">
+            <template slot-scope="scope">
+              <span>{{ (curPage - 1) * limit + scope.$index + 1 }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="name" label="角色名称" width="300">
             <template slot-scope="scope">{{ scope.row.name }}</template>
           </el-table-column>
-          <el-table-column prop="status" label="是否有效">
+          <el-table-column prop="status" label="是否有效" width="200">
             <template slot-scope="scope">
               <span v-if="scope.row.status === '1'">是</span>
               <span v-if="scope.row.status === '0'">否</span>
             </template>
           </el-table-column>
-          <el-table-column prop="createTime" label="创建时间">
+          <el-table-column
+            prop="createTime"
+            label="创建时间"
+            :show-overflow-tooltip="true"
+            width="300"
+          >
             <template slot-scope="scope">{{ scope.row.createTime }}</template>
           </el-table-column>
-          <el-table-column prop="updateTime" label="更新时间">
+          <el-table-column
+            prop="updateTime"
+            label="更新时间"
+            :show-overflow-tooltip="true"
+            width="300"
+          >
             <template slot-scope="scope">{{ scope.row.updateTime }}</template>
           </el-table-column>
-          <el-table-column prop="operation" label="操作">
+          <el-table-column prop="operation" label="操作" width="400">
             <template slot-scope="scope">
               <el-tooltip effect="dark" content="编辑" placement="top-start">
                 <i
@@ -242,9 +252,9 @@ export default {
         { value: "否", label: "否" }
       ],
       listItem: [],
-      dataCount: 0,
-      curPage: 1,
-      limit: 10,
+      dataCount: 0, //总数目
+      curPage: 1, //当前页
+      limit: 10, //每页显示的条目数
       editDrawer: false,
       addRoleDrawer: false,
       menuDialog: false,
@@ -313,7 +323,7 @@ export default {
       }
       let queryInfo = { name, status };
       this.getData(queryInfo);
-     /*  this.reload(); */
+      /*  this.reload(); */
     },
     //新增角色开始
     addRole() {
@@ -464,7 +474,7 @@ export default {
         for (var i = 0; i < nodes.length; i++) {
           menuList.push(nodes[i].id);
           menuList = Array.from(new Set(menuList));
-          console.log(menuList,"------");
+          console.log(menuList, "------");
         }
       }
       this.$confirm("确定要更新菜单列表吗?", "提示", {
@@ -506,7 +516,6 @@ export default {
             .then(res => {
               if (res.data.code === "00") {
                 this.reload();
-
                 this.$notify.success({
                   message: "停用成功",
                   type: "warning",
@@ -526,7 +535,7 @@ export default {
       this.$alert("确定要启用吗?", "确定启用", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        type: "success"
+        type: "warning"
       })
         .then(() => {
           https
@@ -558,13 +567,13 @@ export default {
   font-size: 14px;
 }
 .searchBox .el-input {
-  margin-right: 5px;
+  margin: 0px 5px 5px 0px;
 }
 .searchForm {
   display: flex;
 }
 .searchBox {
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   display: flex;
 }
 .operateBox {

@@ -62,11 +62,8 @@
     <div class="menuManagementBody">
       <template>
         <el-table ref="menusTable" :row-style="showRow" :data="menusTable">
-          <el-table-column
-            type="index"
-            label="序号"
-            width="60"
-          ></el-table-column>
+          <el-table-column type="index" label="序号" width="60">
+          </el-table-column>
           <el-table-column prop="name" label="资源名称">
             <template slot-scope="scope">
               <span :class="['type' + scope.row.type]">
@@ -94,7 +91,11 @@
               {{ scope.row.address }}
             </template>
           </el-table-column>
-          <el-table-column prop="icon" label="资源图标">
+          <el-table-column
+            prop="icon"
+            label="资源图标"
+            :show-overflow-tooltip="true"
+          >
             <template slot-scope="scope">
               <span>{{ scope.row.icon }}</span>
             </template>
@@ -487,29 +488,53 @@ export default {
     //停用
     blockUp(id, type) {
       let baseUrl = this.api.baseUrl;
-      https.fetchGet(baseUrl + "/api/system/menu/invalid", { id }).then(res => {
-        if (res.data.code === "00") {
-          this.reload();
-          this.$notify.success({
-            message: "停用成功",
-            type: "warning",
-            showClose: false
-          });
-        }
-      });
+      this.$alert("确定要停用吗?", "确定停用", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          https
+            .fetchGet(baseUrl + "/api/system/menu/invalid", { id })
+            .then(res => {
+              if (res.data.code === "00") {
+                this.reload();
+                this.$notify.success({
+                  message: "停用成功",
+                  type: "warning",
+                  showClose: false
+                });
+              }
+            });
+        })
+        .catch(() => {
+          console.log("取消停用");
+        });
     },
     //启用
     launch(id) {
       let baseUrl = this.api.baseUrl;
-      https.fetchGet(baseUrl + "/api/system/menu/active", { id }).then(res => {
-        if (res.data.code === "00") {
-          this.reload();
-          this.$notify.success({
-            message: "启用成功",
-            showClose: false
-          });
-        }
-      });
+      this.$alert("确定要启用吗?", "确定启用", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          https
+            .fetchGet(baseUrl + "/api/system/menu/active", { id })
+            .then(res => {
+              if (res.data.code === "00") {
+                this.reload();
+                this.$notify.success({
+                  message: "启用成功",
+                  showClose: false
+                });
+              }
+            });
+        })
+        .catch(() => {
+          console.log("取消启用");
+        });
     }
   },
   created() {
@@ -518,9 +543,7 @@ export default {
       this.menusTable = this.toTreeData(res.data.data);
     });
   },
-  mounted(){
-    
-  }
+  mounted() {}
 };
 </script>
 <style scoped>
@@ -585,7 +608,7 @@ export default {
   right: 20px;
 }
 .operateBox {
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 .el-button--primary {
   background: #207ba6;

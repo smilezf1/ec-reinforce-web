@@ -50,7 +50,7 @@
             @click="search(ruleForm)"
           ></el-button>
         </el-tooltip>
-        <el-tooltip effect="dark" content="新增" placement="top-start">
+        <el-tooltip effect="dark" content="新增" placement="top-start" >
           <el-button
             type="primary"
             icon="el-icon-zoom-in"
@@ -159,11 +159,11 @@
     <div class="userManagementBody">
       <template>
         <el-table :data="listItem" ref="listItem">
-          <el-table-column
-            type="index"
-            label="序号"
-            width="60"
-          ></el-table-column>
+          <el-table-column type="index" label="序号" width="100">
+            <template slot-scope="scope">
+              <span>{{ (curPage - 1) * limit + scope.$index + 1 }}</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="trueName" label="用户名" width="150">
           </el-table-column>
           <el-table-column
@@ -177,16 +177,30 @@
               <span v-else>女</span>
             </template>
           </el-table-column>
-          <el-table-column prop="mobile" label="手机号"></el-table-column>
-          <el-table-column prop="email" label="电子邮箱"></el-table-column>
-          <el-table-column prop="status" label="是否有效">
+          <el-table-column
+            prop="mobile"
+            label="手机号"
+            width="180"
+          ></el-table-column>
+          <el-table-column
+            prop="email"
+            label="电子邮箱"
+            width="200"
+            :show-overflow-tooltip="true"
+          ></el-table-column>
+          <el-table-column prop="status" label="是否有效" width="150">
             <template slot-scope="scope">
               <span v-if="scope.row.status == '1'">是</span>
               <span v-else>否</span>
             </template>
           </el-table-column>
-          <el-table-column prop="createTime" label="创建时间"></el-table-column>
-          <el-table-column prop="operate" label="操作">
+          <el-table-column
+            prop="createTime"
+            label="创建时间"
+            :show-overflow-tooltip="true"
+            width="200"
+          ></el-table-column>
+          <el-table-column prop="operate" label="操作" width="200">
             <template slot-scope="scope">
               <el-tooltip effect="dark" content="编辑" placement="top-start">
                 <i
@@ -448,9 +462,9 @@ export default {
         email: "",
         status: ""
       },
-      curPage: 1,
-      limit: 10,
-      dataCount: 0,
+      curPage: 1, //当前页
+      limit: 10, //每页显示的条目个数
+      dataCount: 0, //总数目
       listItem: [],
       editDrawer: false,
       editId: null,
@@ -850,31 +864,54 @@ export default {
     //设置角色结束
     //启用
     launch(id) {
-      console.log("启用", id);
       let baseUrl = this.api.baseUrl;
-      https.fetchGet(baseUrl + "/api/system/user/active", { id }).then(res => {
-        if (res.data.code === "00") {
-          this.reload();
-          this.$notify.success({
-            message: "启用成功",
-            showClose: false
-          });
-        }
-      });
+      this.$alert("确定要启用吗?", "确定启用", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          https
+            .fetchGet(baseUrl + "/api/system/user/active", { id })
+            .then(res => {
+              if (res.data.code === "00") {
+                this.reload();
+                this.$notify.success({
+                  message: "启用成功",
+                  showClose: false
+                });
+              }
+            });
+        })
+        .catch(() => {
+          console.log("取消启用");
+        });
     },
     //停用
     blockUp(id) {
       let baseUrl = this.api.baseUrl;
-      https.fetchGet(baseUrl + "/api/system/user/invalid", { id }).then(res => {
-        if (res.data.code === "00") {
-          this.reload();
-          this.$notify.success({
-            message: "停用成功",
-            type: "warning",
-            showClose: false
-          });
-        }
-      });
+      this.$alert("确定要停用吗?", "确定停用", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          https
+            .fetchGet(baseUrl + "/api/system/user/invalid", { id })
+            .then(res => {
+              if (res.data.code === "00") {
+                this.reload();
+                this.$notify.success({
+                  message: "停用成功",
+                  type: "warning",
+                  showClose: false
+                });
+              }
+            });
+        })
+        .catch(() => {
+          console.log("取消停用");
+        });
     }
   },
   mounted() {
@@ -892,20 +929,20 @@ export default {
   width: 99%;
 }
 .searchBox .el-input {
-  margin-right: 5px;
+  margin: 0px 5px 5px 0px;
 }
 .el-input {
   width: auto;
 }
-.searchForm {
-  display: flex;
-}
 .searchBox {
-  margin-bottom: 10px;
-  display: flex;
+  margin-bottom: 15px;
+  display: inline-block;
 }
 .operateBox {
   margin-left: 20px;
+  display: inline-block;
+  box-sizing: border-box;
+  margin-bottom: 15px;
 }
 .editIcon,
 .resetIcon,

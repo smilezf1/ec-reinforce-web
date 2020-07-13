@@ -6,11 +6,11 @@
     <div class="dashboardBody">
       <template>
         <el-table :data="listItem" ref="listItem">
-          <el-table-column
-            type="index"
-            label="序号"
-            width="60"
-          ></el-table-column>
+          <el-table-column type="index" label="序号" width="60">
+            <template slot-scope="scope">
+              <span>{{ (curPage-1)*limit+scope.$index+1 }}</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="appName" label="应用名称">
             <template slot-scope="scope">
               <img :src="'data:image/jpg;base64,' + scope.row.appIcon" />
@@ -55,9 +55,9 @@ export default {
   name: "dashboard",
   data() {
     return {
-      curPage: 1,
-      limit: 10,
-      dataCount: 0,
+      curPage: 1, //当前页
+      limit: 10, //每页显示的条目个数
+      dataCount: 0, //总数目
       listItem: [] //调用接口获取的数据
     };
   },

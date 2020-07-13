@@ -20,20 +20,26 @@ axios.interceptors.response.use(response => {
     if (response.data.code === "05") {
         console.log(this, "token过期");
         localStorage.removeItem('Authorization');
-        v.$alert('会话过期,请重新登录', '系统提示', {
-            confirmButtonText: '确定',
-            type: 'warning',
-            callback: action => {
-              /*   console.log("用户点击了❌ 测试") */
-                router.push({ name: "Login" })
-            }
+        v.$confirm('会话过期,请重新登录', '系统提示', {
+            confirmButtonText: "确定",
+            closeOnClickModal: false,
+            type: "warning"
         }).then(() => {
-            console.log("用户点击了确定 测试---");
-            router.push({ name: "Login" })
+            router.push({ name: 'Login' })
         }).catch(() => {
-            console.log("用户点击了❌号")
             router.push({ name: "Login" })
         })
+        /*  v.$alert('会话过期,请重新登录', '系统提示', {
+             confirmButtonText: '确定',
+             type: 'warning',
+             callback: action => {
+                 router.push({ name: "Login" })
+             }
+         }).then(() => {
+             router.push({ name: "Login" })
+         }).catch(() => {
+             router.push({ name: "Login" })
+         }) */
     }
     return response
 })
