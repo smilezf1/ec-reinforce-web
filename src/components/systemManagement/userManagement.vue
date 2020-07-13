@@ -50,7 +50,7 @@
             @click="search(ruleForm)"
           ></el-button>
         </el-tooltip>
-        <el-tooltip effect="dark" content="新增" placement="top-start" >
+        <el-tooltip effect="dark" content="新增" placement="top-start">
           <el-button
             type="primary"
             icon="el-icon-zoom-in"
@@ -158,18 +158,23 @@
     </div>
     <div class="userManagementBody">
       <template>
-        <el-table :data="listItem" ref="listItem">
+        <el-table
+          :data="listItem"
+          ref="listItem"
+          v-loading="loading"
+          element-loading-text="加载中"
+        >
           <el-table-column type="index" label="序号" width="100">
             <template slot-scope="scope">
               <span>{{ (curPage - 1) * limit + scope.$index + 1 }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="trueName" label="用户名" width="150">
+          <el-table-column prop="trueName" label="用户名" width="200">
           </el-table-column>
           <el-table-column
             prop="userName"
             label="登录名"
-            width="150"
+            width="200"
           ></el-table-column>
           <el-table-column prop="sex" label="性别" width="100">
             <template slot-scope="scope">
@@ -180,7 +185,7 @@
           <el-table-column
             prop="mobile"
             label="手机号"
-            width="180"
+            width="200"
           ></el-table-column>
           <el-table-column
             prop="email"
@@ -188,7 +193,12 @@
             width="200"
             :show-overflow-tooltip="true"
           ></el-table-column>
-          <el-table-column prop="status" label="是否有效" width="150">
+          <el-table-column
+            prop="status"
+            label="是否有效"
+            width="150"
+            align="center"
+          >
             <template slot-scope="scope">
               <span v-if="scope.row.status == '1'">是</span>
               <span v-else>否</span>
@@ -200,7 +210,7 @@
             :show-overflow-tooltip="true"
             width="200"
           ></el-table-column>
-          <el-table-column prop="operate" label="操作" width="200">
+          <el-table-column prop="operate" label="操作" width="290">
             <template slot-scope="scope">
               <el-tooltip effect="dark" content="编辑" placement="top-start">
                 <i
@@ -404,7 +414,6 @@
         layout="total, sizes, prev, pager, next, jumper"
         :total="dataCount"
         class="pagingBox"
-        background
       >
       </el-pagination>
     </div>
@@ -510,6 +519,7 @@ export default {
         email: "",
         status: ""
       },
+      loading: false,
       labelPosition: "right",
       editRules: {
         trueName: [
@@ -557,31 +567,6 @@ export default {
   },
   inject: ["reload"],
   methods: {
-    //气泡提示
-    initTableColumn(columnName) {
-      for (let i = 0; i < this[columnName].length; i++) {
-        if (!this[columnName][i].render) {
-          this.$set(this[columnName][i], "ellipsis", true);
-          this.$set(this[columnName][i], "render", (h, params) => {
-            return h("Tooltip", { props: { placement: "top" } }, [
-              params.row[params.column.key],
-              h(
-                "span",
-                {
-                  slot: "content",
-                  style: {
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap"
-                  }
-                },
-                params.row[params.column.key]
-              )
-            ]);
-          });
-        }
-      }
-    },
     //获取后台数据
     getData(queryInfo) {
       let baseUrl = this.api.baseUrl;
@@ -595,6 +580,7 @@ export default {
           this.listItem = res.data.data.items;
           this.dataCount = res.data.data.count;
         });
+      /* this.reload(); */
     },
     handleChange(val) {
       this.curPage = val;
@@ -618,14 +604,19 @@ export default {
         userName = ruleForm.userName,
         mobile = ruleForm.mobile,
         email = ruleForm.email,
-        status = ruleForm.status;
+        status = ruleForm.status,
+        _this = this;
       if (ruleForm.status == "是") {
         status = "1";
       } else if (ruleForm.status == "否") {
         status = "0";
       }
       let queryInfo = { trueName, userName, mobile, email, status, queryInfo };
+      _this.loading = true;
       this.getData(queryInfo);
+      setTimeout(function() {
+        _this.loading = false;
+      }, 500);
     },
     addUser() {
       this.addUserDrawer = true;
@@ -949,7 +940,7 @@ export default {
 .settingIcon,
 .closeIcon {
   font-size: 22px;
-  color: #207ba6;
+  color: #409eff;
   margin-right: 10px;
   cursor: pointer;
 }
@@ -996,10 +987,7 @@ th {
 .el-table ::before {
   background: white;
 }
-.el-button--primary {
-  background: #207ba6;
-  border-color: #207ba6;
-}
+
 .userManagementBase {
   margin-top: 20px;
 }

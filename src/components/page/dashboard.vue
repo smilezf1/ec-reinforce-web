@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard">
     <div class="dashboardHeader">
-      <p>当前位置:我的加固任务</p>
+      <p>当前位置:系统首页</p>
     </div>
     <div class="dashboardBody">
       <template>
@@ -41,7 +41,6 @@
           layout="total, sizes, prev, pager, next, jumper"
           :total="dataCount"
           class="pagingBox"
-          background
         >
         </el-pagination>
       </template>

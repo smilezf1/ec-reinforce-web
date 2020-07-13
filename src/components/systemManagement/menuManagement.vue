@@ -579,8 +579,8 @@ export default {
 .closeIcon,
 .checkIcon {
   font-size: 22px;
-  color: #207ba6;
-  margin-right: 5px;
+  color: #409eff;
+  margin-right: 10px;
   cursor: pointer;
 }
 .el-table ::before {
@@ -610,12 +610,5 @@ export default {
 .operateBox {
   margin-bottom: 15px;
 }
-.el-button--primary {
-  background: #207ba6;
-  border-color: #207ba6;
-}
-.el-button--primary:hover {
-  background: #207ba6bd;
-  border-color: #207ba6bd;
-}
+
 </style>

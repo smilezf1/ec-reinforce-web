@@ -77,7 +77,7 @@ export default {
         userName: [
           { required: true, message: "请输入用户名", trigger: "blur" }
         ],
-        passWord: [{ required: true, message: "请输入密码", trigger: "blur" }],
+        password: [{ required: true, message: "请输入密码", trigger: "blur" }],
         verCode: [{ required: true, message: "请输入验证码", trigger: "blur" }]
       },
       verifyCode: "",
@@ -138,6 +138,7 @@ export default {
             message: "必填项不能为空",
             type: "error"
           });
+          _this.Guid = this.guid.getGuid();
           return false;
         }
       });

@@ -86,7 +86,12 @@
     </div>
     <div class="roleManagementBody">
       <template>
-        <el-table ref="listItem" :data="listItem">
+        <el-table
+          ref="listItem"
+          :data="listItem"
+          v-loading="loading"
+          element-loading-text="加载中"
+        >
           <el-table-column type="index" label="序号" width="150">
             <template slot-scope="scope">
               <span>{{ (curPage - 1) * limit + scope.$index + 1 }}</span>
@@ -230,7 +235,6 @@
           layout="total, sizes, prev, pager, next, jumper"
           :total="dataCount"
           class="pagingBox"
-          background
         >
         </el-pagination>
       </template>
@@ -277,7 +281,8 @@ export default {
         name: "",
         status: ""
       },
-      editId: null
+      editId: null,
+      loading: false
     };
   },
   inject: ["reload"],
@@ -315,15 +320,19 @@ export default {
     search(ruleForm) {
       let baseUrl = this.api.baseUrl,
         name = ruleForm.name,
-        status = null;
+        status = null,
+        _this = this;
       if (ruleForm.status == "是") {
         status = "1";
       } else if (ruleForm.status == "否") {
         status = "0";
       }
+      _this.loading = true;
       let queryInfo = { name, status };
       this.getData(queryInfo);
-      /*  this.reload(); */
+      setTimeout(function() {
+        _this.loading = false;
+      }, 500);
     },
     //新增角色开始
     addRole() {
@@ -369,7 +378,9 @@ export default {
       });
     },
     refresh() {
-      this.reload();
+      console.log("哈哈");
+      const _this = this;
+      _this.reload();
     },
     saveEditForm(formName, editForm) {
       let baseUrl = this.api.baseUrl,
@@ -584,8 +595,8 @@ export default {
 .closeIcon,
 .checkIcon {
   font-size: 22px;
-  color: #207ba6;
-  margin-right: 5px;
+  color: #409eff;
+  margin-right: 10px;
   cursor: pointer;
 }
 .el-table {
@@ -626,10 +637,10 @@ export default {
 .el-input {
   width: auto;
 }
-.el-button--primary {
+/* .el-button--primary {
   background: #207ba6;
   border-color: #207ba6;
-}
+} */
 .roleManagementBase {
   margin-top: 20px;
 }

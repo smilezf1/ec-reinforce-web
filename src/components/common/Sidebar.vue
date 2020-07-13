@@ -7,6 +7,7 @@
       active-text-color="#20a0ff"
       router
       unique-opened
+      :default-active="active"
     >
       <template v-for="item in sidebarList">
         <template v-if="item.children">
@@ -62,7 +63,8 @@ export default {
   name: "Sidebar",
   data() {
     return {
-      sidebarList: []
+      sidebarList: [],
+      active: ""
     };
   },
   computed: {
@@ -75,7 +77,11 @@ export default {
       _this = this;
     http.fetchGet(baseUrl + "/api/system/menu/list").then(res => {
       _this.sidebarList = this.toTreeData(res.data.data);
+      console.log(_this.sidebarList, "------");
     });
+  },
+  mounted() {
+    this.active = this.$route.address;
   },
   methods: {
     toTreeData(data) {
@@ -88,12 +94,13 @@ export default {
         map[i.id] = i; //构建以id为键 当前数据为值
       });
       let treeData = [];
-      data.forEach(child => {
+      data.forEach((child, index) => {
         const mapItem = map[child.pId]; //判断当前数据的pId是否存在map中
         if (mapItem) {
           //不是最顶层的数据
           //注:这里map中的数据是引用了data的它的指向还是data,当mapItem改变时,arr也会改变
           (mapItem.children || (mapItem.children = [])).push(child); //判断mapItem是否存在child
+          mapItem.children.name = index - index;
         } else {
           //顶层数据
           treeData.push(child);

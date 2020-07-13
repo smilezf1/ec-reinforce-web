@@ -61,6 +61,8 @@
               multiple
               :http-request="addFileToFormData"
               v-show="uploadShow"
+              :file-list="uploadFileItems"
+              ref="upload"
             >
               <i class="el-icon-upload"></i>
               <div class="el-upload__text">
@@ -100,8 +102,10 @@
                           <el-form-item
                             prop="curPrinter1"
                             style="width:60%;display:inline-block"
-                            label="加固策略"
                           >
+                            <label slot="label"
+                              >加&nbsp;&nbsp;&nbsp;固&nbsp;&nbsp;&nbsp;策&nbsp;&nbsp;&nbsp;略:</label
+                            >
                             <el-select
                               v-model="addRoleFormArray[index].curPrinter1"
                               placeholder="请选择策略"
@@ -185,9 +189,11 @@
                         <p class="signature">
                           <el-form-item
                             style="width:60%;display:inline-block"
-                            label="是否签名:"
                             prop="radio2"
                           >
+                            <label slot="label"
+                              >是&nbsp;&nbsp;&nbsp;否&nbsp;&nbsp;&nbsp;签&nbsp;&nbsp;&nbsp;名:</label
+                            >
                             <el-radio-group
                               v-model="addRoleFormArray[index].radio2"
                             >
@@ -255,7 +261,12 @@
     </div>
     <div class="reinforeBody">
       <template>
-        <el-table :data="listItem" ref="listItem">
+        <el-table
+          :data="listItem"
+          ref="listItem"
+          v-loading="loading"
+          element-loading-text="加载中"
+        >
           <el-table-column type="index" label="序号" width="60">
             <template slot-scope="scope">
               <span>{{ (curPage - 1) * limit + scope.$index + 1 }}</span>
@@ -266,14 +277,16 @@
             label="应用名称"
             :show-overflow-tooltip="true"
           >
-            <el-tooltip  effect="dark" :content="scope.row.appName" placement="top-start">
-              <template slot-scope="scope">
-                <img :src="'data:image/jpg;base64,' + scope.row.appIcon" /> 
-                <span style="margin-left:7px"
-                  >{{ scope.row.appName }}
-                </span></template
+            <template slot-scope="scope">
+              <img :src="'data:image/jpg;base64,' + scope.row.appIcon" />
+              <el-tooltip
+                effect="dark"
+                :content="scope.row.appName"
+                placement="top-start"
               >
-            </el-tooltip>
+                <span style="margin-left:7px">{{ scope.row.appName }} </span>
+              </el-tooltip>
+            </template>
           </el-table-column>
           <el-table-column prop="appFileName" label="文件名称">
           </el-table-column>
@@ -319,7 +332,6 @@
         layout="total, sizes, prev, pager, next, jumper"
         :total="dataCount"
         class="pagingBox"
-        background
       >
       </el-pagination>
     </div>
@@ -386,7 +398,8 @@ export default {
       },
       xx: {},
       label: "",
-      strategyItemDto: []
+      strategyItemDto: [],
+      loading: false
     };
   },
   inject: ["reload"],
@@ -424,9 +437,13 @@ export default {
       let baseUrl = this.api.baseUrl,
         appName = form.appName,
         appVersion = form.appVersion,
-        queryInfo = { appName, appVersion };
+        queryInfo = { appName, appVersion },
+        _this = this;
+      _this.loading = true;
       this.getData(queryInfo);
-      this.reload();
+      setTimeout(function() {
+        _this.loading = false;
+      }, 500);
     },
     //新增加固任务
     add() {
@@ -474,15 +491,15 @@ export default {
             reinforceInfoDto
           )
           .then(res => {
-            console.log(res);
+            const _this = this;
             if (res.data.code == "00") {
+              this.addTaskDrawer = false;
               this.$notify({
                 title: "成功",
                 message: "新增任务成功",
                 type: "success"
               });
-              this.reload();
-              this.addTaskDrawer = false;
+              _this.reload();
             }
           });
       } else {
@@ -491,11 +508,27 @@ export default {
     },
     //取消加固任务
     cancelSaveaddTask() {
-      this.addTaskDrawer = false;
-      this.reload();
+      if (this.uploadFileItems.length !== 0) {
+        this.$confirm("会清空当前上传的文件,是否继续?", "提示", {
+          closeOnClickModal: false,
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        })
+          .then(() => {
+            this.addTaskDrawer = false;
+            this.reload();
+          })
+          .catch(() => {
+            console.log("取消");
+          });
+      } else {
+        this.addTaskDrawer = false;
+      }
     },
     //加固
     reinforce(id) {
+      console.log(id);
       let baseUrl = this.api.baseUrl;
       https
         .fetchGet(baseUrl + "/api/reinforce/info/startReinforce", {
@@ -549,6 +582,8 @@ export default {
         });
     },
     //上传结束---
+
+    //
     //详情
     detail(id) {
       this.$router.push({ path: "/Detail" + id + "" });
@@ -593,9 +628,11 @@ export default {
       }
     }
   },
+  beforeMount() {
+    this.getData();
+  },
   mounted() {
     let baseUrl = this.api.baseUrl;
-    this.getData();
     //查询策略列表
     https
       .fetchPost(baseUrl + "/api/reinforce/strategy/page", {
@@ -644,7 +681,7 @@ export default {
 .playIcon,
 .floderIcon {
   font-size: 22px;
-  color: #207ba6;
+  color: #409eff;
   margin-right: 10px;
   cursor: pointer;
 }
@@ -685,6 +722,7 @@ export default {
 .addApplicationForm {
   padding: 20px;
   font-size: 14px;
+  border: none;
 }
 .addApplicationForm .handleBox p {
   margin-bottom: 20px;
@@ -706,9 +744,12 @@ export default {
   margin: 30px 35px 0 0;
   vertical-align: middle;
 }
-.addApplicationForm p {
+.addApplicationForm .el-row:first-child p {
   line-height: 36px;
   color: #606266;
+  margin: 10px 0;
+}
+.addApplicationForm .el-row .el-form-item {
   margin: 10px 0;
 }
 .addApplicationForm .appName {
@@ -718,7 +759,7 @@ export default {
   font-weight: 700;
 }
 .searchBox {
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   display: flex;
 }
 .reinforeBase {
@@ -727,10 +768,10 @@ export default {
 .reinfore .operateBox {
   margin-left: 20px;
 }
-.operateBox .el-button--primary {
+/* .operateBox .el-button--primary {
   background: #207ba6;
   border-color: #207ba6;
-}
+} */
 .el-table {
   font-size: 12px;
   border: 1px solid #dcdee2;
