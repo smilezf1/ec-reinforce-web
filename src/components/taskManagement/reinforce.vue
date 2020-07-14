@@ -678,8 +678,8 @@ export default {
   line-height: 50px;
   font-size: 14px;
 }
-.reinforeBody{
-  width:99%;
+.reinforeBody {
+  width: 99%;
 }
 .reinforeBody img {
   width: 40px;
@@ -722,8 +722,8 @@ export default {
 }
 .el-drawer-content .el-collapse {
   margin-top: 10px;
-  border-top:none !important;
-  border-bottom:none !important;
+  border-top: none !important;
+  border-bottom: none !important;
 }
 .el-drawer-content .el-collapse .el-row {
   /*  padding: 20px 0; */
@@ -787,8 +787,8 @@ export default {
   border-bottom: 1px solid transparent !important;
 }
 .el-table thead {
-  color: #515a6e;
-  font-size: 12px;
+  color: #515a6e !important;
+  font-size: 12px !important;
 }
 .el-table__header-wrapper {
   background: #f8f8f9;
@@ -796,11 +796,11 @@ export default {
 .el-table__header-wrapper th {
   background: #f2f5f7 !important;
 }
-.el-table__body-wrapper span{
+.el-table__body-wrapper span {
   font-size: 12px !important;
 }
-.el-table .cell{
-  font-size:12px;
+.el-table .cell {
+  font-size: 12px;
 }
 .el-table ::before {
   background: white;

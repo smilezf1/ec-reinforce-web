@@ -550,7 +550,7 @@ export default {
 .menuManagementHeader {
   line-height: 50px;
   line-height: 50px;
-  font-size: 14px;
+  font-size: 12px;
 }
 .typeM {
   margin-left: 5px;
@@ -565,7 +565,8 @@ export default {
   border-bottom: 1px solid transparent;
 }
 .el-table thead {
-  color: #515a6e;
+  font-size: 12px !important;
+  color: #515a6e !important;
 }
 .el-table__header-wrapper {
   background: #f8f8f9;
@@ -610,5 +611,4 @@ export default {
 .operateBox {
   margin-bottom: 15px;
 }
-
 </style>

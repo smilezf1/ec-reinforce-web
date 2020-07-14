@@ -14,9 +14,33 @@ axios.interceptors.request.use(config => {
         config.headers.Authorization = localStorage.getItem('Authorization')
     }
     return config;
-}, error => { return Promise.reject(error) })
-//测试
+}, error => {
+    return Promise.reject(error)
+})
 axios.interceptors.response.use(response => {
+    if (response.data.code === "05") {
+        localStorage.removeItem('Authorization');
+        v.$alert('会话过期,请重新登录', '系统提示', {
+            confirmButtonText: '确定',
+            type: "warning",
+            callback: action => {
+                router.push({ name: 'Login' });
+            }
+        })
+    }
+    return response;
+}, error => {
+    v.$alert('请求超时', '系统提示', {
+        confirmButtonText: '确定',
+        type: "warning",
+        callback: action => {
+            router.push({ name: 'Login' });
+        }
+    })
+})
+//测试
+/* axios.interceptors.response.use(response => {
+    console.log(response)
     if (response.data.code === "05") {
         localStorage.removeItem('Authorization');
         v.$confirm('会话过期,请重新登录', '系统提示', {
@@ -25,21 +49,20 @@ axios.interceptors.response.use(response => {
             type: "warning"
         }).then(() => {
             router.push({ name: 'Login' });
-            console.log("11111")
         }).catch(() => {
             router.push({ name: "Login" });
-            console.log("2222")
         })
     }
     return response
-})
+}) */
 //返回一个Promise(发送post请求)
 export function fetchPost(url, params) {
     return new Promise((resolve, reject) => {
         axios.post(url, params).then(res => {
             resolve(res);
         }, err => {
-            reject(err)
+            reject(err);
+
         }).catch((error) => {
             reject(error)
         })
@@ -51,8 +74,10 @@ export function fetchGet(url, params, responseType) {
         axios.get(url, { params }, responseType).then(res => {
             resolve(res);
         }, err => {
+
             reject(err)
         }).catch((error) => {
+
             reject(error)
         })
     })

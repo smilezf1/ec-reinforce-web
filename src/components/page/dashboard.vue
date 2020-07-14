@@ -8,7 +8,7 @@
         <el-table :data="listItem" ref="listItem">
           <el-table-column type="index" label="序号" width="60">
             <template slot-scope="scope">
-              <span>{{ (curPage-1)*limit+scope.$index+1 }}</span>
+              <span>{{ (curPage - 1) * limit + scope.$index + 1 }}</span>
             </template>
           </el-table-column>
           <el-table-column prop="appName" label="应用名称">
@@ -70,9 +70,10 @@ export default {
           limit: this.limit
         })
         .then(res => {
-          this.listItem = res.data.data.items;
-          this.dataCount = res.data.data.count;
-          console.log(this.dataCount);
+          if (res.data.code === "00") {
+            this.listItem = res.data.data.items;
+            this.dataCount = res.data.data.count;
+          }
         });
     },
     //显示的页面条数
@@ -116,6 +117,9 @@ export default {
   font-size: 12px;
   border: 1px solid #dcdee2 !important;
   border-bottom: 1px solid transparent !important;
+}
+.el-table::befor {
+  height: 0;
 }
 .el-table thead {
   color: #515a6e;

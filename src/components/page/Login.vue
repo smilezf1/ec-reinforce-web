@@ -226,15 +226,15 @@ body,
 }
 .user-login-main-box .submit {
   width: 100%;
-  background: #207ba6;
-  color: white;
+  background: #207ba6 !important;
+  color: white !important;
   border: none;
   font-size: 22px;
   border-radius: 30px;
 }
 .user-login-main-box .el-button:hover {
-  background: #207ba6;
-  color: #fff;
+  background: #207ba6 !important;
+  color: #fff !important;
   border: none;
 }
 .user-login-footer p {
