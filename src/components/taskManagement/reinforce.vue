@@ -543,6 +543,7 @@ export default {
             message: "启动成功！",
             type: "success"
           });
+          this.reload();
         });
     },
     //上传-----开始
@@ -677,6 +678,9 @@ export default {
   line-height: 50px;
   font-size: 14px;
 }
+.reinforeBody{
+  width:99%;
+}
 .reinforeBody img {
   width: 40px;
   height: 40px;
@@ -712,12 +716,14 @@ export default {
   width: 100%;
 }
 .el-upload-dragger {
-  width: 100%;
-  height: 230px;
-  margin-top: 20px;
+  width: 100% !important;
+  height: 230px !important;
+  margin-top: 20px !important;
 }
 .el-drawer-content .el-collapse {
   margin-top: 10px;
+  border-top:none !important;
+  border-bottom:none !important;
 }
 .el-drawer-content .el-collapse .el-row {
   /*  padding: 20px 0; */
@@ -775,14 +781,10 @@ export default {
 .reinfore .operateBox {
   margin-left: 20px;
 }
-/* .operateBox .el-button--primary {
-  background: #207ba6;
-  border-color: #207ba6;
-} */
 .el-table {
   font-size: 12px;
-  border: 1px solid #dcdee2;
-  border-bottom: 1px solid transparent;
+  border: 1px solid #dcdee2 !important;
+  border-bottom: 1px solid transparent !important;
 }
 .el-table thead {
   color: #515a6e;
@@ -792,7 +794,13 @@ export default {
   background: #f8f8f9;
 }
 .el-table__header-wrapper th {
-  background: #f2f5f7;
+  background: #f2f5f7 !important;
+}
+.el-table__body-wrapper span{
+  font-size: 12px !important;
+}
+.el-table .cell{
+  font-size:12px;
 }
 .el-table ::before {
   background: white;

@@ -114,8 +114,8 @@ export default {
 
 .el-table {
   font-size: 12px;
-  border: 1px solid #dcdee2;
-  border-bottom: 1px solid transparent;
+  border: 1px solid #dcdee2 !important;
+  border-bottom: 1px solid transparent !important;
 }
 .el-table thead {
   color: #515a6e;

@@ -232,6 +232,11 @@ body,
   font-size: 22px;
   border-radius: 30px;
 }
+.user-login-main-box .el-button:hover {
+  background: #207ba6;
+  color: #fff;
+  border: none;
+}
 .user-login-footer p {
   position: fixed;
   bottom: 25px;
