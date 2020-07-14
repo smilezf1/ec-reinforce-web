@@ -297,9 +297,12 @@
             :show-overflow-tooltip="true"
           >
           </el-table-column>
-          <el-table-column prop="status" label="加固状态">
+          <el-table-column props="reinforceTaskStatus" label="加固状态">
             <template slot-scope="scope">
-              <span v-if="scope.row.status == 1">已完成</span>
+              <span v-if="scope.row.reinforceTaskStatus === 1">待加固</span>
+              <span v-if="scope.row.reinforceTaskStatus === 2">加固中</span>
+              <span v-if="scope.row.reinforceTaskStatus === 3">加固成功</span>
+              <span v-if="scope.row.reinforceTaskStatus === 4">加固失败</span>
             </template>
           </el-table-column>
           <el-table-column prop="userName" label="创建人"></el-table-column>
@@ -535,7 +538,11 @@ export default {
           reinforceInfoId: id
         })
         .then(res => {
-          console.log(res);
+          this.$notify({
+            title: "成功",
+            message: "启动成功！",
+            type: "success"
+          });
         });
     },
     //上传-----开始

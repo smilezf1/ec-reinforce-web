@@ -7,7 +7,7 @@
       active-text-color="#20a0ff"
       router
       unique-opened
-      :default-active="active"
+      :default-active="onRoutes"
     >
       <template v-for="item in sidebarList">
         <template v-if="item.children">

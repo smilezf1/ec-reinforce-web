@@ -1,3 +1,4 @@
+/*
 <template>
   <div class="Detail">
     <div class="detailHeader">
@@ -255,10 +256,19 @@ export default {
       })
       .then(res => {
         let data = res.data.data;
-        this.listItem.push(data.reinforceInfo);
-        this.signatureItem.push(data.reinforceSign);
-        this.strategyItem.push(data.reinforceStrategyDetail);
-        this.multipleChannel.push(data.channelStrategyDto);
+        if (data.reinforceInfo) {
+          this.listItem.push(data.reinforceInfo);
+        }
+        if (data)
+          if (data.reinforceSign) {
+            this.signatureItem.push(data.reinforceSign);
+          }
+        if (data.reinforceStrategyDetail) {
+          this.strategyItem.push(data.reinforceStrategyDetail);
+        }
+        if (data.channelStrategyDto) {
+          this.multipleChannel.push(data.channelStrategyDto);
+        }
       });
   },
   destroyed() {
@@ -307,14 +317,6 @@ export default {
 .detailOperate {
   margin-bottom: 15px;
 }
-.el-button--primary {
-  background: #207ba6;
-  border-color: #207ba6;
-}
-.el-button--primary:hover {
-  background: #207ba6bd;
-  border-color: #207ba6bd;
-}
 .el-table {
   font-size: 12px;
   border: 1px solid #dcdee2;
@@ -334,3 +336,4 @@ export default {
   background: white;
 }
 </style>
+*/

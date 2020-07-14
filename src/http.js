@@ -18,32 +18,21 @@ axios.interceptors.request.use(config => {
 //测试
 axios.interceptors.response.use(response => {
     if (response.data.code === "05") {
-        console.log(this, "token过期");
         localStorage.removeItem('Authorization');
         v.$confirm('会话过期,请重新登录', '系统提示', {
             confirmButtonText: "确定",
             closeOnClickModal: false,
             type: "warning"
         }).then(() => {
-            router.push({ name: 'Login' })
+            router.push({ name: 'Login' });
+            console.log("11111")
         }).catch(() => {
-            router.push({ name: "Login" })
+            router.push({ name: "Login" });
+            console.log("2222")
         })
-        /*  v.$alert('会话过期,请重新登录', '系统提示', {
-             confirmButtonText: '确定',
-             type: 'warning',
-             callback: action => {
-                 router.push({ name: "Login" })
-             }
-         }).then(() => {
-             router.push({ name: "Login" })
-         }).catch(() => {
-             router.push({ name: "Login" })
-         }) */
     }
     return response
 })
-
 //返回一个Promise(发送post请求)
 export function fetchPost(url, params) {
     return new Promise((resolve, reject) => {
