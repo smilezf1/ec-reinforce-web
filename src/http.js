@@ -25,6 +25,8 @@ axios.interceptors.response.use(response => {
             type: "warning",
             callback: action => {
                 router.push({ name: 'Login' });
+                location.reload();
+
             }
         })
     }
@@ -35,6 +37,7 @@ axios.interceptors.response.use(response => {
         type: "warning",
         callback: action => {
             router.push({ name: 'Login' });
+            location.reload();
         }
     })
 })
