@@ -290,7 +290,11 @@
           </el-table-column>
           <el-table-column prop="appFileName" label="文件名称">
           </el-table-column>
-          <el-table-column prop="appPath" label="文件key"></el-table-column>
+          <el-table-column
+            prop="appPath"
+            label="文件key"
+            v-if="false"
+          ></el-table-column>
           <el-table-column prop="appVersion" label="应用版本"></el-table-column>
           <!--   <el-table-column
             prop="createTime"
@@ -664,7 +668,15 @@ export default {
       html +=
         '<iframe src="' + downloadUrl + '" style="display:none"></iframe>';
       this.riginalPackageData = html;
-      console.log(downloadUrl);
+      const loading = this.$loading({
+        lock: true,
+        text: "下载中",
+        spinner: "el-icon-loading",
+        background: "rgba(0, 0, 0, 0.7)"
+      });
+      setTimeout(() => {
+        loading.close();
+      }, 3000);
     },
     //下载加固包
     downloadReinforcePackage(id) {
@@ -681,8 +693,16 @@ export default {
         html = "";
       html +=
         '<iframe src="' + downloadUrl + '" style="display:none"></iframe>';
-      console.log(downloadUrl, html, "哈哈");
       this.ReinforcePackageData = html;
+      const loading = this.$loading({
+        lock: true,
+        text: "下载中",
+        spinner: "el-icon-loading",
+        background: "rgba(0, 0, 0, 0.7)"
+      });
+      setTimeout(() => {
+        loading.close();
+      }, 3000);
     },
     //取消下载加固报告
     cancelReinforcePackage() {
