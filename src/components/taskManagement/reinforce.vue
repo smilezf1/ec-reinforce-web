@@ -290,13 +290,19 @@
           </el-table-column>
           <el-table-column prop="appFileName" label="文件名称">
           </el-table-column>
+          <el-table-column prop="appPath" label="文件key"></el-table-column>
           <el-table-column prop="appVersion" label="应用版本"></el-table-column>
-          <el-table-column
+          <!--   <el-table-column
             prop="createTime"
             label="创建时间"
             :show-overflow-tooltip="true"
           >
-          </el-table-column>
+          </el-table-column> -->
+          <el-table-column
+            prop="reinforceTaskStartTime"
+            label="加固开始时间"
+            :show-overflow-tooltip="true"
+          ></el-table-column>
           <el-table-column props="reinforceTaskStatus" label="加固状态">
             <template slot-scope="scope">
               <span v-if="scope.row.reinforceTaskStatus === 1">待加固</span>
@@ -318,6 +324,45 @@
                 <i
                   class="el-icon-tickets floderIcon"
                   @click="detail(scope.row.id)"
+                ></i>
+              </el-tooltip>
+              <el-tooltip
+                effect="dark"
+                content="下载加固包"
+                placement="top-start"
+              >
+                <i
+                  class="el-icon-collection reinforcePackageIcon"
+                  @click="downloadReinforcePackage(scope.row.id)"
+                ></i>
+              </el-tooltip>
+              <!-- 加固包 -->
+              <router-link
+                to="/"
+                id="downloadReinforcePackage"
+                style="postion: absolute;left: -10px;top: -10px;width:0px;height:0px;"
+                v-html="ReinforcePackageData"
+              ></router-link>
+              <!-- 原包 -->
+              <router-link
+                to="/"
+                id="downloadriginalPackage"
+                style="postion: absolute;left: -10px;top: -10px;width:0px;height:0px;"
+                v-html="riginalPackageData"
+              ></router-link>
+              <!-- 下载文件 -->
+              <router-link
+                id="exportReinforcePackage"
+                style="position:absolute;left:-10px;top:-10px;width:0px;height:0px;"
+              ></router-link>
+              <el-tooltip
+                effect="dark"
+                content="下载原包"
+                placement="top-start"
+              >
+                <i
+                  class="el-icon-folder-opened originalPackageIcon"
+                  @click="downloadOriginalPackage(scope.row)"
                 ></i>
               </el-tooltip>
             </template>
@@ -384,6 +429,13 @@ export default {
       strategyOptions: [],
       channelPackOptions: [],
       reinforceDetailDrawer: false,
+      //加固报告
+      ReinforcePackageDrawer: false,
+      exportLoading: false,
+      xx: null,
+      appReportQuery: {
+        appReportFormat: "1"
+      },
       signatureOptions: [
         { value: "是", label: "是" },
         { value: "否", label: "否" }
@@ -399,7 +451,8 @@ export default {
         appVersion: "",
         reinforceSign: {}
       },
-      xx: {},
+      ReinforcePackageData: null,
+      riginalPackageData: null,
       label: "",
       strategyItemDto: [],
       loading: false
@@ -596,6 +649,52 @@ export default {
     detail(id) {
       this.$router.push({ path: "/Detail" + id + "" });
     },
+    //下载原包
+    downloadOriginalPackage(data) {
+      let appkey = data.appPath;
+      let baseUrl = this.api.baseUrl,
+        Authorization = localStorage.getItem("Authorization"),
+        downloadUrl =
+          baseUrl +
+          "/api/reinforce/info/download/" +
+          appkey +
+          "?Authorization=" +
+          Authorization,
+        html = "";
+      html +=
+        '<iframe src="' + downloadUrl + '" style="display:none"></iframe>';
+      this.riginalPackageData = html;
+      console.log(downloadUrl);
+    },
+    //下载加固包
+    downloadReinforcePackage(id) {
+      let baseUrl = this.api.baseUrl,
+        Authorization = localStorage.getItem("Authorization");
+      /*   this.ReinforcePackageDrawer = true; */
+      console.log(Authorization);
+      let downloadUrl =
+          baseUrl +
+          "/api/reinforce/info/downloadPackage/?reinforceInfoId=" +
+          id +
+          "&type=1&Authorization=" +
+          Authorization,
+        html = "";
+      html +=
+        '<iframe src="' + downloadUrl + '" style="display:none"></iframe>';
+      console.log(downloadUrl, html, "哈哈");
+      this.ReinforcePackageData = html;
+    },
+    //取消下载加固报告
+    cancelReinforcePackage() {
+      this.ReinforcePackageDrawer = false;
+      console.log("取消下载报告");
+    },
+
+    exportReinforcePackage() {
+      this.exportLoading = true;
+
+      console.log("保存下载报告");
+    },
 
     //加固策略
     strategyChange(item, index) {
@@ -690,7 +789,9 @@ export default {
 }
 .deleteIcon,
 .playIcon,
-.floderIcon {
+.floderIcon,
+.reinforcePackageIcon,
+.originalPackageIcon {
   font-size: 22px;
   color: #409eff;
   margin-right: 10px;
