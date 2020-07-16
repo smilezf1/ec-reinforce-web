@@ -96,7 +96,7 @@
                       </el-col>
                     </el-row>
                     <!-- 策略名称 -->
-                    <el-row class="strategyName">
+                    <!--   <el-row class="strategyName">
                       <el-col :span="24">
                         <p class="strategyName">
                           <el-form-item
@@ -127,9 +127,27 @@
                           </el-form-item>
                         </p>
                       </el-col>
+                    </el-row> -->
+                    <!-- 加固项 -->
+                    <el-row class="reinforceItem">
+                      <el-col :span="24">
+                        <p class="reinforceItem">
+                          <!--  <img :src="'data:image/jpg;base64,' + scope.row.appIcon" /> -->
+                          <el-form-item label="加固项">
+                            <el-tree
+                              :data="reinforceItemData"
+                              show-checkbox
+                              default-expand-all
+                              node-key="id"
+                              :ref="tree[index]"
+                              :props="defaultProps"
+                            ></el-tree>
+                          </el-form-item>
+                        </p>
+                      </el-col>
                     </el-row>
                     <!-- 多渠道打包 -->
-                    <el-row class="channelPack">
+                    <!--  <el-row class="channelPack">
                       <el-span :span="24">
                         <p class="channelPack">
                           <el-form-item
@@ -182,7 +200,7 @@
                           </template>
                         </p>
                       </el-span>
-                    </el-row>
+                    </el-row> -->
                     <!-- 签名策略 -->
                     <el-row>
                       <el-span :span="24">
@@ -459,11 +477,18 @@ export default {
       riginalPackageData: null,
       label: "",
       strategyItemDto: [],
-      loading: false
+      loading: false,
+      reinforceItemData: [],
+      defaultProps: {
+        children: "children",
+        label: "reinforceItemName"
+      },
+      checkedNodes: [] //菜单列表选中的数据
     };
   },
   inject: ["reload"],
   methods: {
+    //测试
     //获取后台数据
     getData(queryInfo) {
       let baseUrl = this.api.baseUrl;
@@ -545,7 +570,7 @@ export default {
           return result;
         });
         console.log("#reinforceInfoDto", reinforceInfoDto);
-        https
+        /*  https
           .fetchPost(
             baseUrl + "/api/reinforce/info/saveReinforceInfoOrUpdate",
             reinforceInfoDto
@@ -561,7 +586,7 @@ export default {
               });
               _this.reload();
             }
-          });
+          }); */
       } else {
         return "";
       }
@@ -647,7 +672,10 @@ export default {
         });
     },
     //上传结束---
-
+    //选树形结构
+    /*  handleCheck() {
+      console.log(xx);
+    }, */
     //
     //详情
     detail(id) {
@@ -682,8 +710,6 @@ export default {
     downloadReinforcePackage(id) {
       let baseUrl = this.api.baseUrl,
         Authorization = localStorage.getItem("Authorization");
-      /*   this.ReinforcePackageDrawer = true; */
-      console.log(Authorization);
       let downloadUrl =
           baseUrl +
           "/api/reinforce/info/downloadPackage/?reinforceInfoId=" +
@@ -704,18 +730,6 @@ export default {
         loading.close();
       }, 3000);
     },
-    //取消下载加固报告
-    cancelReinforcePackage() {
-      this.ReinforcePackageDrawer = false;
-      console.log("取消下载报告");
-    },
-
-    exportReinforcePackage() {
-      this.exportLoading = true;
-
-      console.log("保存下载报告");
-    },
-
     //加固策略
     strategyChange(item, index) {
       let data = this.strategyOptions.filter(val => {
@@ -787,6 +801,15 @@ export default {
       .fetchPost(baseUrl + "/api/reinforce/sign/page", { pn: 1, limit: 20 })
       .then(res => {
         console.log(res.data.data.items, "111111");
+      });
+    //查询加固项tree
+    https
+      .fetchPost(baseUrl + "/api/reinforce/item/findReinforceItemTree", {
+        reinforceItem: {}
+      })
+      .then(res => {
+        this.reinforceItemData = res.data.data;
+        console.log(this.reinforceItemData, "哈哈");
       });
   }
 };
