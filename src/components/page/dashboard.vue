@@ -19,7 +19,7 @@
               </span></template
             >
           </el-table-column>
-          <el-table-column prop="appFileName" label="应用名称">
+          <el-table-column prop="appFileName" label="文件名称">
           </el-table-column>
 
           <el-table-column prop="appVersion" label="应用版本"></el-table-column>

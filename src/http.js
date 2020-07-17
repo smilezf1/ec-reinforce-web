@@ -25,8 +25,7 @@ axios.interceptors.response.use(response => {
             type: "warning",
             callback: action => {
                 router.push({ name: 'Login' });
-                location.reload();
-
+                window.location.reload();
             }
         })
     }
@@ -37,27 +36,10 @@ axios.interceptors.response.use(response => {
         type: "warning",
         callback: action => {
             router.push({ name: 'Login' });
-            location.reload();
+            window.location.reload();
         }
     })
 })
-//测试
-/* axios.interceptors.response.use(response => {
-    console.log(response)
-    if (response.data.code === "05") {
-        localStorage.removeItem('Authorization');
-        v.$confirm('会话过期,请重新登录', '系统提示', {
-            confirmButtonText: "确定",
-            closeOnClickModal: false,
-            type: "warning"
-        }).then(() => {
-            router.push({ name: 'Login' });
-        }).catch(() => {
-            router.push({ name: "Login" });
-        })
-    }
-    return response
-}) */
 //返回一个Promise(发送post请求)
 export function fetchPost(url, params) {
     return new Promise((resolve, reject) => {

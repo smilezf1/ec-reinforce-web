@@ -148,23 +148,25 @@
           <div v-for="item in multipleChannel" :key="item.id">
             <el-row>
               <el-col :span="12"
-                >多渠道策略名称:&nbsp;&nbsp;&nbsp;&nbsp;{{
+                >策略名称:&nbsp;&nbsp;&nbsp;&nbsp;{{
                   item.channelStrategyName
                 }}</el-col
               >
               <el-col :span="12"
-                >多渠道策略描述:&nbsp;&nbsp;&nbsp;&nbsp;{{
+                >策略描述:&nbsp;&nbsp;&nbsp;&nbsp;{{
                   item.channelStrategyDescribe
                 }}</el-col
               >
             </el-row>
             <el-row>
               <el-col :span="12"
-                >多渠道策略数量:&nbsp;&nbsp;&nbsp;&nbsp;{{
+                >策略数量:&nbsp;&nbsp;&nbsp;&nbsp;{{
                   item.channelStrategyCount
                 }}</el-col
               >
-              <el-col :span="12">
+            </el-row>
+            <el-row>
+              <el-col :span="24">
                 <!-- 多渠道策略列表:{{ item.itemDetailDtoList }} -->
                 <el-collapse-item title="多渠道策略列表">
                   <div
@@ -177,18 +179,20 @@
                           subItem.channelName
                         }}</el-col
                       >
-                      <el-col :span="12"
+                      <!--   <el-col :span="12"
                         >渠道创建时间:&nbsp;&nbsp;&nbsp;&nbsp;{{
                           subItem.createTime
                         }}</el-col
-                      >
+                      > -->
                     </el-row>
                     <el-row>
                       <el-col :span="12"
                         >渠道状态:&nbsp;&nbsp;&nbsp;&nbsp;
                         <span v-if="subItem.status == 1">已完成</span>
                       </el-col>
-                      <el-col :span="12">
+                    </el-row>
+                    <el-row>
+                      <el-col :span="24">
                         <el-collapse-item title="渠道详细">
                           <div
                             v-for="grandItem in subItem.channelDetails"
@@ -215,13 +219,9 @@
               </el-col>
             </el-row>
             <el-row>
-              <el-col :span="12"
-                >多渠道策略状态:&nbsp;&nbsp;&nbsp;&nbsp;
-                <span v-if="item.status == 1">已完成</span>
-              </el-col>
-              <el-col :span="12"
+              <!-- <el-col :span="12"
                 >创建时间:&nbsp;&nbsp;&nbsp;&nbsp;{{ item.createTime }}</el-col
-              >
+              > -->
             </el-row>
           </div>
         </el-collapse-item>
@@ -256,6 +256,7 @@ export default {
       })
       .then(res => {
         let data = res.data.data;
+        console.log("哈哈", data);
         if (data.reinforceInfo) {
           this.listItem.push(data.reinforceInfo);
         }

@@ -62,7 +62,7 @@
     <div class="menuManagementBody">
       <template>
         <el-table ref="menusTable" :row-style="showRow" :data="menusTable">
-          <el-table-column type="index" label="序号" width="60">
+         <!--  <el-table-column type="index" label="序号" width="60"> -->
           </el-table-column>
           <el-table-column prop="name" label="资源名称">
             <template slot-scope="scope">

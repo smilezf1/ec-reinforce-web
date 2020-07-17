@@ -79,7 +79,6 @@ export default {
       if (res.data.code === "00") {
         _this.sidebarList = this.toTreeData(res.data.data);
       }
-      console.log(_this.sidebarList, "------");
     });
   },
   mounted() {

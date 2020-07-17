@@ -16,6 +16,7 @@ import VueRouter from 'vue-router'
 import index from '@/components/treeTable/index.vue'
 //加固服务详情
 import Detail from '@/components/taskManagement/Detail.vue'
+import xx from '@/components/page/xx.vue'
 Vue.use(Router);
 //解决 Element UI 导航栏重复点击菜单报错问题
 const originalPush = VueRouter.prototype.push;
@@ -26,8 +27,8 @@ const router = new Router({
     routes: [
         {
             path: "/",
-            name: "Login",
-            component: Login
+            name: "xx",
+            component: xx
         },
         {
             path: "/Home",

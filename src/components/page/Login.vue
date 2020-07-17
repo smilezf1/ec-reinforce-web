@@ -150,12 +150,16 @@ export default {
         this.guid.getGuid();
     }
   },
-  /*状态码为code:05(token失效),就清除token信息并跳转到登录界面
-  localStorage.removeItem('Authorization');
-  _this.$router.push('')
-
-   */
-  mounted() {}
+  created() {
+    let _this = this;
+    document.onkeydown = function(e) {
+      e = window.event || e;
+      if (e.code == "Enter" || e.code == "enter") {
+        _this.submitForm("ruleForm");
+      } else {
+      }
+    };
+  }
 };
 </script>
 <style>

@@ -24,22 +24,15 @@
         </el-form>
       </div>
       <div class="operateBox">
-        <el-tooltip effect="dark" content="查询" placement="top-start">
-          <el-button
-            type="primary"
-            icon="el-icon-search"
-            size="small"
-            @click="search(ruleForm)"
-          ></el-button>
-        </el-tooltip>
-        <el-tooltip effect="dark" content="新增任务" placement="top-start">
-          <el-button
-            type="primary"
-            icon="el-icon-zoom-in"
-            size="small"
-            @click="add()"
-          ></el-button>
-        </el-tooltip>
+        <!--  <el-tooltip effect="dark" content="新增任务" placement="top-start"> -->
+        <el-button
+          type="primary"
+          size="small"
+          @click="add()"
+          style="margin-right:10px"
+          >新增任务</el-button
+        >
+        <!--    </el-tooltip> -->
         <el-drawer
           title="新增任务"
           :visible.sync="addTaskDrawer"
@@ -131,19 +124,77 @@
                     <!-- 加固项 -->
                     <el-row class="reinforceItem">
                       <el-col :span="24">
-                        <p class="reinforceItem">
-                          <!--  <img :src="'data:image/jpg;base64,' + scope.row.appIcon" /> -->
-                          <el-form-item label="加固项">
-                            <el-tree
-                              :data="reinforceItemData"
-                              show-checkbox
-                              default-expand-all
-                              node-key="id"
-                              :ref="tree[index]"
-                              :props="defaultProps"
-                            ></el-tree>
+                        <h3 style="font-size:16px">加固项</h3>
+                        <div
+                          class="reinforceItem"
+                          v-for="item in reinforceItemData"
+                          :key="item.id"
+                        >
+                          <!-- <el-form-item label="加固项"> -->
+                          <!--  <el-tree
+                            :data="reinforceItemData"
+                            show-checkbox
+                            node-key="id"
+                            ref="tree"
+                            :props="defaultProps"
+                            @check-change="handleCheckChange"
+                          ></el-tree> -->
+                          <el-form-item :label="item.reinforceItemName">
+                            <div v-if="item.children">
+                              <div
+                                v-for="subItem in item.children"
+                                :key="subItem.id"
+                              >
+                                <el-checkbox-group
+                                  v-model="
+                                    addRoleFormArray[index].strategyItemDtoTest
+                                  "
+                                >
+                                  <el-checkbox
+                                    :label="subItem.reinforceItemName"
+                                    :checked="subItem.isChecked == 1"
+                                  ></el-checkbox>
+                                </el-checkbox-group>
+                              </div>
+                            </div>
+                            <div v-else>
+                              <el-radio-group
+                                v-model="addRoleFormArray[index].radioTest"
+                                :disabled="item.isCancel == 2"
+                              >
+                                <el-radio :label="1">启用</el-radio>
+                                <el-radio>禁用</el-radio>
+                              </el-radio-group>
+                              <el-form-item
+                                label="签名MD5"
+                                v-if="item.reinforceItemName == '自定义签名MD5'"
+                              >
+                                <el-input
+                                  v-model="addRoleFormArray[index].signMd5Items"
+                                  size="small"
+                                  @keyup.enter.native="addSignature(index)"
+                                  maxlength="32"
+                                ></el-input>
+                                <el-button
+                                  type="primary"
+                                  icon="el-icon-plus"
+                                  plain
+                                  circle
+                                  @click="addSignature(index)"
+                                  size="small"
+                                ></el-button>
+                                <!-- 添加的子项目 -->
+                                <!--   <el-row v-if="index > 0">
+                                  <el-col :span="24">
+                                    <el-input size="small" maxlength="32"
+                                      >子项目</el-input
+                                    >
+                                  </el-col>
+                                </el-row> -->
+                              </el-form-item>
+                            </div>
                           </el-form-item>
-                        </p>
+                        </div>
                       </el-col>
                     </el-row>
                     <!-- 多渠道打包 -->
@@ -262,10 +313,18 @@
             </div>
           </div>
           <div class="el-drawer-footer">
-            <el-button type="primary" @click="saveaddTask()">保存</el-button>
+            <el-button type="primary" @click="saveaddTask()">加固</el-button>
             <el-button @click="cancelSaveaddTask()" plain>取消</el-button>
           </div>
         </el-drawer>
+        <el-tooltip effect="dark" content="查询" placement="top-start">
+          <el-button
+            type="primary"
+            icon="el-icon-search"
+            size="small"
+            @click="search(ruleForm)"
+          ></el-button>
+        </el-tooltip>
         <el-tooltip effect="dark" content="刷新" placement="top-start">
           <el-button
             type="primary"
@@ -336,12 +395,12 @@
           <el-table-column prop="userName" label="创建人"></el-table-column>
           <el-table-column prop="operate" label="操作">
             <template slot-scope="scope">
-              <el-tooltip effect="dark" content="加固" placement="top-start">
+              <!--   <el-tooltip effect="dark" content="加固" placement="top-start">
                 <i
                   class="el-icon-video-play playIcon"
                   @click="reinforce(scope.row.id)"
                 ></i>
-              </el-tooltip>
+              </el-tooltip> -->
               <el-tooltip effect="dark" content="详细" placement="top-start">
                 <i
                   class="el-icon-tickets floderIcon"
@@ -354,36 +413,17 @@
                 placement="top-start"
               >
                 <i
-                  class="el-icon-collection reinforcePackageIcon"
+                  class="el-icon-sold-out reinforcePackageIcon"
                   @click="downloadReinforcePackage(scope.row.id)"
                 ></i>
               </el-tooltip>
-              <!-- 加固包 -->
-              <router-link
-                to="/"
-                id="downloadReinforcePackage"
-                style="postion: absolute;left: -10px;top: -10px;width:0px;height:0px;"
-                v-html="ReinforcePackageData"
-              ></router-link>
-              <!-- 原包 -->
-              <router-link
-                to="/"
-                id="downloadriginalPackage"
-                style="postion: absolute;left: -10px;top: -10px;width:0px;height:0px;"
-                v-html="riginalPackageData"
-              ></router-link>
-              <!-- 下载文件 -->
-              <router-link
-                id="exportReinforcePackage"
-                style="position:absolute;left:-10px;top:-10px;width:0px;height:0px;"
-              ></router-link>
               <el-tooltip
                 effect="dark"
                 content="下载原包"
                 placement="top-start"
               >
                 <i
-                  class="el-icon-folder-opened originalPackageIcon"
+                  class="el-icon-download originalPackageIcon"
                   @click="downloadOriginalPackage(scope.row)"
                 ></i>
               </el-tooltip>
@@ -413,6 +453,7 @@ export default {
   name: "reinfore",
   data() {
     return {
+      checkList: ["选中且禁用", "复选框 A"],
       curPage: 1, //当前页
       limit: 10, //每页显示的条目个数
       dataCount: 0, //总条目
@@ -441,7 +482,16 @@ export default {
         radio1: [
           { required: true, message: "是否多渠道打包", trigger: "blur" }
         ],
-        radio2: [{ required: true, message: "是否签名", trigger: "blur" }]
+        radio2: [{ required: true, message: "是否签名", trigger: "blur" }],
+        //^[A-Fa-f0-9]+$
+        signMd5Items: [
+          { required: true, message: "请输入签名" },
+          {
+            pattern: /^[A-Fa-f0-9]+$/,
+            message: "长度32位,仅支持数字、字母a-f,不区分大小写",
+            trigger: ["blur", "change"]
+          }
+        ]
       },
       dateValue: "",
       addTaskDrawer: false,
@@ -483,12 +533,41 @@ export default {
         children: "children",
         label: "reinforceItemName"
       },
-      checkedNodes: [] //菜单列表选中的数据
+      Array: null, //测试
+      radio: 1 //测试
     };
   },
   inject: ["reload"],
   methods: {
     //测试
+    handleCheckChange() {
+      let res = [];
+      this.Array = { reinforceItemList: [] };
+      this.$refs.tree.forEach((v, i) => {
+        let res = v.getCheckedKeys();
+        this.Array.reinforceItemList.push(res);
+      });
+      console.log(
+        this.Array.reinforceItemList[0],
+        this.Array.reinforceItemList[1]
+      );
+    },
+
+    addSignature(index) {
+      let signMd5Items = this.addRoleFormArray[index].signMd5Items;
+      let regularResult = /^[A-Fa-f0-9]+$/.test(signMd5Items);
+      console.log(
+        signMd5Items,
+        signMd5Items.length == 32,
+        regularResult,
+        "嘻嘻"
+      );
+      if (signMd5Items == "" || signMd5Items.length !== 32 || !regularResult) {
+        this.$message.error("长度32位,仅支持数字、字母a-f,不区分大小写");
+      } else {
+        console.log("执行这个111");
+      }
+    },
     //获取后台数据
     getData(queryInfo) {
       let baseUrl = this.api.baseUrl;
@@ -553,6 +632,7 @@ export default {
       if (allValid) {
         const reinforceInfoDto = taskList.map((formItem, index) => {
           const curFileItem = _this.uploadFileItems[index];
+          const checkedNodes = _this.Array.reinforceItemList[index];
           const result = {
             appName: curFileItem.appName,
             appIcon: curFileItem.appIcon,
@@ -563,14 +643,15 @@ export default {
             md5: curFileItem.md5,
             reinforceStrategyId: formItem.curPrinter1,
             channelStrategyId: formItem.curPrinter4,
-            signStrategyId: formItem.curPrinter5
+            signStrategyId: formItem.curPrinter5,
+            strategyItemDto: { reinforceItemList: checkedNodes }
             /* ...curFileItem,
             ...formItem */
           };
           return result;
         });
         console.log("#reinforceInfoDto", reinforceInfoDto);
-        /*  https
+        https
           .fetchPost(
             baseUrl + "/api/reinforce/info/saveReinforceInfoOrUpdate",
             reinforceInfoDto
@@ -586,7 +667,7 @@ export default {
               });
               _this.reload();
             }
-          }); */
+          });
       } else {
         return "";
       }
@@ -602,6 +683,7 @@ export default {
         })
           .then(() => {
             this.addTaskDrawer = false;
+            this.$refs.upload.clearFiles();
             this.reload();
           })
           .catch(() => {
@@ -649,6 +731,25 @@ export default {
           config
         )
         .then(res => {
+          const _this = this;
+          if (res.data.code === "01") {
+            _this.$notify({
+              title: "警告",
+              message: res.data.message,
+              type: "warning"
+            });
+            _this.addTaskDrawer = false;
+            _this.$refs.upload.clearFiles();
+          }
+          if (res.data.code === "99") {
+            _this.$notify({
+              title: "警告",
+              message: res.data.message,
+              type: "warning"
+            });
+            _this.addTaskDrawer = false;
+            _this.$refs.uploadc.clearFiles();
+          }
           if (res.data.code === "00") {
             if (res.data.data) {
               let data = res.data.data;
@@ -659,9 +760,14 @@ export default {
                 curPrinter4: "",
                 curPrinter5: "",
                 radio1: "",
-                radio2: ""
+                radio2: "",
+                strategyItemDto: {},
+                strategyItemDtoTest: [],
+                radioTest: 1,
+                signMd5Items: []
               });
               this.uploadFileItems.push(data);
+              console.log(this.addRoleFormArray);
               for (var i = 0; i < this.uploadFileItems.length; i++) {
                 this.activeNames.push(i + 1);
                 this.activeNames = Array.from(new Set(this.activeNames));
@@ -672,10 +778,6 @@ export default {
         });
     },
     //上传结束---
-    //选树形结构
-    /*  handleCheck() {
-      console.log(xx);
-    }, */
     //
     //详情
     detail(id) {
@@ -691,44 +793,21 @@ export default {
           "/api/reinforce/info/download/" +
           appkey +
           "?Authorization=" +
-          Authorization,
-        html = "";
-      html +=
-        '<iframe src="' + downloadUrl + '" style="display:none"></iframe>';
-      this.riginalPackageData = html;
-      const loading = this.$loading({
-        lock: true,
-        text: "下载中",
-        spinner: "el-icon-loading",
-        background: "rgba(0, 0, 0, 0.7)"
-      });
-      setTimeout(() => {
-        loading.close();
-      }, 3000);
+          Authorization;
+      window.location.href = downloadUrl;
     },
     //下载加固包
     downloadReinforcePackage(id) {
       let baseUrl = this.api.baseUrl,
         Authorization = localStorage.getItem("Authorization");
       let downloadUrl =
-          baseUrl +
-          "/api/reinforce/info/downloadPackage/?reinforceInfoId=" +
-          id +
-          "&type=1&Authorization=" +
-          Authorization,
-        html = "";
-      html +=
-        '<iframe src="' + downloadUrl + '" style="display:none"></iframe>';
-      this.ReinforcePackageData = html;
-      const loading = this.$loading({
-        lock: true,
-        text: "下载中",
-        spinner: "el-icon-loading",
-        background: "rgba(0, 0, 0, 0.7)"
-      });
-      setTimeout(() => {
-        loading.close();
-      }, 3000);
+        baseUrl +
+        "/api/reinforce/info/downloadPackage/?reinforceInfoId=" +
+        id +
+        "&type=1&Authorization=" +
+        Authorization;
+      console.log(downloadUrl, "哈哈");
+      window.location.href = downloadUrl;
     },
     //加固策略
     strategyChange(item, index) {
@@ -794,14 +873,12 @@ export default {
         limit: 20
       })
       .then(res => {
-        console.log(res.data.data.items, "-----");
+        /*  console.log(res.data.data.items, "-----"); */
       });
     //查询签名列表 签名策略列表
     https
       .fetchPost(baseUrl + "/api/reinforce/sign/page", { pn: 1, limit: 20 })
-      .then(res => {
-        console.log(res.data.data.items, "111111");
-      });
+      .then(res => {});
     //查询加固项tree
     https
       .fetchPost(baseUrl + "/api/reinforce/item/findReinforceItemTree", {
@@ -809,7 +886,17 @@ export default {
       })
       .then(res => {
         this.reinforceItemData = res.data.data;
-        console.log(this.reinforceItemData, "哈哈");
+        console.log(this.reinforceItemData, "111111");
+        let arrayTest1 = [];
+        let arrayTest2 = [];
+        this.reinforceItemData.forEach((v, i) => {
+          if (v.children) {
+            console.log(v, "有子集");
+            arrayTest1.push(v);
+          } else {
+            console.log(v, "没有子集");
+          }
+        });
       });
   }
 };
@@ -819,6 +906,10 @@ export default {
   height: 50px;
   line-height: 50px;
   font-size: 14px;
+}
+.reinfore .el-collapse-item__header.is-active {
+  font-weight: 700;
+  font-size: 16px;
 }
 .reinforeBody {
   width: 99%;
@@ -876,6 +967,9 @@ export default {
 .el-drawer-content .el-collapse .password .el-input__inner {
   border: none;
 }
+.reinforceItem {
+  margin-top: 10px;
+}
 .addApplicationForm {
   padding: 20px;
   font-size: 14px;
@@ -896,7 +990,7 @@ export default {
   margin: 30px 0;
 }
 .addApplicationForm img {
-  width: 110px;
+  width: 55%;
   border-radius: 15px;
   margin: 30px 35px 0 0;
   vertical-align: middle;
