@@ -153,6 +153,8 @@
                                   <el-checkbox
                                     :label="subItem.reinforceItemName"
                                     :checked="subItem.isChecked == 1"
+                                    :disabled="subItem.isCancel == 2"
+                                    :value="subItem.id"
                                   ></el-checkbox>
                                 </el-checkbox-group>
                               </div>
@@ -161,8 +163,9 @@
                               <el-radio-group
                                 v-model="addRoleFormArray[index].radioTest"
                                 :disabled="item.isCancel == 2"
+                                :label="item.isChecked"
                               >
-                                <el-radio :label="1">启用</el-radio>
+                                <el-radio>启用</el-radio>
                                 <el-radio>禁用</el-radio>
                               </el-radio-group>
                               <el-form-item
@@ -170,9 +173,12 @@
                                 v-if="item.reinforceItemName == '自定义签名MD5'"
                               >
                                 <el-input
-                                  v-model="addRoleFormArray[index].signMd5Items"
+                                  v-model="
+                                    addRoleFormArray[index].signMd5Items[index]
+                                  "
                                   size="small"
                                   @keyup.enter.native="addSignature(index)"
+                                  clearable
                                   maxlength="32"
                                 ></el-input>
                                 <el-button
@@ -183,14 +189,24 @@
                                   @click="addSignature(index)"
                                   size="small"
                                 ></el-button>
-                                <!-- 添加的子项目 -->
-                                <!--   <el-row v-if="index > 0">
-                                  <el-col :span="24">
-                                    <el-input size="small" maxlength="32"
-                                      >子项目</el-input
-                                    >
-                                  </el-col>
-                                </el-row> -->
+                              </el-form-item>
+                              <!-- 添加的子项目 -->
+                              <el-form-item
+                                v-if="
+                                  item.reinforceItemName == '自定义签名MD5' &&
+                                    index > 0
+                                "
+                                style="margin-left:70px"
+                              >
+                                <el-input
+                                  v-model="
+                                    addRoleFormArray[index].signMd5Items[index]
+                                  "
+                                  size="small"
+                                  clearable
+                                  @keyup.enter.native="addSignature(index)"
+                                  maxlength="32"
+                                ></el-input>
                               </el-form-item>
                             </div>
                           </el-form-item>
@@ -534,7 +550,9 @@ export default {
         label: "reinforceItemName"
       },
       Array: null, //测试
-      radio: 1 //测试
+      radio: 1, //测试
+      radioItem: [],
+      checkedItem: []
     };
   },
   inject: ["reload"],
@@ -555,17 +573,15 @@ export default {
 
     addSignature(index) {
       let signMd5Items = this.addRoleFormArray[index].signMd5Items;
-      let regularResult = /^[A-Fa-f0-9]+$/.test(signMd5Items);
-      console.log(
-        signMd5Items,
-        signMd5Items.length == 32,
-        regularResult,
-        "嘻嘻"
-      );
-      if (signMd5Items == "" || signMd5Items.length !== 32 || !regularResult) {
+      let regularResult = /^\d{32}[A-Fa-f0-9]+$/.test(signMd5Items);
+      console.log(signMd5Items.length);
+      if (!regularResult) {
         this.$message.error("长度32位,仅支持数字、字母a-f,不区分大小写");
+        console.log("难道时执行这个了吗");
       } else {
-        console.log("执行这个111");
+        console.log(signMd5Items, "1111");
+        signMd5Items.push("");
+        console.log(signMd5Items, "嘻嘻");
       }
     },
     //获取后台数据
@@ -619,6 +635,7 @@ export default {
         _this = this,
         taskList = this.addRoleFormArray,
         allValid = true;
+      console.log(taskList, "哈哈");
       taskList.forEach((v, i) => {
         this.$refs["addRoleForm"][i].validate(valid => {
           if (valid) {
@@ -633,6 +650,7 @@ export default {
         const reinforceInfoDto = taskList.map((formItem, index) => {
           const curFileItem = _this.uploadFileItems[index];
           const checkedNodes = _this.Array.reinforceItemList[index];
+          console.log(formItem, "有啥数据");
           const result = {
             appName: curFileItem.appName,
             appIcon: curFileItem.appIcon,
@@ -763,11 +781,11 @@ export default {
                 radio2: "",
                 strategyItemDto: {},
                 strategyItemDtoTest: [],
-                radioTest: 1,
+                radioTest: "1",
                 signMd5Items: []
               });
               this.uploadFileItems.push(data);
-              console.log(this.addRoleFormArray);
+              console.log(this.addRoleFormArray, "表单里面的数据");
               for (var i = 0; i < this.uploadFileItems.length; i++) {
                 this.activeNames.push(i + 1);
                 this.activeNames = Array.from(new Set(this.activeNames));
@@ -886,17 +904,14 @@ export default {
       })
       .then(res => {
         this.reinforceItemData = res.data.data;
-        console.log(this.reinforceItemData, "111111");
-        let arrayTest1 = [];
-        let arrayTest2 = [];
         this.reinforceItemData.forEach((v, i) => {
           if (v.children) {
-            console.log(v, "有子集");
-            arrayTest1.push(v);
+            this.checkedItem.push(v);
           } else {
-            console.log(v, "没有子集");
+            this.radioItem.push(v);
           }
         });
+        console.log(this.radioItem, "单选列表", this.checkedItem, "多选列表");
       });
   }
 };
