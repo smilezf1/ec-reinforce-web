@@ -27,75 +27,75 @@ const router = new Router({
     routes: [
         {
             path: "/",
-            name: "xx",
-            component: xx
+            name: "Login",
+            component: Login
         },
         {
             path: "/Home",
             component: Home,
-            meta: { requireAuth: true },//判断是否需要登录
+            meta: { requireAuth: true, keepAlive: false },//判断是否需要登录
             children: [
-                { path: "/dashboard", name: "dashboard", component: dashboard, meta: { requireAuth: true } },
+                { path: "/dashboard", name: "dashboard", component: dashboard, meta: { requireAuth: true, keepAlive: false } },
                 {
                     path: "/menuManagement",
                     name: "menuManagement",
                     component: menuManagement,
-                    meta: { requireAuth: true }
+                    meta: { requireAuth: true, keepAlive: false }
                 },
                 {
                     path: "/reinforceItem",
                     name: "reinforceItem",
                     component: reinforceItem,
-                    meta: { requireAuth: true }
+                    meta: { requireAuth: true, keepAlive: false }
                 },
                 {
                     path: "/reinforceStrategy",
                     name: "reinforceStrategy",
                     component: reinforceStrategy,
-                    meta: { requireAuth: true }
+                    meta: { requireAuth: true, keepAlive: false }
                 },
                 {
                     path: "/channelStrategy",
                     name: "channelStrategy",
                     component: channelStrategy,
-                    meta: { requireAuth: true }
+                    meta: { requireAuth: true, keepAlive: false }
                 },
                 {
                     path: "/reinforce",
                     name: "reinforce",
                     component: reinforce,
-                    meta: { requireAuth: true }
+                    meta: { requireAuth: true, keepAlive: false }
                 },
                 {
                     path: "/Detail:id",
                     name: 'Detail',
                     component: Detail,
-                    meta: { requireAuth: true }
+                    meta: { requireAuth: true, keepAlive: true }
                 },
 
                 {
                     path: "/roleManagement",
                     name: "roleManagement",
                     component: roleManagement,
-                    meta: { requireAuth: true }
+                    meta: { requireAuth: true, keepAlive: false }
                 },
                 {
                     path: "/signature",
                     name: "signature",
                     component: signature,
-                    meta: { requireAuth: true }
+                    meta: { requireAuth: true, keepAlive: false }
                 },
                 {
                     path: "/recommend",
                     name: "recommend",
                     component: recommend,
-                    meta: { requireAuth: true }
+                    meta: { requireAuth: true, keepAlive: false }
                 },
                 {
                     path: "/userManagement",
                     name: "userManagement",
                     component: userManagement,
-                    meta: { requireAuth: true }
+                    meta: { requireAuth: true, keepAlive: false }
                 }
             ]
         },

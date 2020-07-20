@@ -1,9 +1,12 @@
 <template>
   <div id="app">
-    <router-view v-if="isRouterAlive" />
+    <!--  <router-view v-if="isRouterAlive" /> -->
+    <keep-alive>
+      <router-view v-if="$route.meta.keepAlive && isRouterAlive"></router-view>
+    </keep-alive>
+    <router-view v-if="!$route.meta.keepAlive && isRouterAlive"></router-view>
   </div>
 </template>
-
 <script>
 export default {
   name: "App",
@@ -16,6 +19,9 @@ export default {
     return {
       reload: this.reload
     };
+  },
+  updated() {
+    console.log(this.$route.meta);
   },
   methods: {
     reload() {

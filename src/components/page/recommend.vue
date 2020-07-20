@@ -50,7 +50,7 @@ export default {
       listItem: {}
     };
   },
-  created() {
+  mounted() {
     let baseUrl = this.api.baseUrl,
       _this = this;
     https.fetchGet(baseUrl + "/api/system/about/findAbout").then(res => {

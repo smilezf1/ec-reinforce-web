@@ -408,7 +408,7 @@
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
-        :current-page="currentPage4"
+        :current-page="curPage"
         :page-sizes="[10, 20, 30, 40, 50]"
         :page-size="10"
         layout="total, sizes, prev, pager, next, jumper"

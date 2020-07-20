@@ -19,9 +19,8 @@
               </span></template
             >
           </el-table-column>
-          <el-table-column prop="appFileName" label="文件名称">
-          </el-table-column>
-
+          <!--  <el-table-column prop="appFileName" label="文件名称">
+          </el-table-column> -->
           <el-table-column prop="appVersion" label="应用版本"></el-table-column>
           <!--   <el-table-column prop="createTime" label="创建时间">
           </el-table-column> -->
@@ -40,7 +39,7 @@
         <el-pagination
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="currentPage4"
+          :current-page="curPage"
           :page-sizes="[10, 20, 30, 40, 50]"
           :page-size="10"
           layout="total, sizes, prev, pager, next, jumper"

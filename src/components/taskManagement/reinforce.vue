@@ -70,7 +70,11 @@
                 ref="addRoleForm"
               >
                 <el-collapse class="addApplicationForm" v-model="activeNames">
-                  <el-collapse-item title="应用信息" :name="index + 1">
+                  <el-collapse-item
+                    title="应用信息"
+                    :name="index + 1"
+                    class="title"
+                  >
                     <el-row>
                       <el-col :span="6">
                         <img :src="'data:image/jpg;base64,' + item.appIcon" />
@@ -130,92 +134,121 @@
                           v-for="item in reinforceItemData"
                           :key="item.id"
                         >
-                          <!-- <el-form-item label="加固项"> -->
-                          <!--  <el-tree
-                            :data="reinforceItemData"
-                            show-checkbox
-                            node-key="id"
-                            ref="tree"
-                            :props="defaultProps"
-                            @check-change="handleCheckChange"
-                          ></el-tree> -->
-                          <el-form-item :label="item.reinforceItemName">
-                            <div v-if="item.children">
+                          <!--  <img :src="'data:image/jpg;base64,' + scope.row.appIcon" /> -->
+                          <el-form-item
+                            :label="item.reinforceItemName + ':'"
+                            :label-position="labelPosition"
+                            label-width="22%"
+                          >
+                            <template v-if="item.children">
                               <div
                                 v-for="subItem in item.children"
                                 :key="subItem.id"
+                                style="display:inline-block"
                               >
                                 <el-checkbox-group
-                                  v-model="
-                                    addRoleFormArray[index].strategyItemDtoTest
-                                  "
+                                  v-model="addRoleFormArray[index].choiceItem"
                                 >
                                   <el-checkbox
-                                    :label="subItem.reinforceItemName"
-                                    :checked="subItem.isChecked == 1"
+                                    :label="subItem.id"
                                     :disabled="subItem.isCancel == 2"
-                                    :value="subItem.id"
-                                  ></el-checkbox>
+                                    :checked="subItem.isChecked == 1"
+                                    style="margin-right:8px"
+                                    >{{
+                                      subItem.reinforceItemName
+                                    }}</el-checkbox
+                                  >
                                 </el-checkbox-group>
                               </div>
-                            </div>
-                            <div v-else>
-                              <el-radio-group
-                                v-model="addRoleFormArray[index].radioTest"
-                                :disabled="item.isCancel == 2"
-                                :label="item.isChecked"
+                            </template>
+                            <template v-else>
+                              <el-checkbox-group
+                                v-model="addRoleFormArray[index].choiceItem"
                               >
-                                <el-radio>启用</el-radio>
-                                <el-radio>禁用</el-radio>
-                              </el-radio-group>
-                              <el-form-item
-                                label="签名MD5"
-                                v-if="item.reinforceItemName == '自定义签名MD5'"
-                              >
-                                <el-input
-                                  v-model="
-                                    addRoleFormArray[index].signMd5Items[index]
+                                <el-checkbox
+                                  v-if="
+                                    item.reinforceItemName != '自定义签名MD5'
                                   "
-                                  size="small"
-                                  @keyup.enter.native="addSignature(index)"
-                                  clearable
-                                  maxlength="32"
-                                ></el-input>
-                                <el-button
-                                  type="primary"
-                                  icon="el-icon-plus"
-                                  plain
-                                  circle
-                                  @click="addSignature(index)"
-                                  size="small"
-                                ></el-button>
-                              </el-form-item>
-                              <!-- 添加的子项目 -->
-                              <el-form-item
-                                v-if="
-                                  item.reinforceItemName == '自定义签名MD5' &&
-                                    index > 0
-                                "
-                                style="margin-left:70px"
-                              >
-                                <el-input
-                                  v-model="
-                                    addRoleFormArray[index].signMd5Items[index]
+                                  :label="item.id"
+                                  :disabled="item.isCancel == 2"
+                                  :checked="item.isChecked == 1"
+                                  >启用</el-checkbox
+                                >
+                                <el-checkbox
+                                  v-if="
+                                    item.reinforceItemName == '自定义签名MD5'
                                   "
-                                  size="small"
-                                  clearable
-                                  @keyup.enter.native="addSignature(index)"
-                                  maxlength="32"
-                                ></el-input>
-                              </el-form-item>
-                            </div>
+                                  :label="item.id"
+                                  :disabled="item.isCancel == 2"
+                                  :checked="item.isChecked == 1"
+                                  @change="
+                                    checked =>
+                                      handleCheckedChange(checked, index)
+                                  "
+                                  >启用</el-checkbox
+                                >
+                                <template
+                                  v-if="
+                                    item.reinforceItemName == '自定义签名MD5' &&
+                                      addRoleFormArray[index].checked
+                                  "
+                                >
+                                  <el-form-item label="签名MD5">
+                                    <el-input
+                                      size="small"
+                                      style="width:200px"
+                                      clearable
+                                      maxlength="32"
+                                      v-model="
+                                        addRoleFormArray[index].signMd5Items[
+                                          index
+                                        ].value
+                                      "
+                                    ></el-input>
+                                    <el-button
+                                      type="text"
+                                      @click="addSignature(index)"
+                                      >添加</el-button
+                                    >
+                                  </el-form-item>
+                                  <el-form-item
+                                    v-for="(addItem,
+                                    addIndex) in addRoleFormArray[index]
+                                      .signMd5Items"
+                                    :key="addIndex"
+                                    v-show="addIndex"
+                                    style="margin-left:70px"
+                                  >
+                                    <el-input
+                                      size="small"
+                                      style="width:200px"
+                                      clearable
+                                      maxlength="32"
+                                      v-model="addItem.value"
+                                      :disabled="true"
+                                    ></el-input>
+                                    <el-button
+                                      type="text"
+                                      @click="
+                                        deleteSignature(
+                                          index,
+                                          addIndex,
+                                          addItem
+                                        )
+                                      "
+                                      >删除</el-button
+                                    >
+                                  </el-form-item>
+                                </template>
+                              </el-checkbox-group>
+                            </template>
                           </el-form-item>
                         </div>
                       </el-col>
                     </el-row>
                     <!-- 多渠道打包 -->
                     <!--  <el-row class="channelPack">
-                      <el-span :span="24">
+                      <el-col :span="24">
                         <p class="channelPack">
                           <el-form-item
                             label="是否多渠道打包:"
@@ -266,11 +299,11 @@
                             </el-form-item>
                           </template>
                         </p>
-                      </el-span>
+                      </el-col>
                     </el-row> -->
                     <!-- 签名策略 -->
                     <el-row>
-                      <el-span :span="24">
+                      <el-col :span="24">
                         <p class="signature">
                           <el-form-item
                             style="width:60%;display:inline-block"
@@ -321,7 +354,7 @@
                             </el-form-item>
                           </template>
                         </p>
-                      </el-span>
+                      </el-col>
                     </el-row>
                   </el-collapse-item>
                 </el-collapse>
@@ -381,8 +414,8 @@
               </el-tooltip>
             </template>
           </el-table-column>
-          <el-table-column prop="appFileName" label="文件名称">
-          </el-table-column>
+          <!--  <el-table-column prop="appFileName" label="文件名称">
+          </el-table-column> -->
           <el-table-column
             prop="appPath"
             label="文件key"
@@ -443,6 +476,13 @@
                   @click="downloadOriginalPackage(scope.row)"
                 ></i>
               </el-tooltip>
+              <el-tooltip effect="dark" content="删除" placement="top-start">
+                <i
+                  class="el-icon-delete deleteIcon"
+                  @click="deletePackage(scope.row.id)"
+                >
+                </i>
+              </el-tooltip>
             </template>
           </el-table-column>
         </el-table>
@@ -452,7 +492,7 @@
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
-        :current-page="currentPage4"
+        :current-page="curPage"
         :page-sizes="[10, 20, 30, 40, 50]"
         :page-size="10"
         layout="total, sizes, prev, pager, next, jumper"
@@ -469,6 +509,7 @@ export default {
   name: "reinfore",
   data() {
     return {
+      labelPosition: "right",
       checkList: ["选中且禁用", "复选框 A"],
       curPage: 1, //当前页
       limit: 10, //每页显示的条目个数
@@ -498,18 +539,8 @@ export default {
         radio1: [
           { required: true, message: "是否多渠道打包", trigger: "blur" }
         ],
-        radio2: [{ required: true, message: "是否签名", trigger: "blur" }],
-        //^[A-Fa-f0-9]+$
-        signMd5Items: [
-          { required: true, message: "请输入签名" },
-          {
-            pattern: /^[A-Fa-f0-9]+$/,
-            message: "长度32位,仅支持数字、字母a-f,不区分大小写",
-            trigger: ["blur", "change"]
-          }
-        ]
+        radio2: [{ required: true, message: "是否签名", trigger: "blur" }]
       },
-      dateValue: "",
       addTaskDrawer: false,
       percentage: 0, //存放上传的百分比
       uploadFileItems: [],
@@ -517,17 +548,6 @@ export default {
       strategyOptions: [],
       channelPackOptions: [],
       reinforceDetailDrawer: false,
-      //加固报告
-      ReinforcePackageDrawer: false,
-      exportLoading: false,
-      xx: null,
-      appReportQuery: {
-        appReportFormat: "1"
-      },
-      signatureOptions: [
-        { value: "是", label: "是" },
-        { value: "否", label: "否" }
-      ],
       channelPackList: [],
       signatureList: [],
       activeNames: [],
@@ -539,18 +559,9 @@ export default {
         appVersion: "",
         reinforceSign: {}
       },
-      ReinforcePackageData: null,
-      riginalPackageData: null,
-      label: "",
       strategyItemDto: [],
       loading: false,
       reinforceItemData: [],
-      defaultProps: {
-        children: "children",
-        label: "reinforceItemName"
-      },
-      Array: null, //测试
-      radio: 1, //测试
       radioItem: [],
       checkedItem: []
     };
@@ -558,30 +569,24 @@ export default {
   inject: ["reload"],
   methods: {
     //测试
-    handleCheckChange() {
-      let res = [];
-      this.Array = { reinforceItemList: [] };
-      this.$refs.tree.forEach((v, i) => {
-        let res = v.getCheckedKeys();
-        this.Array.reinforceItemList.push(res);
-      });
-      console.log(
-        this.Array.reinforceItemList[0],
-        this.Array.reinforceItemList[1]
-      );
+    handleCheckedChange(val, index, checkboxType) {
+      this.addRoleFormArray[index].checked = val;
     },
-
     addSignature(index) {
-      let signMd5Items = this.addRoleFormArray[index].signMd5Items;
-      let regularResult = /^\d{32}[A-Fa-f0-9]+$/.test(signMd5Items);
-      console.log(signMd5Items.length);
-      if (!regularResult) {
-        this.$message.error("长度32位,仅支持数字、字母a-f,不区分大小写");
-        console.log("难道时执行这个了吗");
+      let signMd5Items = this.addRoleFormArray[index].signMd5Items[index].value;
+      let regularResult = /^[A-Fa-f0-9]{32}$/.test(signMd5Items);
+      if (regularResult) {
+        this.addRoleFormArray[index].signMd5Items.push({
+          value: ""
+        });
+        this.addRoleFormArray[index].signMd5Items.reverse();
       } else {
-        console.log(signMd5Items, "1111");
-        signMd5Items.push("");
-        console.log(signMd5Items, "嘻嘻");
+        this.$message.error("长度32位,仅支持数字和字母A-F,不区分大小写");
+      }
+    },
+    deleteSignature(index, addIndex, addItem) {
+      if (this.addRoleFormArray[index].signMd5Items.indexOf(addItem) > -1) {
+        this.addRoleFormArray[index].signMd5Items.splice(addIndex, 1);
       }
     },
     //获取后台数据
@@ -607,6 +612,7 @@ export default {
     // //鼠标点击哪一页
     handleCurrentChange(val) {
       this.curPage = val;
+      sessionStorage.setItem("curPage", val);
       this.getData();
     },
     refresh() {
@@ -635,7 +641,6 @@ export default {
         _this = this,
         taskList = this.addRoleFormArray,
         allValid = true;
-      console.log(taskList, "哈哈");
       taskList.forEach((v, i) => {
         this.$refs["addRoleForm"][i].validate(valid => {
           if (valid) {
@@ -649,8 +654,10 @@ export default {
       if (allValid) {
         const reinforceInfoDto = taskList.map((formItem, index) => {
           const curFileItem = _this.uploadFileItems[index];
-          const checkedNodes = _this.Array.reinforceItemList[index];
-          console.log(formItem, "有啥数据");
+          let signMd5Items = [];
+          formItem.signMd5Items.forEach((v, i) => {
+            signMd5Items.push(v.value);
+          });
           const result = {
             appName: curFileItem.appName,
             appIcon: curFileItem.appIcon,
@@ -662,9 +669,8 @@ export default {
             reinforceStrategyId: formItem.curPrinter1,
             channelStrategyId: formItem.curPrinter4,
             signStrategyId: formItem.curPrinter5,
-            strategyItemDto: { reinforceItemList: checkedNodes }
-            /* ...curFileItem,
-            ...formItem */
+            strategyItemDto: { reinforceItemList: formItem.choiceItem },
+            signMd5Items: signMd5Items
           };
           return result;
         });
@@ -782,7 +788,8 @@ export default {
                 strategyItemDto: {},
                 strategyItemDtoTest: [],
                 radioTest: "1",
-                signMd5Items: []
+                signMd5Items: [{ value: "" }],
+                choiceItem: []
               });
               this.uploadFileItems.push(data);
               console.log(this.addRoleFormArray, "表单里面的数据");
@@ -827,6 +834,32 @@ export default {
       console.log(downloadUrl, "哈哈");
       window.location.href = downloadUrl;
     },
+    //删除
+    deletePackage(id) {
+      let baseUrl = this.api.baseUrl,
+        _this = this;
+      this.$confirm("确定要删除吗?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(res => {
+          https
+            .fetchGet(
+              baseUrl + "/api/reinforce/info/deleteReinforceInfoById/" + id
+            )
+            .then(res => {
+              if (res.data.code == "00") {
+                _this.$message({ type: "success", message: "删除成功" });
+                _this.reload();
+              }
+            });
+        })
+        .catch(() => {
+          _this.$message({ type: "info", message: "已取消删除" });
+          _this.reload();
+        });
+    },
     //加固策略
     strategyChange(item, index) {
       let data = this.strategyOptions.filter(val => {
@@ -870,6 +903,7 @@ export default {
     this.getData();
   },
   mounted() {
+    console.log("reinforce页面");
     let baseUrl = this.api.baseUrl;
     //查询策略列表
     https
@@ -926,6 +960,12 @@ export default {
   font-weight: 700;
   font-size: 16px;
 }
+.addApplicationForm .titleIcon {
+  display: inline-block;
+  width: 4px;
+  height: 14px;
+  background: skyblue;
+}
 .reinforeBody {
   width: 99%;
 }
@@ -940,7 +980,8 @@ export default {
 .playIcon,
 .floderIcon,
 .reinforcePackageIcon,
-.originalPackageIcon {
+.originalPackageIcon,
+.deleteIcon {
   font-size: 22px;
   color: #409eff;
   margin-right: 10px;
@@ -984,6 +1025,9 @@ export default {
 }
 .reinforceItem {
   margin-top: 10px;
+}
+.reinforceItem .el-form-item__label {
+  text-align: left !important;
 }
 .addApplicationForm {
   padding: 20px;

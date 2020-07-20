@@ -8,6 +8,7 @@
       router
       unique-opened
       :default-active="onRoutes"
+      @select="handleSelect"
     >
       <template v-for="item in sidebarList">
         <template v-if="item.children">
@@ -67,6 +68,7 @@ export default {
       active: ""
     };
   },
+  inject: ["reload"],
   computed: {
     onRoutes() {
       return this.$route.path.replace("/", "");
@@ -85,6 +87,9 @@ export default {
     this.active = this.$route.address;
   },
   methods: {
+    handleSelect() {
+     /*  this.reload(); */
+    },
     toTreeData(data) {
       //删除所有的children,以防止多次调用
       data.forEach(item => {
