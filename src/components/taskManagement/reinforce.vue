@@ -92,18 +92,22 @@
                   >
                     <el-row>
                       <el-col :span="6">
-                        <img :src="'data:image/jpg;base64,' + item.appIcon" />
+                        <img
+                          :src="'data:image/jpg;base64,' + item.data.appIcon"
+                        />
                       </el-col>
                       <el-col :span="18">
-                        <p class="appName">{{ item.appName }}</p>
+                        <p class="appName">{{ item.data.appName }}</p>
                         <p class="appPackage">
-                          包名:&nbsp;&nbsp;{{ item.appPackage }}
+                          包名:&nbsp;&nbsp;{{ item.data.appPackage }}
                         </p>
                         <p>
                           <span style="margin-right:10px;"
-                            >版本:&nbsp;&nbsp;{{ item.appVersion }}
+                            >版本:&nbsp;&nbsp;{{ item.data.appVersion }}
                           </span>
-                          <span>大小:&nbsp;&nbsp;{{ item.appSize }}KB</span>
+                          <span
+                            >大小:&nbsp;&nbsp;{{ item.data.appSize }}KB</span
+                          >
                         </p>
                       </el-col>
                     </el-row>
@@ -149,7 +153,6 @@
                           v-for="item in reinforceItemData"
                           :key="item.id"
                         >
-                          <!--  <img :src="'data:image/jpg;base64,' + scope.row.appIcon" /> -->
                           <el-form-item
                             :label="item.reinforceItemName + ':'"
                             :label-position="labelPosition"
@@ -189,6 +192,13 @@
                                   :checked="item.isChecked == 1"
                                   >启用</el-checkbox
                                 >
+                                <!-- <el-tree
+                                  v-if="item.reinforceItemName == 'SO高级加固'"
+                                ></el-tree> -->
+                                <!-- <span
+                                  v-if="item.reinforceItemName == 'SO高级加固'"
+                                  >哈哈</span
+                                > -->
                                 <el-checkbox
                                   v-if="
                                     item.reinforceItemName == '自定义签名MD5'
@@ -256,6 +266,11 @@
                                   </el-form-item>
                                 </template>
                               </el-checkbox-group>
+                              <span
+                                v-if="item.reinforceItemName == 'SO高级加固'"
+                                >{{ item.keyTreeData.soItems }}</span
+                              >
+                              <!--  <el-tree  :data=></el-tree> -->
                             </template>
                           </el-form-item>
                         </div>
@@ -661,8 +676,10 @@ export default {
             reinforceStrategyId: formItem.curPrinter1,
             channelStrategyId: formItem.curPrinter4,
             signStrategyId: formItem.curPrinter5,
-            strategyItemDto: { reinforceItemList: formItem.choiceItem },
-            signMd5Items: signMd5Items
+            strategyItemDto: {
+              reinforceItemList: formItem.choiceItem,
+              signMd5Items: signMd5Items
+            }
           };
           return result;
         });
@@ -768,7 +785,21 @@ export default {
           }
           if (res.data.code === "00") {
             if (res.data.data) {
-              let data = res.data.data;
+              let data = res.data.data,
+                keyData = data.appPath,
+                keyTreeData = [];
+              https
+                .fetchGet(
+                  baseUrl +
+                    "/api/reinforce/info/parseApkInfoByFileKey/" +
+                    keyData
+                )
+                .then(res => {
+                  if (res.data.code == "00") {
+                    keyTreeData.push(res.data.data);
+                  }
+                });
+              let dataItem = { data, keyTreeData };
               this.addRoleFormArray.push({
                 curPrinter1: "",
                 curPrinter2: "",
@@ -783,8 +814,8 @@ export default {
                 signMd5Items: [{ value: "" }],
                 choiceItem: []
               });
-              this.uploadFileItems.push(data);
-              console.log(this.addRoleFormArray, "表单里面的数据");
+              this.uploadFileItems.push(dataItem);
+              console.log(this.uploadFileItems, "上传的数据");
               for (var i = 0; i < this.uploadFileItems.length; i++) {
                 this.activeNames.push(i + 1);
                 this.activeNames = Array.from(new Set(this.activeNames));
@@ -970,7 +1001,7 @@ export default {
 }
 .reinforeBody {
   width: 99%;
-  box-sizing:border-box;
+  box-sizing: border-box;
 }
 .reinforeBody img {
   width: 40px;
