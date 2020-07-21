@@ -24,7 +24,23 @@
         </el-form>
       </div>
       <div class="operateBox">
-        <!--  <el-tooltip effect="dark" content="新增任务" placement="top-start"> -->
+        <el-tooltip effect="dark" content="查询" placement="top-start">
+          <el-button
+            type="primary"
+            icon="el-icon-search"
+            size="small"
+            @click="search(ruleForm)"
+          ></el-button>
+        </el-tooltip>
+        <el-tooltip effect="dark" content="刷新" placement="top-start">
+          <el-button
+            type="primary"
+            icon="el-icon-refresh-right"
+            size="small"
+            @click="refresh()"
+            style="margin-left:10px"
+          ></el-button>
+        </el-tooltip>
         <el-button
           type="primary"
           size="small"
@@ -32,7 +48,6 @@
           style="margin-right:10px"
           >新增任务</el-button
         >
-        <!--    </el-tooltip> -->
         <el-drawer
           title="新增任务"
           :visible.sync="addTaskDrawer"
@@ -366,23 +381,6 @@
             <el-button @click="cancelSaveaddTask()" plain>取消</el-button>
           </div>
         </el-drawer>
-        <el-tooltip effect="dark" content="查询" placement="top-start">
-          <el-button
-            type="primary"
-            icon="el-icon-search"
-            size="small"
-            @click="search(ruleForm)"
-          ></el-button>
-        </el-tooltip>
-        <el-tooltip effect="dark" content="刷新" placement="top-start">
-          <el-button
-            type="primary"
-            icon="el-icon-refresh-right"
-            size="small"
-            @click="refresh()"
-            style="margin-left:10px"
-          ></el-button>
-        </el-tooltip>
       </div>
     </div>
     <div class="reinforeBody">
@@ -551,14 +549,6 @@ export default {
       channelPackList: [],
       signatureList: [],
       activeNames: [],
-      signAliasPwd: {
-        appIcon: "",
-        appName: "",
-        appPackage: "",
-        appSize: "",
-        appVersion: "",
-        reinforceSign: {}
-      },
       strategyItemDto: [],
       loading: false,
       reinforceItemData: [],
@@ -568,13 +558,12 @@ export default {
   },
   inject: ["reload"],
   methods: {
-    //测试
     handleCheckedChange(val, index, checkboxType) {
       this.addRoleFormArray[index].checked = val;
     },
     addSignature(index) {
-      let signMd5Items = this.addRoleFormArray[index].signMd5Items[index].value;
-      let regularResult = /^[A-Fa-f0-9]{32}$/.test(signMd5Items);
+      let signMd5Items = this.addRoleFormArray[index].signMd5Items[index].value,
+        regularResult = /^[A-Fa-f0-9]{32}$/.test(signMd5Items);
       if (regularResult) {
         this.addRoleFormArray[index].signMd5Items.push({
           value: ""
@@ -613,7 +602,10 @@ export default {
     handleCurrentChange(val) {
       this.curPage = val;
       sessionStorage.setItem("curPage", val);
-      this.getData();
+      let appName = this.ruleForm.appName,
+        appVersion = this.ruleForm.appVersion,
+        queryInfo = { appName, appVersion };
+      this.getData(queryInfo);
     },
     refresh() {
       this.reload();
@@ -902,8 +894,15 @@ export default {
   beforeMount() {
     this.getData();
   },
+  beforeRouteEnter(to, from, next) {
+    if (from.name == "Detail") {
+      to.meta.KeepAlive = true;
+    } else {
+      to.meta.KeepAlive = false;
+    }
+    next();
+  },
   mounted() {
-    console.log("reinforce页面");
     let baseUrl = this.api.baseUrl;
     //查询策略列表
     https
@@ -912,11 +911,13 @@ export default {
         limit: 20
       })
       .then(res => {
-        let data = res.data.data.items;
-        data = JSON.parse(
-          JSON.stringify(data).replace(/reinforce_strategy_name/g, "label")
-        );
-        this.strategyOptions = data;
+        if (res.data.code == "00") {
+          let data = res.data.data.items;
+          data = JSON.parse(
+            JSON.stringify(data).replace(/reinforce_strategy_name/g, "label")
+          );
+          this.strategyOptions = data;
+        }
       });
     //查询渠道策略分页列表 是否多渠道打包
     https
@@ -937,15 +938,16 @@ export default {
         reinforceItem: {}
       })
       .then(res => {
-        this.reinforceItemData = res.data.data;
-        this.reinforceItemData.forEach((v, i) => {
-          if (v.children) {
-            this.checkedItem.push(v);
-          } else {
-            this.radioItem.push(v);
-          }
-        });
-        console.log(this.radioItem, "单选列表", this.checkedItem, "多选列表");
+        if (res.data.code == "00") {
+          this.reinforceItemData = res.data.data;
+          this.reinforceItemData.forEach((v, i) => {
+            if (v.children) {
+              this.checkedItem.push(v);
+            } else {
+              this.radioItem.push(v);
+            }
+          });
+        }
       });
   }
 };
@@ -968,6 +970,7 @@ export default {
 }
 .reinforeBody {
   width: 99%;
+  box-sizing:border-box;
 }
 .reinforeBody img {
   width: 40px;

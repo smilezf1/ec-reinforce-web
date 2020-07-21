@@ -1,4 +1,3 @@
-/*
 <template>
   <div class="Detail">
     <div class="detailHeader">
@@ -29,7 +28,9 @@
             </el-row>
             <el-row>
               <el-col :span="12"
-                >包名:&nbsp;&nbsp;&nbsp;&nbsp;{{ item.appPackage }}</el-col
+                >包&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名:{{
+                  item.appPackage
+                }}</el-col
               >
               <el-col :span="12"
                 >文件大小:&nbsp;&nbsp;&nbsp;&nbsp;{{ item.appSize }}KB</el-col
@@ -64,6 +65,7 @@
             </el-row>
           </div>
         </el-collapse-item>
+
         <el-collapse-item title="2.签名信息" name="2">
           <div v-for="item in signatureItem" :key="item.id">
             <el-row>
@@ -130,7 +132,7 @@
                 }}</el-col
               >
               <el-col :span="12"
-                >状态:&nbsp;&nbsp;&nbsp;&nbsp;
+                >状&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;态:
                 <span v-if="item.status == 1">已完成</span>
               </el-col>
             </el-row>
@@ -168,7 +170,7 @@
             <el-row>
               <el-col :span="24">
                 <!-- 多渠道策略列表:{{ item.itemDetailDtoList }} -->
-                <el-collapse-item title="多渠道策略列表">
+                <el-collapse-item title="4-1.多渠道策略列表">
                   <div
                     v-for="subItem in item.itemDetailDtoList"
                     :key="subItem.id"
@@ -179,13 +181,6 @@
                           subItem.channelName
                         }}</el-col
                       >
-                      <!--   <el-col :span="12"
-                        >渠道创建时间:&nbsp;&nbsp;&nbsp;&nbsp;{{
-                          subItem.createTime
-                        }}</el-col
-                      > -->
-                    </el-row>
-                    <el-row>
                       <el-col :span="12"
                         >渠道状态:&nbsp;&nbsp;&nbsp;&nbsp;
                         <span v-if="subItem.status == 1">已完成</span>
@@ -218,11 +213,6 @@
                 </el-collapse-item>
               </el-col>
             </el-row>
-            <el-row>
-              <!-- <el-col :span="12"
-                >创建时间:&nbsp;&nbsp;&nbsp;&nbsp;{{ item.createTime }}</el-col
-              > -->
-            </el-row>
           </div>
         </el-collapse-item>
       </el-collapse>
@@ -239,12 +229,12 @@ export default {
       signatureItem: [],
       strategyItem: [],
       multipleChannel: [],
-      activeNames: ["1", "2", "3", "4"] //测试
+      activeNames: ["1", "2", "3", "4"]
     };
   },
   methods: {
     back() {
-      this.$router.go(-1);
+      window.history.back();
     }
   },
   mounted() {
@@ -255,25 +245,23 @@ export default {
         reinforceId: id
       })
       .then(res => {
-        let data = res.data.data;
-        console.log("哈哈", data);
-        if (data.reinforceInfo) {
-          this.listItem.push(data.reinforceInfo);
-        }
-        if (data)
-          if (data.reinforceSign) {
-            this.signatureItem.push(data.reinforceSign);
+        if (res.data.code === "00") {
+          let data = res.data.data;
+          if (data.reinforceInfo) {
+            this.listItem.push(data.reinforceInfo);
           }
-        if (data.reinforceStrategyDetail) {
-          this.strategyItem.push(data.reinforceStrategyDetail);
-        }
-        if (data.channelStrategyDto) {
-          this.multipleChannel.push(data.channelStrategyDto);
+          if (data)
+            if (data.reinforceSign) {
+              this.signatureItem.push(data.reinforceSign);
+            }
+          if (data.reinforceStrategyDetail) {
+            this.strategyItem.push(data.reinforceStrategyDetail);
+          }
+          if (data.channelStrategyDto) {
+            this.multipleChannel.push(data.channelStrategyDto);
+          }
         }
       });
-  },
-  destroyed() {
-    console.log("离开了当前页面");
   }
 };
 </script>
@@ -285,6 +273,12 @@ export default {
 }
 .el-collapse {
   width: 90%;
+}
+.Detail .el-collapse-item__wrap {
+  border-bottom: none;
+}
+.Detail .detailBody .el-row:last-child {
+  border: none;
 }
 .el-collapse-item__header {
   font-size: 17px;

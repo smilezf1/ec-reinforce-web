@@ -4,11 +4,10 @@
     <Slidebar></Slidebar>
     <div class="content-box" :class="{ 'content-collapse': collapse }">
       <div class="content">
-        <transition name="move" mode="out-in">
-          <keep-alive>
-            <router-view></router-view>
-          </keep-alive>
-        </transition>
+        <keep-alive>
+          <router-view v-if="$route.meta.KeepAlive"></router-view>
+        </keep-alive>
+        <router-view v-if="!$route.meta.KeepAlive"></router-view>
       </div>
     </div>
   </div>

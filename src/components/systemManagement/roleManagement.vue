@@ -18,9 +18,9 @@
           >
             <el-option
               v-for="item in options"
-              :key="item.value"
-              :label="item.lable"
-              :value="item.value"
+              :key="item.id"
+              :label="item.label"
+              :value="item.id"
             ></el-option>
           </el-select>
         </el-form>
@@ -252,8 +252,8 @@ export default {
         status: ""
       },
       options: [
-        { value: "是", label: "是" },
-        { value: "否", label: "否" }
+        { label: "是", id: "1" },
+        { label: "否", id: "0" }
       ],
       listItem: [],
       dataCount: 0, //总数目
@@ -314,19 +314,17 @@ export default {
       this.getData();
     },
     handleCurrentChange(val) {
+      let name = this.ruleForm.name,
+        status = this.ruleForm.status,
+        queryInfo = { name, status };
       this.curPage = val;
-      this.getData();
+      this.getData(queryInfo);
     },
     search(ruleForm) {
       let baseUrl = this.api.baseUrl,
         name = ruleForm.name,
-        status = null,
+        status = ruleForm.status,
         _this = this;
-      if (ruleForm.status == "是") {
-        status = "1";
-      } else if (ruleForm.status == "否") {
-        status = "0";
-      }
       _this.loading = true;
       let queryInfo = { name, status };
       this.getData(queryInfo);

@@ -33,9 +33,9 @@
           >
             <el-option
               v-for="item in options"
-              :key="item.value"
+              :key="item.id"
               :label="item.label"
-              :value="item.value"
+              :value="item.id"
             ></el-option>
           </el-select>
         </el-form>
@@ -109,7 +109,7 @@
                     v-for="item in genderoptions"
                     :key="item.value"
                     :label="item.label"
-                    :value="item.value"
+                    :value="item.id"
                   ></el-option>
                 </el-select>
               </el-form-item>
@@ -129,9 +129,9 @@
                 <el-select v-model="addUserForm.status" placeholder="请选择">
                   <el-option
                     v-for="item in statusOptions"
-                    :key="item.value"
+                    :key="item.id"
                     :label="item.label"
-                    :value="item.value"
+                    :value="item.id"
                   ></el-option>
                 </el-select>
               </el-form-item>
@@ -236,47 +236,53 @@
                     :rules="editRules"
                     :label-position="labelPosition"
                   >
-                    <el-form-item label="用户名" prop="trueName">
+                    <el-form-item prop="trueName">
+                      <label slot="label">用&nbsp;户&nbsp;名:&nbsp;</label>
                       <el-input
                         v-model="editForm.trueName"
                         autocomplete="off"
                       ></el-input>
                     </el-form-item>
-                    <el-form-item label="登录名" prop="userName">
+                    <el-form-item prop="userName">
+                      <label slot="label">登&nbsp;录&nbsp;名:&nbsp;</label>
                       <el-input
                         v-model="editForm.userName"
                         :disabled="true"
                       ></el-input>
                     </el-form-item>
-                    <el-form-item label="性别" prop="sex">
+                    <el-form-item prop="sex">
+                      <label slot="label"
+                        >性&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;别:</label
+                      >
                       <el-select v-model="editForm.sex">
                         <el-option
                           v-for="item in genderoptions"
-                          :key="item.value"
+                          :key="item.id"
+                          :value="item.id"
                           :label="item.label"
-                          :value="item.value"
                         ></el-option>
                       </el-select>
                     </el-form-item>
-                    <el-form-item label="手机号" prop="mobile">
+                    <el-form-item prop="mobile">
+                      <label slot="label">手&nbsp;机&nbsp;号:&nbsp;</label>
                       <el-input
                         v-model="editForm.mobile"
                         autocomplete="off"
                       ></el-input>
                     </el-form-item>
-                    <el-form-item label="电子邮箱" prop="email">
+                    <el-form-item label="电子邮箱:" prop="email">
                       <el-input
                         v-model="editForm.email"
                         autocomplete="off"
                       ></el-input>
                     </el-form-item>
-                    <el-form-item label="是否有效" prop="status">
+                    <el-form-item label="是否有效:" prop="status">
                       <el-select v-model="editForm.status">
                         <el-option
                           v-for="item in statusOptions"
-                          :key="item.value"
+                          :key="item.id"
+                          :value="item.id"
                           :label="item.label"
-                          :value="item.value"
                         ></el-option>
                       </el-select>
                     </el-form-item>
@@ -486,16 +492,16 @@ export default {
       roleList: [],
       setRoleList: [], //测试
       options: [
-        { value: "是", label: "是" },
-        { value: "否", label: "否" }
+        { label: "是", id: "1" },
+        { label: "否", id: "0" }
       ],
       genderoptions: [
-        { value: "男", label: "男" },
-        { value: "女", label: "女" }
+        { label: "男", id: "1" },
+        { label: "女", id: "0" }
       ],
       statusOptions: [
-        { value: "是", label: "是" },
-        { value: "否", label: "否" }
+        { label: "是", id: "1" },
+        { label: "否", id: "0" }
       ],
       resetPasswordForm: {
         pass: "",
@@ -520,7 +526,7 @@ export default {
         status: ""
       },
       loading: false,
-      labelPosition: "right",
+      labelPosition: "left",
       editRules: {
         trueName: [
           { required: true, message: "请输入用户名", trigger: "blur" }
@@ -580,7 +586,6 @@ export default {
           this.listItem = res.data.data.items;
           this.dataCount = res.data.data.count;
         });
-      /* this.reload(); */
     },
     handleChange(val) {
       this.curPage = val;
@@ -592,7 +597,13 @@ export default {
     },
     handleCurrentChange(val) {
       this.curPage = val;
-      this.getData();
+      let trueName = this.ruleForm.trueName,
+        userName = this.ruleForm.userName,
+        mobile = this.ruleForm.mobile,
+        email = this.ruleForm.email,
+        status = this.ruleForm.status;
+      let queryInfo = { trueName, userName, mobile, email, status };
+      this.getData(queryInfo);
     },
     //设置角色开始
     handleCheck(checkedNodes, checkedKeys) {
@@ -606,11 +617,6 @@ export default {
         email = ruleForm.email,
         status = ruleForm.status,
         _this = this;
-      if (ruleForm.status == "是") {
-        status = "1";
-      } else if (ruleForm.status == "否") {
-        status = "0";
-      }
       let queryInfo = { trueName, userName, mobile, email, status, queryInfo };
       _this.loading = true;
       this.getData(queryInfo);
@@ -632,11 +638,13 @@ export default {
       this.editId = id;
       let baseUrl = this.api.baseUrl;
       https.fetchGet(baseUrl + "/api/system/user/detail", { id }).then(res => {
+        console.log(res);
         let data = res.data.data,
           editForm = this.editForm;
         editForm.trueName = data.trueName;
         editForm.userName = data.userName;
         editForm.sex = data.sex;
+        console.log(data);
         if (data.sex === "1") {
           editForm.sex = "男";
         } else if (data.sex === "0") {
@@ -663,16 +671,6 @@ export default {
         mobile = form.mobile,
         status = form.status,
         sex = form.sex;
-      if (form.status == "是") {
-        status = 1;
-      } else if (form.status == "否") {
-        status = 0;
-      }
-      if (form.sex == "女") {
-        sex = 0;
-      } else if (form.sex == "男") {
-        sex = 1;
-      }
       this.$refs[formName].validate(valid => {
         if (valid) {
           https
@@ -751,16 +749,6 @@ export default {
         email = form.email,
         sex = form.sex,
         status = form.status;
-      if (sex == "女") {
-        sex = 0;
-      } else if (sex == "男") {
-        sex = 1;
-      }
-      if (status == "是") {
-        status = 1;
-      } else if (status == "否") {
-        status = 0;
-      }
       this.$refs[formName].validate(valid => {
         if (valid) {
           https

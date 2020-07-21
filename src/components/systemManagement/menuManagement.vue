@@ -4,14 +4,11 @@
       <p>当前位置:菜单管理</p>
     </div>
     <div class="operateBox">
-      <el-tooltip effect="dark" content="新增目录" placement="top-start">
-        <el-button
-          type="primary"
-          icon="el-icon-plus"
-          size="small"
-          @click="addCatalogue()"
-        ></el-button>
-      </el-tooltip>
+      <!-- <el-tooltip effect="dark" content="新增目录" placement="top-start"> -->
+      <el-button type="primary" size="small" @click="addCatalogue()"
+        >新增目录</el-button
+      >
+      <!--  </el-tooltip> -->
       <el-drawer
         title="新增目录"
         :visible.sync="addDrawer"
@@ -62,8 +59,8 @@
     <div class="menuManagementBody">
       <template>
         <el-table ref="menusTable" :row-style="showRow" :data="menusTable">
-         <!--  <el-table-column type="index" label="序号" width="60"> -->
-          </el-table-column>
+          <!--   <el-table-column type="index" label="序号" width="60">
+          </el-table-column> -->
           <el-table-column prop="name" label="资源名称">
             <template slot-scope="scope">
               <span :class="['type' + scope.row.type]">

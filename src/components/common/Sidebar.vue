@@ -80,6 +80,8 @@ export default {
     http.fetchGet(baseUrl + "/api/system/menu/list").then(res => {
       if (res.data.code === "00") {
         _this.sidebarList = this.toTreeData(res.data.data);
+      } else {
+        console.log("请求出错");
       }
     });
   },
@@ -88,7 +90,7 @@ export default {
   },
   methods: {
     handleSelect() {
-     /*  this.reload(); */
+      /*  this.reload(); */
     },
     toTreeData(data) {
       //删除所有的children,以防止多次调用
