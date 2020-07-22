@@ -150,127 +150,196 @@
                         <h3 style="font-size:16px">加固项</h3>
                         <div
                           class="reinforceItem"
-                          v-for="item in reinforceItemData"
-                          :key="item.id"
+                          v-for="checkboxItem in reinforceItemData"
+                          :key="checkboxItem.id"
                         >
                           <el-form-item
-                            :label="item.reinforceItemName + ':'"
+                            :label="checkboxItem.reinforceItemName + ':'"
                             :label-position="labelPosition"
                             label-width="22%"
                           >
-                            <template v-if="item.children">
-                              <div
-                                v-for="subItem in item.children"
-                                :key="subItem.id"
-                                style="display:inline-block"
-                              >
-                                <el-checkbox-group
+                            <template v-if="checkboxItem.children">
+                              <!--   <el-checkbox-group
+                                  v-if="subItem.reinforceItemName == '防篡改'"
                                   v-model="addRoleFormArray[index].choiceItem"
+                                  :max="1"
                                 >
                                   <el-checkbox
                                     :label="subItem.id"
                                     :disabled="subItem.isCancel == 2"
                                     :checked="subItem.isChecked == 1"
                                     style="margin-right:8px"
-                                    >{{
-                                      subItem.reinforceItemName
-                                    }}</el-checkbox
-                                  >
-                                </el-checkbox-group>
-                              </div>
+                                    >{{ subItem.reinforceItemName }}
+                                  </el-checkbox>
+                                </el-checkbox-group> -->
+
+                              <el-checkbox-group
+                                v-model="addRoleFormArray[index].choiceItem"
+                                :min="0"
+                                :max="1"
+                              >
+                                <el-checkbox
+                                  v-for="subItem in checkboxItem.children"
+                                  :key="subItem.id"
+                                  :label="subItem.id"
+                                  :disabled="subItem.isCancel == 2"
+                                  :checked="subItem.isChecked == 1"
+                                  style="margin-right:8px"
+                                  >{{ subItem.reinforceItemName }}</el-checkbox
+                                >
+                              </el-checkbox-group>
                             </template>
                             <template v-else>
                               <el-checkbox-group
                                 v-model="addRoleFormArray[index].choiceItem"
+                                v-if="
+                                  checkboxItem.reinforceItemName ==
+                                    '自定义签名MD5'
+                                "
                               >
                                 <el-checkbox
-                                  v-if="
-                                    item.reinforceItemName != '自定义签名MD5'
-                                  "
-                                  :label="item.id"
-                                  :disabled="item.isCancel == 2"
-                                  :checked="item.isChecked == 1"
-                                  >启用</el-checkbox
-                                >
-                                <!-- <el-tree
-                                  v-if="item.reinforceItemName == 'SO高级加固'"
-                                ></el-tree> -->
-                                <!-- <span
-                                  v-if="item.reinforceItemName == 'SO高级加固'"
-                                  >哈哈</span
-                                > -->
-                                <el-checkbox
-                                  v-if="
-                                    item.reinforceItemName == '自定义签名MD5'
-                                  "
-                                  :label="item.id"
-                                  :disabled="item.isCancel == 2"
-                                  :checked="item.isChecked == 1"
+                                  :label="checkboxItem.id"
+                                  :disabled="checkboxItem.isCancel == 2"
+                                  :checked="checkboxItem.isChecked == 1"
                                   @change="
                                     checked =>
-                                      handleCheckedChange(checked, index)
+                                      handleCheckedChange(checked, index, 'MD5')
                                   "
                                   >启用</el-checkbox
                                 >
-                                <template
-                                  v-if="
-                                    item.reinforceItemName == '自定义签名MD5' &&
-                                      addRoleFormArray[index].checked
-                                  "
-                                >
-                                  <el-form-item label="签名MD5">
-                                    <el-input
-                                      size="small"
-                                      style="width:200px"
-                                      clearable
-                                      maxlength="32"
-                                      v-model="
-                                        addRoleFormArray[index].signMd5Items[
-                                          index
-                                        ].value
-                                      "
-                                    ></el-input>
-                                    <el-button
-                                      type="text"
-                                      @click="addSignature(index)"
-                                      >添加</el-button
-                                    >
-                                  </el-form-item>
-                                  <el-form-item
-                                    v-for="(addItem,
-                                    addIndex) in addRoleFormArray[index]
-                                      .signMd5Items"
-                                    :key="addIndex"
-                                    v-show="addIndex"
-                                    style="margin-left:70px"
-                                  >
-                                    <el-input
-                                      size="small"
-                                      style="width:200px"
-                                      clearable
-                                      maxlength="32"
-                                      v-model="addItem.value"
-                                      :disabled="true"
-                                    ></el-input>
-                                    <el-button
-                                      type="text"
-                                      @click="
-                                        deleteSignature(
-                                          index,
-                                          addIndex,
-                                          addItem
-                                        )
-                                      "
-                                      >删除</el-button
-                                    >
-                                  </el-form-item>
-                                </template>
                               </el-checkbox-group>
-                              <span
-                                v-if="item.reinforceItemName == 'SO高级加固'"
-                                >{{ item.keyTreeData.soItems }}</span
+                              <el-checkbox-group
+                                v-model="addRoleFormArray[index].choiceItem"
+                                v-else-if="
+                                  checkboxItem.reinforceItemName == 'SO高级加固'
+                                "
                               >
-                              <!--  <el-tree  :data=></el-tree> -->
+                                <el-checkbox
+                                  :label="checkboxItem.id"
+                                  :disabled="checkboxItem.isCancel == 2"
+                                  :checked="checkboxItem.isChecked == 1"
+                                  @change="
+                                    checked =>
+                                      handleCheckedChange(checked, index, 'SO')
+                                  "
+                                  >启用</el-checkbox
+                                >
+                              </el-checkbox-group>
+                              <el-checkbox-group
+                                v-model="addRoleFormArray[index].choiceItem"
+                                v-else-if="
+                                  checkboxItem.reinforceItemName == 'H5文件加固'
+                                "
+                              >
+                                <el-checkbox
+                                  :label="checkboxItem.id"
+                                  :disabled="checkboxItem.isCancel == 2"
+                                  :checked="checkboxItem.isChecked == 1"
+                                  @change="
+                                    checked =>
+                                      handleCheckedChange(checked, index, 'H5')
+                                  "
+                                  >启用</el-checkbox
+                                >
+                              </el-checkbox-group>
+                              <el-checkbox-group
+                                v-else
+                                v-model="addRoleFormArray[index].choiceItem"
+                              >
+                                <el-checkbox
+                                  :label="checkboxItem.id"
+                                  :disabled="checkboxItem.isCancel == 2"
+                                  :checked="checkboxItem.isChecked == 1"
+                                  @change="
+                                    checked =>
+                                      handleCheckedChange(checked, index, '')
+                                  "
+                                  >启用</el-checkbox
+                                >
+                              </el-checkbox-group>
+                            </template>
+                            <!-- 自定义签名MD5 -->
+                            <template
+                              v-if="
+                                checkboxItem.reinforceItemName ==
+                                  '自定义签名MD5' &&
+                                  addRoleFormArray[index]['MD5'] == true
+                              "
+                            >
+                              <el-form-item label="签名MD5">
+                                <el-input
+                                  size="small"
+                                  style="width:200px"
+                                  clearable
+                                  maxlength="32"
+                                  v-model="
+                                    addRoleFormArray[index].signMd5Items[0]
+                                      .value
+                                  "
+                                ></el-input>
+                                <el-button
+                                  type="text"
+                                  @click="addSignature(index)"
+                                  >添加</el-button
+                                >
+                              </el-form-item>
+                              <el-form-item
+                                v-for="(addItem, addIndex) in addRoleFormArray[
+                                  index
+                                ].signMd5Items"
+                                :key="addIndex"
+                                v-show="addIndex"
+                                style="margin-left:70px"
+                              >
+                                <el-input
+                                  size="small"
+                                  style="width:200px"
+                                  clearable
+                                  maxlength="32"
+                                  v-model="addItem.value"
+                                  :disabled="true"
+                                ></el-input>
+                                <el-button
+                                  type="text"
+                                  @click="
+                                    deleteSignature(index, addIndex, addItem)
+                                  "
+                                  >删除</el-button
+                                >
+                              </el-form-item>
+                            </template>
+                            <!-- SO高级加固 -->
+                            <template
+                              v-if="
+                                checkboxItem.reinforceItemName ==
+                                  'SO高级加固' &&
+                                  addRoleFormArray[index]['SO'] == true
+                              "
+                            >
+                              <el-tree
+                                :data="item.keyTreeData[0].soItems"
+                                show-checkbox
+                                node-key="value"
+                                ref="soTree"
+                                @check-change="getSoCheckedNodes"
+                              >
+                              </el-tree>
+                            </template>
+                            <!-- H5文件加固 -->
+                            <template
+                              v-if="
+                                checkboxItem.reinforceItemName ==
+                                  'H5文件加固' &&
+                                  addRoleFormArray[index]['H5'] == true
+                              "
+                            >
+                              <el-tree
+                                :data="item.keyTreeData[0].h5Items"
+                                show-checkbox
+                                ref="h5Tree"
+                                node-key="label"
+                                @check-change="getH5CheckedNodes"
+                              ></el-tree>
                             </template>
                           </el-form-item>
                         </div>
@@ -427,8 +496,6 @@
               </el-tooltip>
             </template>
           </el-table-column>
-          <!--  <el-table-column prop="appFileName" label="文件名称">
-          </el-table-column> -->
           <el-table-column
             prop="appPath"
             label="文件key"
@@ -457,12 +524,6 @@
           <el-table-column prop="userName" label="创建人"></el-table-column>
           <el-table-column prop="operate" label="操作">
             <template slot-scope="scope">
-              <!--   <el-tooltip effect="dark" content="加固" placement="top-start">
-                <i
-                  class="el-icon-video-play playIcon"
-                  @click="reinforce(scope.row.id)"
-                ></i>
-              </el-tooltip> -->
               <el-tooltip effect="dark" content="详细" placement="top-start">
                 <i
                   class="el-icon-tickets floderIcon"
@@ -523,7 +584,6 @@ export default {
   data() {
     return {
       labelPosition: "right",
-      checkList: ["选中且禁用", "复选框 A"],
       curPage: 1, //当前页
       limit: 10, //每页显示的条目个数
       dataCount: 0, //总条目
@@ -568,16 +628,39 @@ export default {
       loading: false,
       reinforceItemData: [],
       radioItem: [],
-      checkedItem: []
+      checkedItem: [],
+      soItemList: [],
+      soItemListData: [],
+      h5ItemList: [],
+      h5ItemListData: []
     };
   },
   inject: ["reload"],
   methods: {
+    //测试
+    getSoCheckedNodes() {
+      const _this = this;
+      console.log(_this.$refs.soTree[0].getCheckedKeys(), "SOTREE");
+      /*  _this.$refs.soTree.forEach((v, i) => {
+        console.log(v.getCheckedKeys());
+        _this.soItemList[i] = v.getCheckedKeys();
+      });
+      _this.soItemListData.push({ value: _this.soItemList });
+      console.log(_this.soItemListData, "so数据"); */
+    },
+    getH5CheckedNodes() {
+      const _this = this;
+      let arr = [];
+      console.log(_this.$refs.h5Tree, "H5TREE");
+      _this.$refs.h5Tree.forEach((v, i) => {
+        console.log(v.getCheckedNodes());
+      });
+    },
     handleCheckedChange(val, index, checkboxType) {
-      this.addRoleFormArray[index].checked = val;
+      this.addRoleFormArray[index][checkboxType] = val;
     },
     addSignature(index) {
-      let signMd5Items = this.addRoleFormArray[index].signMd5Items[index].value,
+      let signMd5Items = this.addRoleFormArray[index].signMd5Items[0].value,
         regularResult = /^[A-Fa-f0-9]{32}$/.test(signMd5Items);
       if (regularResult) {
         this.addRoleFormArray[index].signMd5Items.push({
@@ -660,7 +743,7 @@ export default {
       });
       if (allValid) {
         const reinforceInfoDto = taskList.map((formItem, index) => {
-          const curFileItem = _this.uploadFileItems[index];
+          const curFileItem = _this.uploadFileItems[index].data;
           let signMd5Items = [];
           formItem.signMd5Items.forEach((v, i) => {
             signMd5Items.push(v.value);
@@ -678,13 +761,15 @@ export default {
             signStrategyId: formItem.curPrinter5,
             strategyItemDto: {
               reinforceItemList: formItem.choiceItem,
-              signMd5Items: signMd5Items
+              signMd5Items: signMd5Items,
+              soItemList: [..._this.soItemListData].pop().value[index],
+              h5ItemList: [..._this.h5ItemListData].pop().value[index]
             }
           };
           return result;
         });
-        console.log("#reinforceInfoDto", reinforceInfoDto);
-        https
+        console.log("#-----------reinforceInfoDto", reinforceInfoDto);
+        /* https
           .fetchPost(
             baseUrl + "/api/reinforce/info/saveReinforceInfoOrUpdate",
             reinforceInfoDto
@@ -700,7 +785,7 @@ export default {
               });
               _this.reload();
             }
-          });
+          }); */
       } else {
         return "";
       }
@@ -815,7 +900,6 @@ export default {
                 choiceItem: []
               });
               this.uploadFileItems.push(dataItem);
-              console.log(this.uploadFileItems, "上传的数据");
               for (var i = 0; i < this.uploadFileItems.length; i++) {
                 this.activeNames.push(i + 1);
                 this.activeNames = Array.from(new Set(this.activeNames));
