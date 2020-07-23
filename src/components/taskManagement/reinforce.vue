@@ -159,24 +159,30 @@
                             label-width="22%"
                           >
                             <template v-if="checkboxItem.children">
-                              <!--   <el-checkbox-group
-                                  v-if="subItem.reinforceItemName == '防篡改'"
-                                  v-model="addRoleFormArray[index].choiceItem"
-                                  :max="1"
-                                >
-                                  <el-checkbox
-                                    :label="subItem.id"
-                                    :disabled="subItem.isCancel == 2"
-                                    :checked="subItem.isChecked == 1"
-                                    style="margin-right:8px"
-                                    >{{ subItem.reinforceItemName }}
-                                  </el-checkbox>
-                                </el-checkbox-group> -->
-
                               <el-checkbox-group
-                                v-model="addRoleFormArray[index].choiceItem"
+                                v-if="
+                                  checkboxItem.reinforceItemName == '防篡改'
+                                "
+                                v-model="
+                                  addRoleFormArray[index].choiceTamperItem
+                                "
                                 :min="0"
                                 :max="1"
+                              >
+                                <el-checkbox
+                                  v-for="subItem in checkboxItem.children"
+                                  :key="subItem.id"
+                                  :label="subItem.id"
+                                  :disabled="subItem.isCancel == 2"
+                                  :checked="subItem.isChecked == 1"
+                                  style="margin-right:8px"
+                                  >{{ subItem.reinforceItemName }}
+                                </el-checkbox>
+                              </el-checkbox-group>
+
+                              <el-checkbox-group
+                                v-else
+                                v-model="addRoleFormArray[index].choiceItem"
                               >
                                 <el-checkbox
                                   v-for="subItem in checkboxItem.children"
@@ -189,6 +195,7 @@
                                 >
                               </el-checkbox-group>
                             </template>
+
                             <template v-else>
                               <el-checkbox-group
                                 v-model="addRoleFormArray[index].choiceItem"
@@ -216,8 +223,10 @@
                               >
                                 <el-checkbox
                                   :label="checkboxItem.id"
-                                  :disabled="checkboxItem.isCancel == 2"
                                   :checked="checkboxItem.isChecked == 1"
+                                  :disabled="
+                                    checkboxItem.isCancel == 2 || soDisabled
+                                  "
                                   @change="
                                     checked =>
                                       handleCheckedChange(checked, index, 'SO')
@@ -233,7 +242,9 @@
                               >
                                 <el-checkbox
                                   :label="checkboxItem.id"
-                                  :disabled="checkboxItem.isCancel == 2"
+                                  :disabled="
+                                    checkboxItem.isCancel == 2 || h5Disabled
+                                  "
                                   :checked="checkboxItem.isChecked == 1"
                                   @change="
                                     checked =>
@@ -578,11 +589,14 @@
   </div>
 </template>
 <script>
+const cityOptions = ["上海", "北京", "广州", "深圳"];
 import https from "../../http.js";
 export default {
   name: "reinfore",
   data() {
     return {
+      checkedCities: [],
+      cities: cityOptions,
       labelPosition: "right",
       curPage: 1, //当前页
       limit: 10, //每页显示的条目个数
@@ -632,29 +646,27 @@ export default {
       soItemList: [],
       soItemListData: [],
       h5ItemList: [],
-      h5ItemListData: []
+      h5ItemListData: [],
+      soDisabled: null,
+      h5Disabled: null
     };
   },
   inject: ["reload"],
   methods: {
-    //测试
     getSoCheckedNodes() {
       const _this = this;
-      console.log(_this.$refs.soTree[0].getCheckedKeys(), "SOTREE");
-      /*  _this.$refs.soTree.forEach((v, i) => {
-        console.log(v.getCheckedKeys());
+      _this.$refs.soTree.forEach((v, i) => {
         _this.soItemList[i] = v.getCheckedKeys();
       });
       _this.soItemListData.push({ value: _this.soItemList });
-      console.log(_this.soItemListData, "so数据"); */
     },
     getH5CheckedNodes() {
       const _this = this;
-      let arr = [];
-      console.log(_this.$refs.h5Tree, "H5TREE");
       _this.$refs.h5Tree.forEach((v, i) => {
-        console.log(v.getCheckedNodes());
+        let result = v.getCheckedNodes().map(v => v.value);
+        _this.h5ItemList[i] = result;
       });
+      _this.h5ItemListData.push({ value: _this.h5ItemList });
     },
     handleCheckedChange(val, index, checkboxType) {
       this.addRoleFormArray[index][checkboxType] = val;
@@ -699,7 +711,6 @@ export default {
     // //鼠标点击哪一页
     handleCurrentChange(val) {
       this.curPage = val;
-      sessionStorage.setItem("curPage", val);
       let appName = this.ruleForm.appName,
         appVersion = this.ruleForm.appVersion,
         queryInfo = { appName, appVersion };
@@ -730,13 +741,37 @@ export default {
       let baseUrl = this.api.baseUrl,
         _this = this,
         taskList = this.addRoleFormArray,
-        allValid = true;
+        allValid = true,
+        signMd5ItemsList = [],
+        signMd5ItemsListData = [];
       taskList.forEach((v, i) => {
         this.$refs["addRoleForm"][i].validate(valid => {
           if (valid) {
           } else {
-            console.log("必选项没填");
             allValid = false;
+            return false;
+          }
+        });
+        //保存加固任务时,判断用户输入时输入的md5是否正确
+        v.signMd5Items.forEach((v, i) => {
+          signMd5ItemsList.push(v.value);
+        });
+        signMd5ItemsListData = signMd5ItemsList.filter(function(v) {
+          return v != "";
+        });
+        if (signMd5ItemsListData.length) {
+        } else {
+          _this.$message.error("请输入MD5");
+          allValid = false;
+          return false;
+        }
+        console.log(signMd5ItemsListData, "data");
+        signMd5ItemsListData.forEach((item, index) => {
+          let regularResult = /^[A-Fa-f0-9]{32}$/.test(item);
+          if (regularResult) {
+          } else {
+            allValid = false;
+            _this.$message.error("长度32位,仅支持数字和字母A-F,不区分大小写");
             return false;
           }
         });
@@ -744,10 +779,34 @@ export default {
       if (allValid) {
         const reinforceInfoDto = taskList.map((formItem, index) => {
           const curFileItem = _this.uploadFileItems[index].data;
-          let signMd5Items = [];
+          let signMd5Items = [],
+            soItemList = [],
+            h5ItemList = [];
           formItem.signMd5Items.forEach((v, i) => {
             signMd5Items.push(v.value);
           });
+          let signMd5ItemsData = signMd5Items.filter(function(v) {
+            return v != "";
+          });
+          if ([..._this.soItemListData].pop()) {
+            soItemList = [..._this.soItemListData].pop().value[index];
+            soItemList = soItemList.filter(function(v) {
+              return v != "";
+            });
+          } else {
+            soItemList = [];
+          }
+          if ([...this.h5ItemListData].pop()) {
+            h5ItemList = [..._this.h5ItemListData].pop().value[index];
+            h5ItemList = h5ItemList.filter(function(v) {
+              return v != "";
+            });
+          } else {
+            h5ItemList = [];
+          }
+          formItem.choiceItem = formItem.choiceItem.concat(
+            formItem.choiceTamperItem
+          );
           const result = {
             appName: curFileItem.appName,
             appIcon: curFileItem.appIcon,
@@ -761,14 +820,14 @@ export default {
             signStrategyId: formItem.curPrinter5,
             strategyItemDto: {
               reinforceItemList: formItem.choiceItem,
-              signMd5Items: signMd5Items,
-              soItemList: [..._this.soItemListData].pop().value[index],
-              h5ItemList: [..._this.h5ItemListData].pop().value[index]
+              signMd5Items: signMd5ItemsData,
+              soItemList: soItemList,
+              h5ItemList: h5ItemList
             }
           };
           return result;
         });
-        console.log("#-----------reinforceInfoDto", reinforceInfoDto);
+        console.log(reinforceInfoDto, "##");
         /* https
           .fetchPost(
             baseUrl + "/api/reinforce/info/saveReinforceInfoOrUpdate",
@@ -838,7 +897,6 @@ export default {
         onUploadProgress: ProgressEvent => {
           let progressPercent =
             ((ProgressEvent.loaded / ProgressEvent.total) * 100) | 0;
-          //多个文件显示多个进度条
           file.onProgress({ percent: progressPercent });
         }
       };
@@ -850,6 +908,7 @@ export default {
         )
         .then(res => {
           const _this = this;
+          console.log(res);
           if (res.data.code === "01") {
             _this.$notify({
               title: "警告",
@@ -881,6 +940,17 @@ export default {
                 )
                 .then(res => {
                   if (res.data.code == "00") {
+                    console.log(
+                      res.data.data,
+                      res.data.data.soItems,
+                      res.data.data.h5Items
+                    );
+                    if (res.data.data.soItems.length) {
+                      _this.soDisabled = false;
+                    }
+                    if (res.data.data.h5Items.length) {
+                      _this.h5Disabled = false;
+                    }
                     keyTreeData.push(res.data.data);
                   }
                 });
@@ -895,10 +965,11 @@ export default {
                 radio2: "",
                 strategyItemDto: {},
                 strategyItemDtoTest: [],
-                radioTest: "1",
                 signMd5Items: [{ value: "" }],
-                choiceItem: []
+                choiceItem: [],
+                choiceTamperItem: []
               });
+              console.log(this.addRoleFormArray, "addRoleFormArray");
               this.uploadFileItems.push(dataItem);
               for (var i = 0; i < this.uploadFileItems.length; i++) {
                 this.activeNames.push(i + 1);
@@ -910,7 +981,6 @@ export default {
         });
     },
     //上传结束---
-    //
     //详情
     detail(id) {
       this.$router.push({ path: "/Detail" + id + "" });

@@ -78,6 +78,7 @@ export default {
     let baseUrl = this.api.baseUrl,
       _this = this;
     http.fetchGet(baseUrl + "/api/system/menu/list").then(res => {
+      console.log(res);
       if (res.data.code === "00") {
         _this.sidebarList = this.toTreeData(res.data.data);
       } else {
