@@ -44,7 +44,7 @@
         <el-button
           type="primary"
           size="small"
-          @click="add()"
+          @click="addReinforceTask()"
           style="margin-right:10px"
           >新增任务</el-button
         >
@@ -270,6 +270,7 @@
                               </el-checkbox-group>
                             </template>
                             <!-- 自定义签名MD5 -->
+
                             <template
                               v-if="
                                 checkboxItem.reinforceItemName ==
@@ -319,6 +320,7 @@
                                 >
                               </el-form-item>
                             </template>
+
                             <!-- SO高级加固 -->
                             <template
                               v-if="
@@ -472,8 +474,10 @@
             </div>
           </div>
           <div class="el-drawer-footer">
-            <el-button type="primary" @click="saveaddTask()">加固</el-button>
-            <el-button @click="cancelSaveaddTask()" plain>取消</el-button>
+            <el-button type="primary" @click="saveReinforceTask()"
+              >加固</el-button
+            >
+            <el-button @click="cancelReinforceTask()" plain>取消</el-button>
           </div>
         </el-drawer>
       </div>
@@ -595,8 +599,6 @@ export default {
   name: "reinfore",
   data() {
     return {
-      checkedCities: [],
-      cities: cityOptions,
       labelPosition: "right",
       curPage: 1, //当前页
       limit: 10, //每页显示的条目个数
@@ -629,7 +631,6 @@ export default {
         radio2: [{ required: true, message: "是否签名", trigger: "blur" }]
       },
       addTaskDrawer: false,
-      percentage: 0, //存放上传的百分比
       uploadFileItems: [],
       uploadShow: true,
       strategyOptions: [],
@@ -669,7 +670,15 @@ export default {
       _this.h5ItemListData.push({ value: _this.h5ItemList });
     },
     handleCheckedChange(val, index, checkboxType) {
-      this.addRoleFormArray[index][checkboxType] = val;
+      const _this = this;
+      _this.addRoleFormArray[index][checkboxType] = val;
+      if (checkboxType === "MD5") {
+        _this.addRoleFormArray[index].md5Checked = val;
+      } else if (checkboxType === "SO") {
+        _this.addRoleFormArray[index].soChecked = val;
+      } else if (checkboxType == "H5") {
+        _this.addRoleFormArray[index].h5Checked = val;
+      }
     },
     addSignature(index) {
       let signMd5Items = this.addRoleFormArray[index].signMd5Items[0].value,
@@ -733,11 +742,11 @@ export default {
       }, 500);
     },
     //新增加固任务
-    add() {
+    addReinforceTask() {
       this.addTaskDrawer = true;
     },
     //保存加固任务
-    saveaddTask(formName, form) {
+    saveReinforceTask(formName, form) {
       let baseUrl = this.api.baseUrl,
         _this = this,
         taskList = this.addRoleFormArray,
@@ -752,29 +761,49 @@ export default {
             return false;
           }
         });
-        //保存加固任务时,判断用户输入时输入的md5是否正确
-        v.signMd5Items.forEach((v, i) => {
-          signMd5ItemsList.push(v.value);
-        });
-        signMd5ItemsListData = signMd5ItemsList.filter(function(v) {
+        signMd5ItemsListData = v.signMd5Items.filter(v => {
           return v != "";
         });
-        if (signMd5ItemsListData.length) {
-        } else {
-          _this.$message.error("请输入MD5");
-          allValid = false;
-          return false;
-        }
-        console.log(signMd5ItemsListData, "data");
-        signMd5ItemsListData.forEach((item, index) => {
-          let regularResult = /^[A-Fa-f0-9]{32}$/.test(item);
-          if (regularResult) {
+        /*  if (v.md5Checked) {
+          if (signMd5ItemsListData.length) {
+            signMd5ItemsListData.forEach((item, index) => {
+              let regularResult = /^[A-Fa-f0-9]{32}$/.test(item);
+              if (regularResult) {
+              } else {
+                _this.$message.error(
+                  "MD5长度32位,仅支持数字和字母A-F,不区分大小写"
+                );
+                allValid = false;
+                return false;
+              }
+            });
           } else {
+            _this.$message.error("MD5不能为空哦");
             allValid = false;
-            _this.$message.error("长度32位,仅支持数字和字母A-F,不区分大小写");
+            v.md5Checked = false;
             return false;
           }
-        });
+        } else {
+          v.md5Checked = false;
+          return false;
+        } */
+        //判断SO是否选中了
+        if (v.soChecked) {
+          console.log("so选中了");
+          console.log([..._this.h5ItemListData].pop());
+          if ([..._this.h5ItemListData].pop()) {
+          } else {
+            _this.$message.error("请选择SO文件");
+          }
+        } else {
+          console.log("so没有选中");
+        }
+        //判断MD5是否选中
+        if (v.h5Checked) {
+          console.log("h5选中");
+        } else {
+          console.log("h5没有选中");
+        }
       });
       if (allValid) {
         const reinforceInfoDto = taskList.map((formItem, index) => {
@@ -782,12 +811,12 @@ export default {
           let signMd5Items = [],
             soItemList = [],
             h5ItemList = [];
-          formItem.signMd5Items.forEach((v, i) => {
+          /*  formItem.signMd5Items.forEach((v, i) => {
             signMd5Items.push(v.value);
           });
           let signMd5ItemsData = signMd5Items.filter(function(v) {
             return v != "";
-          });
+          }); */
           if ([..._this.soItemListData].pop()) {
             soItemList = [..._this.soItemListData].pop().value[index];
             soItemList = soItemList.filter(function(v) {
@@ -804,6 +833,7 @@ export default {
           } else {
             h5ItemList = [];
           }
+
           formItem.choiceItem = formItem.choiceItem.concat(
             formItem.choiceTamperItem
           );
@@ -820,14 +850,14 @@ export default {
             signStrategyId: formItem.curPrinter5,
             strategyItemDto: {
               reinforceItemList: formItem.choiceItem,
-              signMd5Items: signMd5ItemsData,
+              /* signMd5Items: signMd5ItemsData, */
               soItemList: soItemList,
               h5ItemList: h5ItemList
             }
           };
           return result;
         });
-        console.log(reinforceInfoDto, "##");
+        console.log(reinforceInfoDto, "+++++");
         /* https
           .fetchPost(
             baseUrl + "/api/reinforce/info/saveReinforceInfoOrUpdate",
@@ -850,7 +880,7 @@ export default {
       }
     },
     //取消加固任务
-    cancelSaveaddTask() {
+    cancelReinforceTask() {
       if (this.uploadFileItems.length !== 0) {
         this.$confirm("会清空当前上传的文件,是否继续?", "提示", {
           closeOnClickModal: false,
@@ -890,7 +920,8 @@ export default {
     //上传-----开始
     addFileToFormData(file) {
       let params = new FormData(),
-        baseUrl = this.api.baseUrl;
+        baseUrl = this.api.baseUrl,
+        _this = this;
       params.append("file", file.file);
       //进度条配置
       let config = {
@@ -907,8 +938,6 @@ export default {
           config
         )
         .then(res => {
-          const _this = this;
-          console.log(res);
           if (res.data.code === "01") {
             _this.$notify({
               title: "警告",
@@ -940,11 +969,6 @@ export default {
                 )
                 .then(res => {
                   if (res.data.code == "00") {
-                    console.log(
-                      res.data.data,
-                      res.data.data.soItems,
-                      res.data.data.h5Items
-                    );
                     if (res.data.data.soItems.length) {
                       _this.soDisabled = false;
                     }
@@ -967,7 +991,10 @@ export default {
                 strategyItemDtoTest: [],
                 signMd5Items: [{ value: "" }],
                 choiceItem: [],
-                choiceTamperItem: []
+                choiceTamperItem: [],
+                md5Checked: false,
+                soChecked: false,
+                h5Checked: false
               });
               console.log(this.addRoleFormArray, "addRoleFormArray");
               this.uploadFileItems.push(dataItem);
@@ -981,14 +1008,15 @@ export default {
         });
     },
     //上传结束---
+
     //详情
     detail(id) {
       this.$router.push({ path: "/Detail" + id + "" });
     },
     //下载原包
     downloadOriginalPackage(data) {
-      let appkey = data.appPath;
-      let baseUrl = this.api.baseUrl,
+      let appkey = data.appPath,
+        baseUrl = this.api.baseUrl,
         Authorization = localStorage.getItem("Authorization"),
         downloadUrl =
           baseUrl +
@@ -1008,7 +1036,6 @@ export default {
         id +
         "&type=1&Authorization=" +
         Authorization;
-      console.log(downloadUrl, "哈哈");
       window.location.href = downloadUrl;
     },
     //删除

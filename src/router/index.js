@@ -62,8 +62,8 @@ const router = new Router({
                 },
                 {
                     path: "/reinforce",
-                    name: "reinforce",
-                    component: reinforce,
+                    name: "xx",
+                    component: xx,
                     meta: { requireAuth: true, KeepAlive: false }
                 },
                 {
