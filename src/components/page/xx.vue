@@ -211,7 +211,12 @@
                                   :checked="checkboxItem.isChecked == 1"
                                   @change="
                                     checked =>
-                                      handleCheckedChange(checked, index, 'MD5')
+                                      handleCheckedChange(
+                                        checked,
+                                        index,
+                                        'MD5',
+                                        item.keyTreeData[0].signMd5Value
+                                      )
                                   "
                                   >启用</el-checkbox
                                 >
@@ -370,7 +375,7 @@
                               <el-tree
                                 :data="item.keyTreeData[0].soItems"
                                 show-checkbox
-                                node-key="value"
+                                node-key="label"
                                 ref="soTree"
                                 @check-change="getSoCheckedNodes(index)"
                               >
@@ -691,7 +696,8 @@ export default {
     getSoCheckedNodes(index) {
       const _this = this;
       _this.$refs.soTree.forEach((v, i) => {
-        _this.addRoleFormArray[index].soItemList = v.getCheckedKeys();
+        let result = v.getCheckedNodes().map(v => v.value);
+        _this.addRoleFormArray[index].soItemList = result;
       });
     },
     getH5CheckedNodes(index) {
@@ -701,22 +707,21 @@ export default {
         _this.addRoleFormArray[index].h5ItemList = result;
       });
     },
-    handleCheckedChange(val, index, checkboxType) {
+    handleCheckedChange(checked, index, checkboxType, value) {
       const _this = this;
-      _this.addRoleFormArray[index][checkboxType] = val;
+      _this.addRoleFormArray[index][checkboxType] = checked;
       if (checkboxType === "MD5") {
-        _this.addRoleFormArray[index].md5Checked = val;
+        _this.addRoleFormArray[index].md5Checked = checked;
         this.addRoleFormArray[index].addSignatureClick = false;
-        console.log(_this.addRoleFormArray[index].signMd5Items, "哈哈");
-        if (!val) {
+        if (!checked) {
           _this.addRoleFormArray[index].signMd5Items = [];
         } else {
-          _this.addRoleFormArray[index].signMd5Items = [{ value: "" }];
+          _this.addRoleFormArray[index].signMd5Items = [{ value }];
         }
       } else if (checkboxType === "SO") {
-        _this.addRoleFormArray[index].soChecked = val;
+        _this.addRoleFormArray[index].soChecked = checked;
       } else if (checkboxType == "H5") {
-        _this.addRoleFormArray[index].h5Checked = val;
+        _this.addRoleFormArray[index].h5Checked = checked;
       }
     },
     addSignature(index, value) {
@@ -727,17 +732,8 @@ export default {
         this.addRoleFormArray[index].signMd5Items.push({
           value: ""
         });
-        console.log(this.addRoleFormArray[index].signMd5Items, "嘻嘻");
-        this.addRoleFormArray[index].signMd5Items.forEach((v, i) => {
-          if (i == 1) {
-            /* v.value = value; */
-            /* console.log(v); */
-            v.value = signMd5Items;
-          }
-        });
-        /*  this.addRoleFormArray[index].signMd5Items[index].value = value; */
-        /*   console.log(this.addRoleFormArray[index].signMd5Items, "哈哈"); */
-        /*   this.addRoleFormArray[index].signMd5Items.reverse(); */
+        this.addRoleFormArray[index].signMd5Items[0].value = signMd5Items;
+        this.addRoleFormArray[index].signMd5Items.reverse();
       } else {
         this.$message.error("长度32位,仅支持数字和字母A-F,不区分大小写");
       }
@@ -826,11 +822,22 @@ export default {
           }
         }
         if (v.md5Checked) {
+          let signMd5Items = _this.addRoleFormArray[i].signMd5Items[0].value,
+            regularResult = /^[A-Fa-f0-9]{32}$/.test(signMd5Items);
+          if (signMd5Items) {
+            if (regularResult) {
+            } else {
+              this.$message.error("长度32位,仅支持数字和字母A-F,不区分大小写");
+              allValid = false;
+              return false;
+            }
+          }
         }
       });
       if (allValid) {
         const reinforceInfoDto = taskList.map((formItem, index) => {
           const curFileItem = _this.uploadFileItems[index].data;
+          let signMd5Items = [];
           if (formItem.h5ItemList) {
             formItem.h5ItemList = formItem.h5ItemList.filter(function(v) {
               return v != "";
@@ -841,15 +848,12 @@ export default {
               return v != "";
             });
           }
-          /*   let signMd5Items = []; */
-          /*   soItemList = [], */
-          /*    h5ItemList = []; */
-          /*  formItem.signMd5Items.forEach((v, i) => {
+          formItem.signMd5Items.forEach((v, i) => {
             signMd5Items.push(v.value);
           });
           let signMd5ItemsData = signMd5Items.filter(function(v) {
             return v != "";
-          }); */
+          });
           formItem.choiceItem = formItem.choiceItem.concat(
             formItem.choiceTamperItem
           );
@@ -866,7 +870,7 @@ export default {
             signStrategyId: formItem.curPrinter5,
             strategyItemDto: {
               reinforceItemList: formItem.choiceItem,
-              /*   signMd5Items: signMd5ItemsData, */
+              signMd5Items: signMd5ItemsData,
               soItemList: formItem.soItemList,
               h5ItemList: formItem.h5ItemList
             }
@@ -874,7 +878,7 @@ export default {
           return result;
         });
         console.log(reinforceInfoDto, "+++++");
-        /* https
+        https
           .fetchPost(
             baseUrl + "/api/reinforce/info/saveReinforceInfoOrUpdate",
             reinforceInfoDto
@@ -890,9 +894,8 @@ export default {
               });
               _this.reload();
             }
-          }); */
+          });
       } else {
-        console.log("2222");
         return "";
       }
     },
@@ -957,7 +960,6 @@ export default {
         )
         .then(res => {
           console.log(res.data.data, "data数据");
-          /*  _this.uploadFileItems.push(res.data.data); */
           if (res.data.code === "01") {
             _this.$notify({
               title: "警告",
@@ -1028,6 +1030,7 @@ export default {
               }
               this.uploadShow = false;
             }
+            _this.$refs.upload.clearFiles();
           }
         });
     },

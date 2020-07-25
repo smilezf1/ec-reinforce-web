@@ -67,6 +67,7 @@
               drag
               action="/"
               multiple
+              :limit="3"
               :http-request="addFileToFormData"
               v-show="uploadShow"
               :file-list="uploadFileItems"
@@ -210,7 +211,12 @@
                                   :checked="checkboxItem.isChecked == 1"
                                   @change="
                                     checked =>
-                                      handleCheckedChange(checked, index, 'MD5')
+                                      handleCheckedChange(
+                                        checked,
+                                        index,
+                                        'MD5',
+                                        item.keyTreeData[0].signMd5Value
+                                      )
                                   "
                                   >启用</el-checkbox
                                 >
@@ -279,22 +285,60 @@
                               "
                             >
                               <el-form-item label="签名MD5">
-                                <el-input
-                                  size="small"
-                                  style="width:200px"
-                                  clearable
-                                  maxlength="32"
-                                  v-model="
-                                    addRoleFormArray[index].signMd5Items[0]
-                                      .value
+                                <template
+                                  v-if="
+                                    !addRoleFormArray[index].addSignatureClick
                                   "
-                                ></el-input>
-                                <el-button
-                                  type="text"
-                                  @click="addSignature(index)"
-                                  >添加</el-button
                                 >
+                                  <el-input
+                                    size="small"
+                                    clearable
+                                    style="width:51%"
+                                    maxlength="32"
+                                    v-model="item.keyTreeData[0].signMd5Value"
+                                  ></el-input>
+                                  <el-button
+                                    type="text"
+                                    @click="
+                                      addSignature(
+                                        index,
+                                        item.keyTreeData[0].signMd5Value
+                                      )
+                                    "
+                                    >添加</el-button
+                                  >
+                                </template>
+                                <template
+                                  v-if="
+                                    addRoleFormArray[index].addSignatureClick
+                                  "
+                                >
+                                  <el-input
+                                    size="small"
+                                    style="width:51%"
+                                    clearable
+                                    maxlength="32"
+                                    v-model="
+                                      addRoleFormArray[index].signMd5Items[0]
+                                        .value
+                                    "
+                                  ></el-input>
+                                  <el-button
+                                    type="text"
+                                    @click="
+                                      addSignature(
+                                        index,
+                                        addRoleFormArray[index].signMd5Items[0]
+                                          .value
+                                      )
+                                    "
+                                    >添加</el-button
+                                  >
+                                </template>
                               </el-form-item>
+                              <!--  <p style="height:40px;border:1px solid red">
+                                {{ addRoleFormArray[index].signMd5Items }}
+                              </p> -->
                               <el-form-item
                                 v-for="(addItem, addIndex) in addRoleFormArray[
                                   index
@@ -305,7 +349,7 @@
                               >
                                 <el-input
                                   size="small"
-                                  style="width:200px"
+                                  style="width:58%"
                                   clearable
                                   maxlength="32"
                                   v-model="addItem.value"
@@ -320,7 +364,6 @@
                                 >
                               </el-form-item>
                             </template>
-
                             <!-- SO高级加固 -->
                             <template
                               v-if="
@@ -332,9 +375,9 @@
                               <el-tree
                                 :data="item.keyTreeData[0].soItems"
                                 show-checkbox
-                                node-key="value"
+                                node-key="label"
                                 ref="soTree"
-                                @check-change="getSoCheckedNodes"
+                                @check-change="getSoCheckedNodes(index)"
                               >
                               </el-tree>
                             </template>
@@ -351,7 +394,7 @@
                                 show-checkbox
                                 ref="h5Tree"
                                 node-key="label"
-                                @check-change="getH5CheckedNodes"
+                                @check-change="getH5CheckedNodes(index)"
                               ></el-tree>
                             </template>
                           </el-form-item>
@@ -644,49 +687,52 @@ export default {
       reinforceItemData: [],
       radioItem: [],
       checkedItem: [],
-      soItemList: [],
-      soItemListData: [],
-      h5ItemList: [],
-      h5ItemListData: [],
       soDisabled: null,
       h5Disabled: null
     };
   },
   inject: ["reload"],
   methods: {
-    getSoCheckedNodes() {
+    getSoCheckedNodes(index) {
       const _this = this;
       _this.$refs.soTree.forEach((v, i) => {
-        _this.soItemList[i] = v.getCheckedKeys();
+        let result = v.getCheckedNodes().map(v => v.value);
+        _this.addRoleFormArray[index].soItemList = result;
       });
-      _this.soItemListData.push({ value: _this.soItemList });
     },
-    getH5CheckedNodes() {
+    getH5CheckedNodes(index) {
       const _this = this;
       _this.$refs.h5Tree.forEach((v, i) => {
         let result = v.getCheckedNodes().map(v => v.value);
-        _this.h5ItemList[i] = result;
+        _this.addRoleFormArray[index].h5ItemList = result;
       });
-      _this.h5ItemListData.push({ value: _this.h5ItemList });
     },
-    handleCheckedChange(val, index, checkboxType) {
+    handleCheckedChange(checked, index, checkboxType, value) {
       const _this = this;
-      _this.addRoleFormArray[index][checkboxType] = val;
+      _this.addRoleFormArray[index][checkboxType] = checked;
       if (checkboxType === "MD5") {
-        _this.addRoleFormArray[index].md5Checked = val;
+        _this.addRoleFormArray[index].md5Checked = checked;
+        this.addRoleFormArray[index].addSignatureClick = false;
+        if (!checked) {
+          _this.addRoleFormArray[index].signMd5Items = [];
+        } else {
+          _this.addRoleFormArray[index].signMd5Items = [{ value }];
+        }
       } else if (checkboxType === "SO") {
-        _this.addRoleFormArray[index].soChecked = val;
+        _this.addRoleFormArray[index].soChecked = checked;
       } else if (checkboxType == "H5") {
-        _this.addRoleFormArray[index].h5Checked = val;
+        _this.addRoleFormArray[index].h5Checked = checked;
       }
     },
-    addSignature(index) {
-      let signMd5Items = this.addRoleFormArray[index].signMd5Items[0].value,
+    addSignature(index, value) {
+      this.addRoleFormArray[index].addSignatureClick = true;
+      let signMd5Items = value,
         regularResult = /^[A-Fa-f0-9]{32}$/.test(signMd5Items);
       if (regularResult) {
         this.addRoleFormArray[index].signMd5Items.push({
           value: ""
         });
+        this.addRoleFormArray[index].signMd5Items[0].value = signMd5Items;
         this.addRoleFormArray[index].signMd5Items.reverse();
       } else {
         this.$message.error("长度32位,仅支持数字和字母A-F,不区分大小写");
@@ -747,12 +793,10 @@ export default {
     },
     //保存加固任务
     saveReinforceTask(formName, form) {
-      let baseUrl = this.api.baseUrl,
-        _this = this,
-        taskList = this.addRoleFormArray,
-        allValid = true,
-        signMd5ItemsList = [],
-        signMd5ItemsListData = [];
+      let _this = this,
+        baseUrl = _this.api.baseUrl,
+        taskList = _this.addRoleFormArray,
+        allValid = true;
       taskList.forEach((v, i) => {
         this.$refs["addRoleForm"][i].validate(valid => {
           if (valid) {
@@ -761,79 +805,55 @@ export default {
             return false;
           }
         });
-        signMd5ItemsListData = v.signMd5Items.filter(v => {
-          return v != "";
-        });
-        /*  if (v.md5Checked) {
-          if (signMd5ItemsListData.length) {
-            signMd5ItemsListData.forEach((item, index) => {
-              let regularResult = /^[A-Fa-f0-9]{32}$/.test(item);
-              if (regularResult) {
-              } else {
-                _this.$message.error(
-                  "MD5长度32位,仅支持数字和字母A-F,不区分大小写"
-                );
-                allValid = false;
-                return false;
-              }
-            });
-          } else {
-            _this.$message.error("MD5不能为空哦");
-            allValid = false;
-            v.md5Checked = false;
-            return false;
-          }
-        } else {
-          v.md5Checked = false;
-          return false;
-        } */
-        //判断SO是否选中了
         if (v.soChecked) {
-          console.log("so选中了");
-          console.log([..._this.h5ItemListData].pop());
-          if ([..._this.h5ItemListData].pop()) {
+          if (_this.addRoleFormArray[i].soItemList.length) {
           } else {
             _this.$message.error("请选择SO文件");
+            allValid = false;
+            return false;
           }
-        } else {
-          console.log("so没有选中");
         }
-        //判断MD5是否选中
         if (v.h5Checked) {
-          console.log("h5选中");
-        } else {
-          console.log("h5没有选中");
+          if (_this.addRoleFormArray[i].h5ItemList.length) {
+          } else {
+            _this.$message.error("请选择H5文件");
+            allValid = false;
+            return false;
+          }
+        }
+        if (v.md5Checked) {
+          let signMd5Items = _this.addRoleFormArray[i].signMd5Items[0].value,
+            regularResult = /^[A-Fa-f0-9]{32}$/.test(signMd5Items);
+          if (signMd5Items) {
+            if (regularResult) {
+            } else {
+              this.$message.error("长度32位,仅支持数字和字母A-F,不区分大小写");
+              allValid = false;
+              return false;
+            }
+          }
         }
       });
       if (allValid) {
         const reinforceInfoDto = taskList.map((formItem, index) => {
           const curFileItem = _this.uploadFileItems[index].data;
-          let signMd5Items = [],
-            soItemList = [],
-            h5ItemList = [];
-          /*  formItem.signMd5Items.forEach((v, i) => {
+          let signMd5Items = [];
+          if (formItem.h5ItemList) {
+            formItem.h5ItemList = formItem.h5ItemList.filter(function(v) {
+              return v != "";
+            });
+          }
+          if (formItem.soItemList) {
+            formItem.soItemList = formItem.soItemList.filter(function(v) {
+              return v != "";
+            });
+          }
+          formItem.signMd5Items.forEach((v, i) => {
             signMd5Items.push(v.value);
           });
           let signMd5ItemsData = signMd5Items.filter(function(v) {
             return v != "";
-          }); */
-          if ([..._this.soItemListData].pop()) {
-            soItemList = [..._this.soItemListData].pop().value[index];
-            soItemList = soItemList.filter(function(v) {
-              return v != "";
-            });
-          } else {
-            soItemList = [];
-          }
-          if ([...this.h5ItemListData].pop()) {
-            h5ItemList = [..._this.h5ItemListData].pop().value[index];
-            h5ItemList = h5ItemList.filter(function(v) {
-              return v != "";
-            });
-          } else {
-            h5ItemList = [];
-          }
-
+          });
           formItem.choiceItem = formItem.choiceItem.concat(
             formItem.choiceTamperItem
           );
@@ -850,15 +870,15 @@ export default {
             signStrategyId: formItem.curPrinter5,
             strategyItemDto: {
               reinforceItemList: formItem.choiceItem,
-              /* signMd5Items: signMd5ItemsData, */
-              soItemList: soItemList,
-              h5ItemList: h5ItemList
+              signMd5Items: signMd5ItemsData,
+              soItemList: formItem.soItemList,
+              h5ItemList: formItem.h5ItemList
             }
           };
           return result;
         });
         console.log(reinforceInfoDto, "+++++");
-        /* https
+        https
           .fetchPost(
             baseUrl + "/api/reinforce/info/saveReinforceInfoOrUpdate",
             reinforceInfoDto
@@ -874,7 +894,7 @@ export default {
               });
               _this.reload();
             }
-          }); */
+          });
       } else {
         return "";
       }
@@ -923,6 +943,7 @@ export default {
         baseUrl = this.api.baseUrl,
         _this = this;
       params.append("file", file.file);
+      let num = 0;
       //进度条配置
       let config = {
         onUploadProgress: ProgressEvent => {
@@ -938,6 +959,7 @@ export default {
           config
         )
         .then(res => {
+          console.log(res.data.data, "data数据");
           if (res.data.code === "01") {
             _this.$notify({
               title: "警告",
@@ -978,6 +1000,7 @@ export default {
                     keyTreeData.push(res.data.data);
                   }
                 });
+
               let dataItem = { data, keyTreeData };
               this.addRoleFormArray.push({
                 curPrinter1: "",
@@ -994,9 +1017,12 @@ export default {
                 choiceTamperItem: [],
                 md5Checked: false,
                 soChecked: false,
-                h5Checked: false
+                h5Checked: false,
+                soItemList: [],
+                h5ItemList: [],
+                md5List: [],
+                addSignatureClick: false
               });
-              console.log(this.addRoleFormArray, "addRoleFormArray");
               this.uploadFileItems.push(dataItem);
               for (var i = 0; i < this.uploadFileItems.length; i++) {
                 this.activeNames.push(i + 1);
@@ -1004,6 +1030,7 @@ export default {
               }
               this.uploadShow = false;
             }
+            _this.$refs.upload.clearFiles();
           }
         });
     },
@@ -1322,7 +1349,7 @@ export default {
 }
 .el-drawer-header {
   width: 100%;
-  position: fixed;
+  position: fixed; /*  */
   background: white;
   z-index: 99;
   height: 50px;
