@@ -288,7 +288,7 @@
                                   <el-input
                                     size="small"
                                     clearable
-                                    style="width:50%"
+                                    style="width:51%"
                                     maxlength="32"
                                     v-model="item.keyTreeData[0].signMd5Value"
                                   ></el-input>
@@ -310,7 +310,7 @@
                                 >
                                   <el-input
                                     size="small"
-                                    style="width:50%"
+                                    style="width:51%"
                                     clearable
                                     maxlength="32"
                                     v-model="
@@ -320,11 +320,20 @@
                                   ></el-input>
                                   <el-button
                                     type="text"
-                                    @click="addSignature(index, '')"
+                                    @click="
+                                      addSignature(
+                                        index,
+                                        addRoleFormArray[index].signMd5Items[0]
+                                          .value
+                                      )
+                                    "
                                     >添加</el-button
                                   >
                                 </template>
                               </el-form-item>
+                              <!--  <p style="height:40px;border:1px solid red">
+                                {{ addRoleFormArray[index].signMd5Items }}
+                              </p> -->
                               <el-form-item
                                 v-for="(addItem, addIndex) in addRoleFormArray[
                                   index
@@ -698,11 +707,12 @@ export default {
       if (checkboxType === "MD5") {
         _this.addRoleFormArray[index].md5Checked = val;
         this.addRoleFormArray[index].addSignatureClick = false;
-        console.log(
-          this.addRoleFormArray[index].signMd5Items[index].value,
-          "哈哈"
-        );
-        /* this.addRoleFormArray[index].signMd5Items[index].value = ""; */
+        console.log(_this.addRoleFormArray[index].signMd5Items, "哈哈");
+        if (!val) {
+          _this.addRoleFormArray[index].signMd5Items = [];
+        } else {
+          _this.addRoleFormArray[index].signMd5Items = [{ value: "" }];
+        }
       } else if (checkboxType === "SO") {
         _this.addRoleFormArray[index].soChecked = val;
       } else if (checkboxType == "H5") {
@@ -713,13 +723,21 @@ export default {
       this.addRoleFormArray[index].addSignatureClick = true;
       let signMd5Items = value,
         regularResult = /^[A-Fa-f0-9]{32}$/.test(signMd5Items);
-      this.addRoleFormArray[index].signMd5Items[index].value = value;
       if (regularResult) {
         this.addRoleFormArray[index].signMd5Items.push({
           value: ""
         });
-        this.addRoleFormArray[index].signMd5Items.reverse();
-        console.log(this.addRoleFormArray[index].signMd5Items);
+        console.log(this.addRoleFormArray[index].signMd5Items, "嘻嘻");
+        this.addRoleFormArray[index].signMd5Items.forEach((v, i) => {
+          if (i == 1) {
+            /* v.value = value; */
+            /* console.log(v); */
+            v.value = signMd5Items;
+          }
+        });
+        /*  this.addRoleFormArray[index].signMd5Items[index].value = value; */
+        /*   console.log(this.addRoleFormArray[index].signMd5Items, "哈哈"); */
+        /*   this.addRoleFormArray[index].signMd5Items.reverse(); */
       } else {
         this.$message.error("长度32位,仅支持数字和字母A-F,不区分大小写");
       }
