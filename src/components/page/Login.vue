@@ -56,7 +56,7 @@
       </div>
     </div>
     <div class="user-login-footer">
-      <p>Version: 5.1.1 Copyright © 2020 蛮犀安全. All Rights Reserved</p>
+      <p>Version: 5.0.0 Copyright © 2020 蛮犀科技. All Rights Reserved</p>
     </div>
   </div>
 </template>
@@ -154,7 +154,7 @@ export default {
     let _this = this;
     document.onkeydown = function(e) {
       e = window.event || e;
-      if (e.code == "Enter" || e.code == "enter") {
+      if (e.code == "NumpadEnter" || e.code == "Enter" || e.code == "enter") {
         _this.submitForm("ruleForm");
       } else {
       }

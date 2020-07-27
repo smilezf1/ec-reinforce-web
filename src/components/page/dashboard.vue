@@ -31,7 +31,10 @@
           ></el-table-column>
           <el-table-column prop="status" label="加固状态">
             <template slot-scope="scope">
-              <span v-if="scope.row.status == 1">已完成</span>
+              <span v-if="scope.row.reinforceTaskStatus === 1">待加固</span>
+              <span v-if="scope.row.reinforceTaskStatus === 2">加固中</span>
+              <span v-if="scope.row.reinforceTaskStatus === 3">加固成功</span>
+              <span v-if="scope.row.reinforceTaskStatus === 4">加固失败</span>
             </template>
           </el-table-column>
           <el-table-column prop="userName" label="创建人"></el-table-column>
@@ -77,6 +80,7 @@ export default {
           if (res.data.code === "00") {
             this.listItem = res.data.data.items;
             this.dataCount = res.data.data.count;
+            console.log(this.listItem, "哈哈");
           }
         });
     },

@@ -28,12 +28,15 @@
             </el-row>
             <el-row>
               <el-col :span="12"
-                >包&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名:{{
+                >包&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名:&nbsp;&nbsp;&nbsp;&nbsp;{{
                   item.appPackage
                 }}</el-col
               >
               <el-col :span="12"
-                >文件大小:&nbsp;&nbsp;&nbsp;&nbsp;{{ item.appSize }}KB</el-col
+                >文件大小:&nbsp;&nbsp;&nbsp;&nbsp;{{
+                  item.appMbSize
+                }}
+                MB</el-col
               >
             </el-row>
             <el-row>
@@ -41,11 +44,10 @@
                 >文件MD5:&nbsp;&nbsp;&nbsp;&nbsp;{{ item.md5 }}</el-col
               >
               <el-col :span="12"
-                >加固厂商:&nbsp;&nbsp;&nbsp;&nbsp;
-                <span v-if="item.status == 1">已完成</span>
-              </el-col>
+                >版本信息:&nbsp;&nbsp;&nbsp;&nbsp;{{ item.appVersion }}</el-col
+              >
             </el-row>
-            <el-row>
+            <!--    <el-row>
               <el-col :span="12"
                 >签名信息:&nbsp;&nbsp;&nbsp;&nbsp;{{ item.signature }}</el-col
               >
@@ -54,19 +56,11 @@
                   item.signatureType
                 }}</el-col
               >
-            </el-row>
-            <el-row>
-              <el-col :span="12"
-                >版本信息:&nbsp;&nbsp;&nbsp;&nbsp;{{ item.appVersion }}</el-col
-              >
-              <el-col :span="12"
-                >创建时间:&nbsp;&nbsp;&nbsp;&nbsp;{{ item.createTime }}</el-col
-              >
-            </el-row>
+            </el-row> -->
           </div>
         </el-collapse-item>
 
-        <el-collapse-item title="2.签名信息" name="2">
+        <!-- <el-collapse-item title="2.签名信息" name="2">
           <div v-for="item in signatureItem" :key="item.id">
             <el-row>
               <el-col :span="12"
@@ -110,7 +104,8 @@
               >
             </el-row>
           </div>
-        </el-collapse-item>
+        </el-collapse-item> -->
+
         <el-collapse-item title="3.策略信息" name="3">
           <div v-for="item in strategyItem" :key="item.id">
             <el-row>
@@ -120,32 +115,49 @@
                 }}</el-col
               >
               <el-col :span="12"
+                >已使用的加固功能:&nbsp;&nbsp;&nbsp;&nbsp;{{
+                  item.reinforceStrategyCount
+                }}</el-col
+              >
+            </el-row>
+            <el-row>
+              <el-col :span="24"
                 >策略描述:&nbsp;&nbsp;&nbsp;&nbsp;{{
                   item.reinforceDescribe
                 }}</el-col
               >
             </el-row>
             <el-row>
-              <el-col :span="12"
-                >策略数量:&nbsp;&nbsp;&nbsp;&nbsp;{{
-                  item.reinforceStrategyCount
-                }}</el-col
-              >
-              <el-col :span="12"
-                >状&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;态:
-                <span v-if="item.status == 1">已完成</span>
+              <el-col :span="24">
+                <el-collapse>
+                  <el-collapse-item title="加固项">
+                    <div v-for="item in reinforceListItem" :key="item.id">
+                      <el-row>
+                        <el-col :span="24">
+                          {{ item.reinforceItemName }}
+                          <el-tree
+                            v-if="item.reinforceItemName == 'SO高级加固'"
+                            :data="soItemList"
+                            default-expand-all
+                            style="height:200px;overflow-y:auto"
+                          >
+                          </el-tree>
+                          <el-tree
+                            v-if="item.reinforceItemName == 'H5文件加固'"
+                            :data="h5ItemList"
+                            default-expand-all
+                            style="height:200px;overflow-y:auto"
+                          ></el-tree>
+                        </el-col>
+                      </el-row>
+                    </div>
+                  </el-collapse-item>
+                </el-collapse>
               </el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="12"
-                >创建时间:&nbsp;&nbsp;&nbsp;&nbsp;{{ item.createTime }}</el-col
-              >
-              <el-col :span="12"
-                >更新时间:&nbsp;&nbsp;&nbsp;&nbsp;{{ item.updateTime }}</el-col
-              >
             </el-row>
           </div>
         </el-collapse-item>
+        <!--
         <el-collapse-item title="4.多渠道策略信息" name="4">
           <div v-for="item in multipleChannel" :key="item.id">
             <el-row>
@@ -169,7 +181,7 @@
             </el-row>
             <el-row>
               <el-col :span="24">
-                <!-- 多渠道策略列表:{{ item.itemDetailDtoList }} -->
+                 多渠道策略列表:{{ item.itemDetailDtoList }} 
                 <el-collapse-item title="4-1.多渠道策略列表">
                   <div
                     v-for="subItem in item.itemDetailDtoList"
@@ -214,7 +226,8 @@
               </el-col>
             </el-row>
           </div>
-        </el-collapse-item>
+        </el-collapse-item> 
+        -->
       </el-collapse>
     </div>
   </div>
@@ -229,6 +242,9 @@ export default {
       signatureItem: [],
       strategyItem: [],
       multipleChannel: [],
+      reinforceListItem: {},
+      h5ItemList: [],
+      soItemList: [],
       activeNames: ["1", "2", "3", "4"]
     };
   },
@@ -260,6 +276,12 @@ export default {
           if (data.channelStrategyDto) {
             this.multipleChannel.push(data.channelStrategyDto);
           }
+          if (data.reinforceStrategyDetail) {
+            this.reinforceListItem =
+              data.reinforceStrategyDetail.reinforceItemList;
+            this.h5ItemList = data.reinforceStrategyDetail.h5ItemList;
+            this.soItemList = data.reinforceStrategyDetail.soItemList;
+          }
         }
       });
   }
@@ -276,9 +298,6 @@ export default {
 }
 .Detail .el-collapse-item__wrap {
   border-bottom: none;
-}
-.Detail .detailBody .el-row:last-child {
-  border: none;
 }
 .el-collapse-item__header {
   font-size: 17px;

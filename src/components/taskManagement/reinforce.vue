@@ -67,10 +67,11 @@
               drag
               action="/"
               multiple
-              :limit="3"
+              :limit="5"
               :http-request="addFileToFormData"
               v-show="uploadShow"
               :file-list="uploadFileItems"
+              :on-exceed="handleExceed"
               ref="upload"
             >
               <i class="el-icon-upload"></i>
@@ -78,6 +79,9 @@
                 将文件拖到此处，或<em>点击上传</em>
               </div>
             </el-upload>
+            <p class="uploadTip" v-show="uploadShow">
+              最多只能上传5个文件
+            </p>
             <!-- 上传文件的列表 -->
             <div v-for="(item, index) in uploadFileItems" :key="item.id">
               <el-form
@@ -107,7 +111,7 @@
                             >版本:&nbsp;&nbsp;{{ item.data.appVersion }}
                           </span>
                           <span
-                            >大小:&nbsp;&nbsp;{{ item.data.appSize }}KB</span
+                            >大小:&nbsp;&nbsp;{{ item.data.appMbSize }}MB</span
                           >
                         </p>
                       </el-col>
@@ -177,13 +181,25 @@
                                   :disabled="subItem.isCancel == 2"
                                   :checked="subItem.isChecked == 1"
                                   style="margin-right:8px"
+                                  @change="
+                                    checked =>
+                                      handleCheckedChange(
+                                        checked,
+                                        index,
+                                        'falsify',
+                                        '',
+                                        checkboxItem.id
+                                      )
+                                  "
                                   >{{ subItem.reinforceItemName }}
                                 </el-checkbox>
                               </el-checkbox-group>
 
                               <el-checkbox-group
                                 v-else
-                                v-model="addRoleFormArray[index].choiceItem"
+                                v-model="
+                                  addRoleFormArray[index].choiceDebugItem
+                                "
                               >
                                 <el-checkbox
                                   v-for="subItem in checkboxItem.children"
@@ -192,6 +208,16 @@
                                   :disabled="subItem.isCancel == 2"
                                   :checked="subItem.isChecked == 1"
                                   style="margin-right:8px"
+                                  @change="
+                                    checked =>
+                                      handleCheckedChange(
+                                        checked,
+                                        index,
+                                        '',
+                                        '',
+                                        checkboxItem.id
+                                      )
+                                  "
                                   >{{ subItem.reinforceItemName }}</el-checkbox
                                 >
                               </el-checkbox-group>
@@ -215,7 +241,8 @@
                                         checked,
                                         index,
                                         'MD5',
-                                        item.keyTreeData[0].signMd5Value
+                                        item.keyTreeData[0].signMd5Value,
+                                        ''
                                       )
                                   "
                                   >启用</el-checkbox
@@ -231,11 +258,18 @@
                                   :label="checkboxItem.id"
                                   :checked="checkboxItem.isChecked == 1"
                                   :disabled="
-                                    checkboxItem.isCancel == 2 || soDisabled
+                                    addRoleFormArray[index].soDisabled ||
+                                      checkboxItem.isCancel == 2
                                   "
                                   @change="
                                     checked =>
-                                      handleCheckedChange(checked, index, 'SO')
+                                      handleCheckedChange(
+                                        checked,
+                                        index,
+                                        'SO',
+                                        '',
+                                        ''
+                                      )
                                   "
                                   >启用</el-checkbox
                                 >
@@ -249,12 +283,19 @@
                                 <el-checkbox
                                   :label="checkboxItem.id"
                                   :disabled="
-                                    checkboxItem.isCancel == 2 || h5Disabled
+                                    addRoleFormArray[index].h5Disabled ||
+                                      checkboxItem.isCancel == 2
                                   "
                                   :checked="checkboxItem.isChecked == 1"
                                   @change="
                                     checked =>
-                                      handleCheckedChange(checked, index, 'H5')
+                                      handleCheckedChange(
+                                        checked,
+                                        index,
+                                        'H5',
+                                        '',
+                                        ''
+                                      )
                                   "
                                   >启用</el-checkbox
                                 >
@@ -269,7 +310,13 @@
                                   :checked="checkboxItem.isChecked == 1"
                                   @change="
                                     checked =>
-                                      handleCheckedChange(checked, index, '')
+                                      handleCheckedChange(
+                                        checked,
+                                        index,
+                                        '',
+                                        '',
+                                        ''
+                                      )
                                   "
                                   >启用</el-checkbox
                                 >
@@ -336,9 +383,6 @@
                                   >
                                 </template>
                               </el-form-item>
-                              <!--  <p style="height:40px;border:1px solid red">
-                                {{ addRoleFormArray[index].signMd5Items }}
-                              </p> -->
                               <el-form-item
                                 v-for="(addItem, addIndex) in addRoleFormArray[
                                   index
@@ -464,11 +508,10 @@
                             style="width:60%;display:inline-block"
                             prop="radio2"
                           >
-                            <label slot="label"
-                              >是&nbsp;&nbsp;&nbsp;否&nbsp;&nbsp;&nbsp;签&nbsp;&nbsp;&nbsp;名:</label
-                            >
+                            <label slot="label">是否签名:</label>
                             <el-radio-group
                               v-model="addRoleFormArray[index].radio2"
+                              style="margin-left:17%"
                             >
                               <el-radio
                                 label="是"
@@ -493,11 +536,13 @@
                           <template
                             v-if="addRoleFormArray[index].radio2 == '是'"
                           >
-                            <el-form-item label="签名策略" prop="curPrinter5">
+                            <el-form-item prop="curPrinter5">
+                              <label slot="label">签名策略:</label>
                               <el-select
                                 size="small"
                                 placeholder="请选择签名策略"
                                 v-model="addRoleFormArray[index].curPrinter5"
+                                style="margin-left: 10%;"
                               >
                                 <el-option
                                   v-for="item in signatureList"
@@ -590,16 +635,6 @@
               </el-tooltip>
               <el-tooltip
                 effect="dark"
-                content="下载加固包"
-                placement="top-start"
-              >
-                <i
-                  class="el-icon-sold-out reinforcePackageIcon"
-                  @click="downloadReinforcePackage(scope.row.id)"
-                ></i>
-              </el-tooltip>
-              <el-tooltip
-                effect="dark"
                 content="下载原包"
                 placement="top-start"
               >
@@ -607,6 +642,21 @@
                   class="el-icon-download originalPackageIcon"
                   @click="downloadOriginalPackage(scope.row)"
                 ></i>
+              </el-tooltip>
+              <el-tooltip
+                effect="dark"
+                content="下载加固包"
+                placement="top-start"
+              >
+                <template v-if="scope.row.reinforceTaskStatus == 3">
+                  <i
+                    class="el-icon-sold-out reinforcePackageIcon"
+                    @click="downloadReinforcePackage(scope.row.id)"
+                  ></i>
+                </template>
+                <template v-else>
+                  <i class="el-icon-sold-out disabledIcon"></i>
+                </template>
               </el-tooltip>
               <el-tooltip effect="dark" content="删除" placement="top-start">
                 <i
@@ -686,13 +736,14 @@ export default {
       loading: false,
       reinforceItemData: [],
       radioItem: [],
-      checkedItem: [],
-      soDisabled: null,
-      h5Disabled: null
+      checkedItem: []
     };
   },
   inject: ["reload"],
   methods: {
+    handleExceed(files, fileList) {
+      this.$message.warning(`最多只能选5个文件哦`);
+    },
     getSoCheckedNodes(index) {
       const _this = this;
       _this.$refs.soTree.forEach((v, i) => {
@@ -707,9 +758,20 @@ export default {
         _this.addRoleFormArray[index].h5ItemList = result;
       });
     },
-    handleCheckedChange(checked, index, checkboxType, value) {
+    handleCheckedChange(checked, index, checkboxType, value, id) {
       const _this = this;
       _this.addRoleFormArray[index][checkboxType] = checked;
+      if (checkboxType === "falsify") {
+        if (checked) {
+          if (id) {
+            this.addRoleFormArray[index].choiceItem.push(id);
+          }
+        } else {
+          this.addRoleFormArray[index].choiceItem = this.addRoleFormArray[
+            index
+          ].choiceItem.filter(v => v !== 3);
+        }
+      }
       if (checkboxType === "MD5") {
         _this.addRoleFormArray[index].md5Checked = checked;
         this.addRoleFormArray[index].addSignatureClick = false;
@@ -753,9 +815,13 @@ export default {
           queryInfo
         })
         .then(res => {
-          let data = res.data.data;
-          this.listItem = data.items;
-          this.dataCount = data.count;
+          if (res) {
+            if (res.data.code == "00") {
+              let data = res.data.data;
+              this.listItem = data.items;
+              this.dataCount = data.count;
+            }
+          }
         });
     },
     //显示的页面条数
@@ -855,8 +921,14 @@ export default {
             return v != "";
           });
           formItem.choiceItem = formItem.choiceItem.concat(
-            formItem.choiceTamperItem
+            formItem.choiceTamperItem,
+            22,
+            formItem.choiceDebugItem
           );
+          formItem.choiceItem = formItem.choiceItem.filter(function(v) {
+            return v != "";
+          });
+          console.log(formItem.choiceDebugItem, "####");
           const result = {
             appName: curFileItem.appName,
             appIcon: curFileItem.appIcon,
@@ -869,7 +941,7 @@ export default {
             channelStrategyId: formItem.curPrinter4,
             signStrategyId: formItem.curPrinter5,
             strategyItemDto: {
-              reinforceItemList: formItem.choiceItem,
+              reinforceItemList: [...new Set(formItem.choiceItem)],
               signMd5Items: signMd5ItemsData,
               soItemList: formItem.soItemList,
               h5ItemList: formItem.h5ItemList
@@ -885,14 +957,16 @@ export default {
           )
           .then(res => {
             const _this = this;
-            if (res.data.code == "00") {
-              this.addTaskDrawer = false;
-              this.$notify({
-                title: "成功",
-                message: "新增任务成功",
-                type: "success"
-              });
-              _this.reload();
+            if (res) {
+              if (res.data.code == "00") {
+                this.addTaskDrawer = false;
+                this.$notify({
+                  title: "成功",
+                  message: "新增任务成功",
+                  type: "success"
+                });
+                _this.reload();
+              }
             }
           });
       } else {
@@ -959,83 +1033,92 @@ export default {
           config
         )
         .then(res => {
-          console.log(res.data.data, "data数据");
-          if (res.data.code === "01") {
-            _this.$notify({
-              title: "警告",
-              message: res.data.message,
-              type: "warning"
-            });
-            _this.addTaskDrawer = false;
-            _this.$refs.upload.clearFiles();
-          }
-          if (res.data.code === "99") {
-            _this.$notify({
-              title: "警告",
-              message: res.data.message,
-              type: "warning"
-            });
-            _this.addTaskDrawer = false;
-            _this.$refs.uploadc.clearFiles();
-          }
-          if (res.data.code === "00") {
-            if (res.data.data) {
-              let data = res.data.data,
-                keyData = data.appPath,
-                keyTreeData = [];
-              https
-                .fetchGet(
-                  baseUrl +
-                    "/api/reinforce/info/parseApkInfoByFileKey/" +
-                    keyData
-                )
-                .then(res => {
-                  if (res.data.code == "00") {
-                    if (res.data.data.soItems.length) {
-                      _this.soDisabled = false;
-                    }
-                    if (res.data.data.h5Items.length) {
-                      _this.h5Disabled = false;
-                    }
-                    keyTreeData.push(res.data.data);
-                  }
-                });
-
-              let dataItem = { data, keyTreeData };
-              this.addRoleFormArray.push({
-                curPrinter1: "",
-                curPrinter2: "",
-                curPrinter3: "",
-                curPrinter4: "",
-                curPrinter5: "",
-                radio1: "",
-                radio2: "",
-                strategyItemDto: {},
-                strategyItemDtoTest: [],
-                signMd5Items: [{ value: "" }],
-                choiceItem: [],
-                choiceTamperItem: [],
-                md5Checked: false,
-                soChecked: false,
-                h5Checked: false,
-                soItemList: [],
-                h5ItemList: [],
-                md5List: [],
-                addSignatureClick: false
+          if (res) {
+            if (res.data.code === "01") {
+              _this.$notify({
+                title: "警告",
+                message: res.data.message,
+                type: "warning"
               });
-              this.uploadFileItems.push(dataItem);
-              for (var i = 0; i < this.uploadFileItems.length; i++) {
-                this.activeNames.push(i + 1);
-                this.activeNames = Array.from(new Set(this.activeNames));
-              }
-              this.uploadShow = false;
+              _this.addTaskDrawer = false;
+              _this.$refs.upload.clearFiles();
             }
-            _this.$refs.upload.clearFiles();
+            if (res.data.code === "99") {
+              _this.$notify({
+                title: "警告",
+                message: res.data.message,
+                type: "warning"
+              });
+              _this.addTaskDrawer = false;
+              _this.$refs.uploadc.clearFiles();
+            }
+            if (res.data.code === "00") {
+              if (res.data.data) {
+                let data = res.data.data,
+                  keyData = data.appPath,
+                  keyTreeData = [];
+                let dataItem = { data, keyTreeData };
+                this.addRoleFormArray.push({
+                  curPrinter1: "",
+                  curPrinter2: "",
+                  curPrinter3: "",
+                  curPrinter4: "",
+                  curPrinter5: "",
+                  radio1: "",
+                  radio2: "",
+                  strategyItemDto: {},
+                  strategyItemDtoTest: [],
+                  signMd5Items: [{ value: "" }],
+                  choiceItem: [],
+                  choiceTamperItem: [],
+                  choiceDebugItem: [],
+                  md5Checked: false,
+                  soChecked: false,
+                  h5Checked: false,
+                  soDisabled: false,
+                  h5Disabled: false,
+                  soItemList: [],
+                  h5ItemList: [],
+                  md5List: [],
+                  addSignatureClick: false
+                });
+                https
+                  .fetchGet(
+                    baseUrl +
+                      "/api/reinforce/info/parseApkInfoByFileKey/" +
+                      keyData
+                  )
+                  .then(res => {
+                    if (res.data.code == "00") {
+                      if (res.data.data.soItems.length == 0) {
+                        this.addRoleFormArray.forEach((v, i) => {
+                          v.soDisabled = true;
+                        });
+                      }
+                      if (res.data.data.h5Items.length == 0) {
+                        this.addRoleFormArray.forEach((v, i) => {
+                          v.h5Disabled = true;
+                        });
+                      }
+                      keyTreeData.push(res.data.data);
+                    }
+                  });
+
+                this.uploadFileItems.push(dataItem);
+                for (var i = 0; i < this.uploadFileItems.length; i++) {
+                  this.activeNames.push(i + 1);
+                  this.activeNames = Array.from(new Set(this.activeNames));
+                }
+                this.uploadShow = false;
+              }
+              _this.$refs.upload.clearFiles();
+            }
+          } else {
+            console.log("请求异常");
           }
         });
     },
     //上传结束---
-
     //详情
     detail(id) {
       this.$router.push({ path: "/Detail" + id + "" });
@@ -1229,6 +1312,12 @@ export default {
   margin-right: 10px;
   cursor: pointer;
 }
+.disabledIcon {
+  font-size: 22px;
+  margin-right: 10px;
+  cursor: not-allowed;
+  color: #9dc7f1;
+}
 .searchForm {
   display: flex;
 }
@@ -1253,6 +1342,12 @@ export default {
   height: 230px !important;
   margin-top: 20px !important;
 }
+.uploadTip {
+  text-align: center;
+  color: #a3a9b1;
+  font-size: 14px;
+  margin-top: 5px;
+}
 .el-drawer-content .el-collapse {
   margin-top: 10px;
   border-top: none !important;
@@ -1268,7 +1363,8 @@ export default {
 .reinforceItem {
   margin-top: 10px;
 }
-.reinforceItem .el-form-item__label {
+.reinforceItem .el-form-item__label,
+.signature .el-form-item__label {
   text-align: left !important;
 }
 .addApplicationForm {
