@@ -6,38 +6,70 @@
     <div class="dashboardBody">
       <template>
         <el-table :data="listItem" ref="listItem">
-          <el-table-column type="index" label="序号" width="60">
+          <el-table-column type="index" label="序号" width="100">
             <template slot-scope="scope">
               <span>{{ (curPage - 1) * limit + scope.$index + 1 }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="appName" label="应用名称">
+          <el-table-column
+            prop="appName"
+            label="应用名称"
+            width="260"
+            :show-overflow-tooltip="true"
+          >
             <template slot-scope="scope">
               <img :src="'data:image/jpg;base64,' + scope.row.appIcon" />
-              <span style="margin-left:7px"
-                >{{ scope.row.appName }}
-              </span></template
+              <el-tooltip
+                effect="dark"
+                :content="scope.row.appName"
+                placement="top-start"
+              >
+                <span style="margin-left:7px">{{ scope.row.appName }} </span>
+              </el-tooltip></template
             >
           </el-table-column>
-          <!--  <el-table-column prop="appFileName" label="文件名称">
-          </el-table-column> -->
-          <el-table-column prop="appVersion" label="应用版本"></el-table-column>
-          <!--   <el-table-column prop="createTime" label="创建时间">
-          </el-table-column> -->
+          <el-table-column
+            prop="appFileName"
+            label="文件名称"
+            :show-overflow-tooltip="true"
+          >
+          </el-table-column>
+          <el-table-column
+            prop="appVersion"
+            label="应用版本"
+            width="230"
+          ></el-table-column>
           <el-table-column
             prop="reinforceTaskStartTime"
             label="加固开始时间"
+            width="200"
             :show-overflow-tooltip="true"
           ></el-table-column>
-          <el-table-column prop="status" label="加固状态">
+          <el-table-column prop="status" label="加固状态" width="200">
             <template slot-scope="scope">
-              <span v-if="scope.row.reinforceTaskStatus === 1">待加固</span>
-              <span v-if="scope.row.reinforceTaskStatus === 2">加固中</span>
-              <span v-if="scope.row.reinforceTaskStatus === 3">加固成功</span>
-              <span v-if="scope.row.reinforceTaskStatus === 4">加固失败</span>
+              <span v-if="scope.row.reinforceTaskStatus === 1">
+                <img src="../../assets/wait.png" class="status" />
+                待加固
+              </span>
+              <span v-if="scope.row.reinforceTaskStatus === 2">
+                <img src="../../assets/execute.png" class="status" />
+                加固中
+              </span>
+              <span v-if="scope.row.reinforceTaskStatus === 3">
+                <img src="../../assets/correct.png" class="status" />
+                加固成功
+              </span>
+              <span v-if="scope.row.reinforceTaskStatus === 4">
+                <img src="../../assets/error.png" class="status" />
+                加固失败
+              </span>
             </template>
           </el-table-column>
-          <el-table-column prop="userName" label="创建人"></el-table-column>
+          <el-table-column
+            prop="userName"
+            label="创建人"
+            width="200"
+          ></el-table-column>
         </el-table>
         <el-pagination
           @size-change="handleSizeChange"
@@ -116,11 +148,9 @@ export default {
 .dashboard img {
   width: 33px;
   height: 33px;
-  border: 1px solid #eaeaea;
   border-radius: 3px;
   vertical-align: middle;
 }
-
 .el-table {
   font-size: 12px;
   border: 1px solid #dcdee2 !important;
@@ -128,6 +158,12 @@ export default {
 }
 .el-table::befor {
   height: 0;
+}
+.el-table__body .status {
+  width: 25px;
+  height: 25px;
+  margin-right: 5px;
+  border: none;
 }
 .el-table thead {
   color: #515a6e;

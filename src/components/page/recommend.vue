@@ -4,7 +4,7 @@
       <p>当前位置: 系统介绍</p>
     </div>
     <div class="recommendContent">
-      <div class="recommendContentTitle">平台简介</div>
+      <!--  <div class="recommendContentTitle">平台简介</div> -->
       <div class="recommendContentBody">
         <div class="section">
           <div class="left">
@@ -77,8 +77,8 @@ export default {
   padding-left: 30px;
 }
 .recommendContentBody {
-  padding: 30px 20px 30px 30px;
-  border-bottom: 1px solid #ebedf0;
+  padding: 20px 20px 30px 30px;
+  box-shadow: 0px 0px 10px #0000001a;
 }
 .recommendContentBody .section {
   display: flex;

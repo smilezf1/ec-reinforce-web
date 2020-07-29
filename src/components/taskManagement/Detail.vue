@@ -4,14 +4,7 @@
       <p>当前位置:详情页面</p>
     </div>
     <div class="detailOperate">
-      <el-tooltip effect="dark" content="返回" placement="top-start">
-        <el-button
-          type="primary"
-          icon="el-icon-back"
-          size="small"
-          @click="back()"
-        ></el-button>
-      </el-tooltip>
+      <el-button type="primary" size="small" @click="back()">返回</el-button>
     </div>
     <div class="detailBody">
       <el-collapse v-model="activeNames">

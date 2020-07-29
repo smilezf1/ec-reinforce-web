@@ -15,7 +15,9 @@ import userManagement from '@/components/systemManagement/userManagement'
 import VueRouter from 'vue-router'
 import index from '@/components/treeTable/index.vue'
 //加固服务详情
-import Detail from '@/components/taskManagement/Detail.vue'
+import detail from '@/components/taskManagement/detail.vue'
+//加固日志
+import log from '@/components/taskManagement/log.vue'
 import xx from '@/components/page/xx.vue'
 Vue.use(Router);
 //解决 Element UI 导航栏重复点击菜单报错问题
@@ -67,9 +69,15 @@ const router = new Router({
                     meta: { requireAuth: true, KeepAlive: false }
                 },
                 {
-                    path: "/Detail:id",
-                    name: 'Detail',
-                    component: Detail,
+                    path: "/detail:id",
+                    name: 'detail',
+                    component: detail,
+                    meta: { requireAuth: true, KeepAlive: false }
+                },
+                {
+                    path: "/log:id",
+                    name: "log",
+                    component: log,
                     meta: { requireAuth: true, KeepAlive: false }
                 },
 

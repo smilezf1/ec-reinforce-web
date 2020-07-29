@@ -92,7 +92,8 @@ export default {
   },
   methods: {
     handleSelect() {
-      /*  this.reload(); */
+      console.log("哈哈")
+
     },
     toTreeData(data) {
       //删除所有的children,以防止多次调用

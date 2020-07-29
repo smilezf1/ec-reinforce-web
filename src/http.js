@@ -3,7 +3,7 @@ import qs from 'qs';
 import router from './router'
 import Vue from 'vue';//引入vue
 let v = new Vue();
-axios.defaults.timeout = 100000;//响应时间
+axios.defaults.timeout = 200000;//响应时间
 axios.defaults.headers.post['Content-Type'] = "application/json";
 axios.defaults.baseUrl = 'http://192.168.3.58:9990/manxi-reinforce';//配置接口地址
 //每次跳转路由,判断localStorage中有无token,没有就跳转到登录页面,有则跳转到对应路由页面,每次调用后端接口
@@ -35,6 +35,7 @@ axios.interceptors.response.use(response => {
         confirmButtonText: '确定',
         type: "warning",
         callback: action => {
+
             router.push({ name: 'Login' });
             location.reload(true);
         }
@@ -59,10 +60,8 @@ export function fetchGet(url, params, responseType) {
         axios.get(url, { params }, responseType).then(res => {
             resolve(res);
         }, err => {
-
             reject(err)
         }).catch((error) => {
-
             reject(error)
         })
     })

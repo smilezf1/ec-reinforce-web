@@ -106,6 +106,9 @@
                         <p class="appPackage">
                           包名:&nbsp;&nbsp;{{ item.data.appPackage }}
                         </p>
+                        <!--  <p class="fileName">
+                          文件名:&nbsp;&nbsp;{{ item.data.appFileName }}
+                        </p> -->
                         <p>
                           <span style="margin-right:10px;"
                             >版本:&nbsp;&nbsp;{{ item.data.appVersion }}
@@ -586,6 +589,7 @@
           <el-table-column
             prop="appName"
             label="应用名称"
+            width="220"
             :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
@@ -600,32 +604,53 @@
             </template>
           </el-table-column>
           <el-table-column
-            prop="appPath"
-            label="文件key"
-            v-if="false"
-          ></el-table-column>
-          <el-table-column prop="appVersion" label="应用版本"></el-table-column>
-          <!--   <el-table-column
-            prop="createTime"
-            label="创建时间"
+            prop="appFileName"
+            label="文件名称"
             :show-overflow-tooltip="true"
-          >
-          </el-table-column> -->
+          ></el-table-column>
+          <el-table-column
+            prop="appVersion"
+            label="应用版本"
+            width="120"
+          ></el-table-column>
           <el-table-column
             prop="reinforceTaskStartTime"
             label="加固开始时间"
             :show-overflow-tooltip="true"
+            width="170"
           ></el-table-column>
-          <el-table-column props="reinforceTaskStatus" label="加固状态">
-            <template slot-scope="scope">
-              <span v-if="scope.row.reinforceTaskStatus === 1">待加固</span>
-              <span v-if="scope.row.reinforceTaskStatus === 2">加固中</span>
-              <span v-if="scope.row.reinforceTaskStatus === 3">加固成功</span>
-              <span v-if="scope.row.reinforceTaskStatus === 4">加固失败</span>
+          <el-table-column
+            props="reinforceTaskStatus"
+            label="加固状态"
+            width="170"
+          >
+            <template slot-scope="scope" class="status">
+              <span v-if="scope.row.reinforceTaskStatus === 1">
+                <img src="../../assets/wait.png" class="status" />
+                待加固</span
+              >
+              <span v-if="scope.row.reinforceTaskStatus === 2">
+                <img src="../../assets/execute.png" class="status" />
+                加固中
+              </span>
+              <span v-if="scope.row.reinforceTaskStatus === 3"
+                ><img
+                  src="../../assets/correct.png"
+                  class="status"
+                />加固成功</span
+              >
+              <span v-if="scope.row.reinforceTaskStatus === 4">
+                <img src="../../assets/error.png" class="status" />
+                加固失败</span
+              >
             </template>
           </el-table-column>
-          <el-table-column prop="userName" label="创建人"></el-table-column>
-          <el-table-column prop="operate" label="操作">
+          <el-table-column
+            prop="userName"
+            label="创建人"
+            width="140"
+          ></el-table-column>
+          <el-table-column prop="operate" label="操作" width="290">
             <template slot-scope="scope">
               <el-tooltip effect="dark" content="详细" placement="top-start">
                 <i
@@ -658,6 +683,28 @@
                   <i class="el-icon-sold-out disabledIcon"></i>
                 </template>
               </el-tooltip>
+              <el-tooltip effect="dark" content="日志" placement="top-start">
+                <template
+                  v-if="
+                    scope.row.reinforceTaskStatus == 3 ||
+                      scope.row.reinforceTaskStatus == 4
+                  "
+                >
+                  <i
+                    class="el-icon-reading ticketsIcon"
+                    @click="
+                      viewLog(
+                        scope.row.id,
+                        scope.row.appName,
+                        scope.row.reinforceTaskStatus
+                      )
+                    "
+                  ></i>
+                </template>
+                <template v-else>
+                  <i class="el-icon-reading disabledIcon"></i>
+                </template>
+              </el-tooltip>
               <el-tooltip effect="dark" content="删除" placement="top-start">
                 <i
                   class="el-icon-delete deleteIcon"
@@ -686,7 +733,6 @@
   </div>
 </template>
 <script>
-const cityOptions = ["上海", "北京", "广州", "深圳"];
 import https from "../../http.js";
 export default {
   name: "reinfore",
@@ -728,7 +774,7 @@ export default {
       uploadShow: true,
       strategyOptions: [],
       channelPackOptions: [],
-      reinforceDetailDrawer: false,
+      reinforcedetailDrawer: false,
       channelPackList: [],
       signatureList: [],
       activeNames: [],
@@ -933,6 +979,7 @@ export default {
             appName: curFileItem.appName,
             appIcon: curFileItem.appIcon,
             appPackage: curFileItem.appPackage,
+            appFileName: curFileItem.appFileName,
             appPath: curFileItem.appPath,
             appSize: curFileItem.appSize,
             appVersion: curFileItem.appVersion,
@@ -975,24 +1022,20 @@ export default {
     },
     //取消加固任务
     cancelReinforceTask() {
-      if (this.uploadFileItems.length !== 0) {
-        this.$confirm("会清空当前上传的文件,是否继续?", "提示", {
-          closeOnClickModal: false,
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
+      this.$confirm("会清空当前上传的文件,是否继续?", "提示", {
+        closeOnClickModal: false,
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          this.addTaskDrawer = false;
+          this.$refs.upload.clearFiles();
+          this.reload();
         })
-          .then(() => {
-            this.addTaskDrawer = false;
-            this.$refs.upload.clearFiles();
-            this.reload();
-          })
-          .catch(() => {
-            console.log("取消");
-          });
-      } else {
-        this.addTaskDrawer = false;
-      }
+        .catch(() => {
+          console.log("取消");
+        });
     },
     //加固
     reinforce(id) {
@@ -1017,7 +1060,6 @@ export default {
         baseUrl = this.api.baseUrl,
         _this = this;
       params.append("file", file.file);
-      let num = 0;
       //进度条配置
       let config = {
         onUploadProgress: ProgressEvent => {
@@ -1034,23 +1076,19 @@ export default {
         )
         .then(res => {
           if (res) {
-            if (res.data.code === "01") {
+            if (
+              res.data.code === "01" ||
+              res.data.code === "99" ||
+              res.data.code === "500"
+            ) {
               _this.$notify({
                 title: "警告",
                 message: res.data.message,
-                type: "warning"
+                type: "warning",
+                duration: 1000
               });
               _this.addTaskDrawer = false;
               _this.$refs.upload.clearFiles();
-            }
-            if (res.data.code === "99") {
-              _this.$notify({
-                title: "警告",
-                message: res.data.message,
-                type: "warning"
-              });
-              _this.addTaskDrawer = false;
-              _this.$refs.uploadc.clearFiles();
             }
             if (res.data.code === "00") {
               if (res.data.data) {
@@ -1089,6 +1127,7 @@ export default {
                       keyData
                   )
                   .then(res => {
+                    console.log(res);
                     if (res.data.code == "00") {
                       if (res.data.data.soItems.length == 0) {
                         this.addRoleFormArray.forEach((v, i) => {
@@ -1114,14 +1153,20 @@ export default {
               _this.$refs.upload.clearFiles();
             }
           } else {
-            console.log("请求异常");
+            _this.$refs.upload.clearFiles();
+            _this.addTaskDrawer = false;
+            _this.$notify.error({ title: "错误", message: "应用解析错误" });
           }
         });
     },
     //上传结束---
     //详情
     detail(id) {
-      this.$router.push({ path: "/Detail" + id + "" });
+      this.$router.push({ path: "/detail" + id + "" });
+    },
+    //查看日志
+    viewLog(id, appName, status) {
+      this.$router.push({ path: "/Log" + id + "", query: { appName, status } });
     },
     //下载原包
     downloadOriginalPackage(data) {
@@ -1217,7 +1262,7 @@ export default {
     this.getData();
   },
   beforeRouteEnter(to, from, next) {
-    if (from.name == "Detail") {
+    if (from.name == "detail" || from.name == "log") {
       to.meta.KeepAlive = true;
     } else {
       to.meta.KeepAlive = false;
@@ -1295,9 +1340,8 @@ export default {
   box-sizing: border-box;
 }
 .reinforeBody img {
-  width: 40px;
-  height: 40px;
-  border: 1px solid #eaeaea;
+  width: 33px;
+  height: 33px;
   border-radius: 3px;
   vertical-align: middle;
 }
@@ -1306,7 +1350,8 @@ export default {
 .floderIcon,
 .reinforcePackageIcon,
 .originalPackageIcon,
-.deleteIcon {
+.deleteIcon,
+.ticketsIcon {
   font-size: 22px;
   color: #409eff;
   margin-right: 10px;
@@ -1326,6 +1371,12 @@ export default {
 }
 .searchForm .el-input {
   margin-right: 5px;
+}
+.el-table__body .status {
+  width: 25px;
+  height: 25px;
+  margin-right: 5px;
+  border: none;
 }
 .el-date-editor--datetime .el-input__inner {
   height: 32px;
