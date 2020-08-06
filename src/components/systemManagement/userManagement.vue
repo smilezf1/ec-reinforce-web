@@ -638,13 +638,11 @@ export default {
       this.editId = id;
       let baseUrl = this.api.baseUrl;
       https.fetchGet(baseUrl + "/api/system/user/detail", { id }).then(res => {
-        console.log(res);
         let data = res.data.data,
           editForm = this.editForm;
         editForm.trueName = data.trueName;
         editForm.userName = data.userName;
         editForm.sex = data.sex;
-        console.log(data);
         if (data.sex === "1") {
           editForm.sex = "男";
         } else if (data.sex === "0") {
@@ -671,6 +669,16 @@ export default {
         mobile = form.mobile,
         status = form.status,
         sex = form.sex;
+      if (form.sex === "男") {
+        sex = "1";
+      } else if (form.sex === "女") {
+        sex = "0";
+      }
+      if (form.status === "是") {
+        status = "1";
+      } else if (form.status === "否") {
+        status = "0";
+      }
       this.$refs[formName].validate(valid => {
         if (valid) {
           https

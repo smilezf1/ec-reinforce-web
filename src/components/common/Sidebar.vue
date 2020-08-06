@@ -8,49 +8,25 @@
       router
       unique-opened
       :default-active="onRoutes"
-      @select="handleSelect"
     >
       <template v-for="item in sidebarList">
-        <template v-if="item.children">
-          <el-submenu
-            :index="item.id"
-            :key="item.id"
-            v-if="item.status === '1'"
-          >
-            <template slot="title">
-              <i :class="item.icon"></i>
-              <span slot="title">{{ item.name }}</span>
-            </template>
-            <template v-for="subItem in item.children">
-              <el-submenu
-                v-if="subItem.children"
-                :index="subItem.address"
-                :key="subItem.id"
-              >
-                <template slot="title">{{ subItem.name }}</template>
-                <el-menu-item
-                  v-for="threeItem in subItem.children"
-                  :key="threeItem.id"
-                  >{{ threeItem.name }}</el-menu-item
-                >
-              </el-submenu>
-              <el-menu-item
-                v-if="subItem.children == '' || subItem.status == 1"
-                :index="subItem.address"
-                :key="subItem.id"
-                >{{ subItem.name }}</el-menu-item
-              >
+        <template v-if="item.list">
+          <el-submenu :index="item.title" :key="item.id">
+            <template slot="title"
+              ><i :class="item.icon"></i
+              ><span slot="title">{{ item.title }}</span></template
+            >
+            <template v-for="subItem in item.list">
+              <el-menu-item :index="subItem.jump" :key="subItem.id">
+                {{ subItem.title }}
+              </el-menu-item>
             </template>
           </el-submenu>
         </template>
         <template v-else>
-          <el-menu-item
-            :index="item.id"
-            :key="item.id"
-            v-if="item.status === '1'"
-          >
+          <el-menu-item :index="item.title" :key="item.id">
             <i :class="item.icon"></i>
-            <span slot="title">{{ item.name }}</span>
+            <span slot="title">{{ item.title }}</span>
           </el-menu-item>
         </template>
       </template>
@@ -59,7 +35,7 @@
 </template>
 <script>
 import bus from "../common/bus";
-import http from "../../http.js";
+import https from "../../http.js";
 export default {
   name: "Sidebar",
   data() {
@@ -77,7 +53,7 @@ export default {
   created() {
     let baseUrl = this.api.baseUrl,
       _this = this;
-    http.fetchGet(baseUrl + "/api/system/menu/list").then(res => {
+    https.fetchGet(baseUrl + "/api/system/user/userMenuTree").then(res => {
       if (res) {
         if (res.data.code === "00") {
           _this.sidebarList = this.toTreeData(res.data.data);
@@ -88,13 +64,9 @@ export default {
     });
   },
   mounted() {
-    this.active = this.$route.address;
+    this.active = this.$route.jump;
   },
   methods: {
-    handleSelect() {
-      console.log("哈哈")
-
-    },
     toTreeData(data) {
       //删除所有的children,以防止多次调用
       data.forEach(item => {

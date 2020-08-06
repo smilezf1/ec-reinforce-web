@@ -8,14 +8,11 @@
     </div>
     <div class="logBody">
       <div class="logBodyTitle">
-        <span
-          >加固应用:&nbsp;&nbsp;{{
-            titleItem.appName
-          }}&nbsp;&nbsp;</span
-        >
+        <span>加固应用:&nbsp;&nbsp;{{ titleItem.appName }}&nbsp;&nbsp;</span>
         <span
           >加固状态:&nbsp;&nbsp;
           <span v-if="titleItem.status == 3">加固成功</span>
+          <span v-if="titleItem.status == 4">加固失败</span>
         </span>
       </div>
       <div class="logBodyContent">
@@ -34,7 +31,7 @@ export default {
       titleItem: null
     };
   },
-  mounted() {
+  created() {
     let baseUrl = this.api.baseUrl,
       id = parseInt(this.$route.params.id),
       _this = this;

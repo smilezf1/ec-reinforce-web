@@ -44,11 +44,11 @@ export default {
           .then(() => {
             http.fetchGet(baseUrl + "/api/system/login/logout").then(res => {
               if (res.data.code === "00") {
-                this.$router.push("/login");
-                this.$message({
+                this.$router.push({ path: "/" });
+               /*  this.$message({
                   type: "success",
                   message: "退出成功"
-                });
+                }); */
               }
             });
           })

@@ -72,6 +72,7 @@
               v-show="uploadShow"
               :file-list="uploadFileItems"
               :on-exceed="handleExceed"
+              accept=".apk"
               ref="upload"
             >
               <i class="el-icon-upload"></i>
@@ -106,9 +107,6 @@
                         <p class="appPackage">
                           包名:&nbsp;&nbsp;{{ item.data.appPackage }}
                         </p>
-                        <!--  <p class="fileName">
-                          文件名:&nbsp;&nbsp;{{ item.data.appFileName }}
-                        </p> -->
                         <p>
                           <span style="margin-right:10px;"
                             >版本:&nbsp;&nbsp;{{ item.data.appVersion }}
@@ -875,7 +873,7 @@ export default {
       this.limit = val;
       this.getData();
     },
-    // //鼠标点击哪一页
+    //鼠标点击哪一页
     handleCurrentChange(val) {
       this.curPage = val;
       let appName = this.ruleForm.appName,
@@ -1411,7 +1409,7 @@ export default {
 .el-drawer-content .el-collapse .password .el-input__inner {
   border: none;
 }
-.reinforceItem {
+.reinfore .reinforceItem {
   margin-top: 10px;
 }
 .reinforceItem .el-form-item__label,
