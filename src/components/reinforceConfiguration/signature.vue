@@ -54,7 +54,6 @@
               :http-request="uploadSignatureFile"
               v-show="uploadShow"
               :file-list="uploadSignatureFileItem"
-              :on-exceed="handleExceed"
               accept=".keystore,.jks"
               ref="uploadSignature"
             >
@@ -331,10 +330,6 @@ export default {
     refresh() {
       this.reload();
     },
-    //上传文件的数量
-    handleExceed(files) {
-      this.$message.warning("最多只能选5个文件哦");
-    },
     //上传签名开始
     uploadSignatureFile(file) {
       let params = new FormData(),
@@ -501,6 +496,9 @@ export default {
 }
 .signatureBody .el-table thead {
   color: #515a6a;
+}
+.signatureBody .el-table__header-wrapper {
+  background: #f8f8f9;
 }
 .signatureBody .deleteIcon {
   font-size: 22px;

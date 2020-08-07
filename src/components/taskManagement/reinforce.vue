@@ -249,6 +249,7 @@
                                   >启用</el-checkbox
                                 >
                               </el-checkbox-group>
+
                               <el-checkbox-group
                                 v-model="addRoleFormArray[index].choiceItem"
                                 v-else-if="
@@ -324,7 +325,6 @@
                               </el-checkbox-group>
                             </template>
                             <!-- 自定义签名MD5 -->
-
                             <template
                               v-if="
                                 checkboxItem.reinforceItemName ==
@@ -409,6 +409,9 @@
                                 >
                               </el-form-item>
                             </template>
+
+
+
                             <!-- SO高级加固 -->
                             <template
                               v-if="
@@ -537,6 +540,7 @@
                           <template
                             v-if="addRoleFormArray[index].radio2 == '是'"
                           >
+                            <!-- 签名策略 -->
                             <el-form-item prop="curPrinter5">
                               <label slot="label">签名策略:</label>
                               <el-select
@@ -552,6 +556,21 @@
                                   :value="item.id"
                                 ></el-option>
                               </el-select>
+                            </el-form-item>
+                            <!-- 签名版本 -->
+                            <el-form-item prop="curPrinter6">
+                              <label slot="label">签名版本:</label>
+                              <el-radio-group
+                                class="signatureVersions"
+                                v-model="addRoleFormArray[index].curPrinter6"
+                              >
+                                <el-radio :label="1"> Java</el-radio>
+                                <el-radio :label="2">Android V1</el-radio>
+                                <el-radio :label="3">Android V2</el-radio>
+                                <el-radio :label="4"
+                                  >Android V1 + Android V2</el-radio
+                                >
+                              </el-radio-group>
                             </el-form-item>
                           </template>
                         </p>
@@ -762,6 +781,9 @@ export default {
         curPrinter5: [
           { required: true, message: "请选择签名策略", trigger: "blur" }
         ],
+        curPrinter6: [
+          { required: true, message: "请选择签名版本", trigger: "blur" }
+        ],
         radio1: [
           { required: true, message: "是否多渠道打包", trigger: "blur" }
         ],
@@ -871,7 +893,10 @@ export default {
     //显示的页面条数
     handleSizeChange(val) {
       this.limit = val;
-      this.getData();
+      let appName = this.ruleForm.appName,
+        appVersion = this.ruleForm.appVersion,
+        queryInfo = { appName, appVersion };
+      this.getData(queryInfo);
     },
     //鼠标点击哪一页
     handleCurrentChange(val) {
@@ -972,7 +997,7 @@ export default {
           formItem.choiceItem = formItem.choiceItem.filter(function(v) {
             return v != "";
           });
-          console.log(formItem.choiceDebugItem, "####");
+          console.log(formItem, "####");
           const result = {
             appName: curFileItem.appName,
             appIcon: curFileItem.appIcon,
@@ -985,6 +1010,7 @@ export default {
             reinforceStrategyId: formItem.curPrinter1,
             channelStrategyId: formItem.curPrinter4,
             signStrategyId: formItem.curPrinter5,
+            signType: formItem.curPrinter6,
             strategyItemDto: {
               reinforceItemList: [...new Set(formItem.choiceItem)],
               signMd5Items: signMd5ItemsData,
@@ -1100,6 +1126,7 @@ export default {
                   curPrinter3: "",
                   curPrinter4: "",
                   curPrinter5: "",
+                  curPrinter6: "",
                   radio1: "",
                   radio2: "",
                   strategyItemDto: {},
@@ -1403,8 +1430,14 @@ export default {
   border-bottom: none !important;
 }
 .el-drawer-content .el-collapse .el-row {
-  /*  padding: 20px 0; */
   text-align: justify;
+}
+.el-drawer-content .signatureVersions {
+  margin-left: 10%;
+}
+.el-drawer-content .signatureVersions .el-radio {
+  display: block;
+  margin-top: 20px;
 }
 .el-drawer-content .el-collapse .password .el-input__inner {
   border: none;

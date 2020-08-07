@@ -14,7 +14,6 @@ export default {
 .channelStrategyHeader {
   height: 50px;
   line-height: 50px;
-  padding-left:20px;
   font-size:14px;
 }
 </style>
