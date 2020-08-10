@@ -410,8 +410,6 @@
                               </el-form-item>
                             </template>
 
-
-
                             <!-- SO高级加固 -->
                             <template
                               v-if="
@@ -582,7 +580,10 @@
             </div>
           </div>
           <div class="el-drawer-footer">
-            <el-button type="primary" @click="saveReinforceTask()"
+            <el-button
+              type="primary"
+              @click="saveReinforceTask()"
+              :disabled="saveReinforceTaskBox"
               >加固</el-button
             >
             <el-button @click="cancelReinforceTask()" plain>取消</el-button>
@@ -802,7 +803,8 @@ export default {
       loading: false,
       reinforceItemData: [],
       radioItem: [],
-      checkedItem: []
+      checkedItem: [],
+      saveReinforceTaskBox: true
     };
   },
   inject: ["reload"],
@@ -1027,11 +1029,10 @@ export default {
             reinforceInfoDto
           )
           .then(res => {
-            const _this = this;
             if (res) {
               if (res.data.code == "00") {
-                this.addTaskDrawer = false;
-                this.$notify({
+                _this.addTaskDrawer = false;
+                _this.$notify({
                   title: "成功",
                   message: "新增任务成功",
                   type: "success"
@@ -1115,6 +1116,7 @@ export default {
               _this.$refs.upload.clearFiles();
             }
             if (res.data.code === "00") {
+              _this.saveReinforceTaskBox = false;
               if (res.data.data) {
                 let data = res.data.data,
                   keyData = data.appPath,
@@ -1349,6 +1351,10 @@ export default {
   height: 50px;
   line-height: 50px;
   font-size: 14px;
+}
+.reinfore .el-checkbox__input.is-disabled.is-checked .el-checkbox__inner {
+  background-color: #409eff;
+  border-color: #409eff;
 }
 .reinfore .el-collapse-item__header.is-active {
   font-weight: 700;

@@ -34,8 +34,7 @@
         <el-button type="primary" size="small" @click="createStrategy()"
           >新建策略</el-button
         >
-        <!-- 新建策略Drawer -->
-
+        <!-- 新建策略Drawer开始 -->
         <el-drawer
           title="新建策略"
           :visible.sync="createStrategyDrawer"
@@ -69,7 +68,7 @@
             <!--创建策略的列表 -->
             <div v-for="(item, index) in createStrategyFileItem" :key="index">
               <el-form
-                v-model="strategyItemForm"
+                :model="strategyItemForm"
                 class="strategyItemForm"
                 :rules="rules"
                 ref="strategyItemForm"
@@ -94,12 +93,15 @@
                             >版本:&nbsp;&nbsp;{{ item.data.appVersion }}</span
                           >
                           <span
-                            >大小:&nbsp;&nbsp;{{ item.data.appMbSize }}</span
+                            >大小:&nbsp;&nbsp;{{ item.data.appMbSize }}MB</span
                           >
                         </p>
-                        <el-form-item prop="strategyName">
-                          <label slot="label">策略名称:</label>
-                          <el-input size="small" style="width:50%"></el-input>
+                        <el-form-item label="策略名称" prop="strategyName">
+                          <el-input
+                            size="small"
+                            style="width:50%"
+                            v-model="strategyItemForm.strategyName"
+                          ></el-input>
                         </el-form-item>
                       </el-col>
                     </el-row>
@@ -129,6 +131,15 @@
                               v-for="strategySubItem in strategyItem.children"
                               :key="strategySubItem.id"
                               :label="strategySubItem.id"
+                              @change="
+                                checked =>
+                                  handleCheckedChange(
+                                    checked,
+                                    'falsify',
+                                    '',
+                                    strategyItem.id
+                                  )
+                              "
                               >{{
                                 strategySubItem.reinforceItemName
                               }}</el-checkbox
@@ -166,7 +177,12 @@
                             :disabled="strategyItem.isCancel == 2"
                             :checked="strategyItem.isChecked == 1"
                             @change="
-                              checked => handleCheckedChange(checked, 'MD5')
+                              checked =>
+                                handleCheckedChange(
+                                  checked,
+                                  'MD5',
+                                  item.keyTreeData[0].signMd5Value
+                                )
                             "
                             >启用</el-checkbox
                           >
@@ -180,13 +196,10 @@
                         >
                           <el-checkbox
                             :label="strategyItem.id"
-                            :disabled="
-                              strategyItem.isCancel == 2 ||
-                                strategyItemForm.soDisabled
-                            "
+                            :disabled="strategyItem.isCancel == 2 || soDisabled"
                             :checked="strategyItem.isChecked == 1"
                             @change="
-                              checked => handleCheckedChange(checked, 'SO')
+                              checked => handleCheckedChange(checked, 'SO', '')
                             "
                             >启用</el-checkbox
                           >
@@ -200,13 +213,10 @@
                         >
                           <el-checkbox
                             :label="strategyItem.id"
-                            :disabled="
-                              strategyItem.isCancel == 2 ||
-                                strategyItemForm.h5Disabled
-                            "
+                            :disabled="strategyItem.isCancel == 2 || h5Disabled"
                             :checked="strategyItem.isChecked == 1"
                             @change="
-                              checked => handleCheckedChange(checked, 'H5')
+                              checked => handleCheckedChange(checked, 'H5', '')
                             "
                             >启用</el-checkbox
                           >
@@ -329,9 +339,133 @@
               </el-form>
             </div>
             <div class="el-drawer-footer">
-              <el-button type="primary" @click="saveStrategy()">保存</el-button>
+              <el-button
+                type="primary"
+                @click="saveStrategy()"
+                :disabled="!saveStrategyBox"
+                >保存</el-button
+              >
               <el-button @click="cancelStrategy()" plain>取消</el-button>
             </div>
+          </div>
+        </el-drawer>
+        <!-- 新增策略Drawer结束 -->
+        <!-- 修改策略Drawer开始 -->
+        <el-drawer
+          title="修改策略"
+          :visible.sync="amendStrategyDrawer"
+          :with-header="false"
+          :wrapperClosable="false"
+          :close-on-press-escape="false"
+          :destroy-on-close="true"
+          ref="amendStrategyDrawer"
+          size="40%"
+        >
+          <div class="el-drawer-header">
+            <h3>修改策略</h3>
+          </div>
+          <div class="el-drawer-content"></div>
+          <div class="el-drawer-footer">
+            <el-button type="primary" @click="amendStrategy()">修改</el-button>
+            <el-button @click="cancelAmendStrategy()" plain>取消</el-button>
+          </div>
+        </el-drawer>
+        <!-- 修改策略Drawer结束 -->
+        <!-- 策略详细Drawer开始 -->
+        <el-drawer
+          title="策略详情"
+          :visible.sync="strategyDetailDrawer"
+          :with-header="false"
+          :wrapperClosable="false"
+          :close-on-press-escape="false"
+          :destroy-on-close="true"
+          ref="strategyDetailDrawer"
+          size="40%"
+          class="strategyDetailDrawer"
+        >
+          <div class="el-drawer-header">
+            <h3>策略详情</h3>
+          </div>
+          <div class="el-drawer-content">
+            <!-- 策略详情-应用信息 -->
+            <el-form :model="strategyDetailForm" class="strategyDetailForm">
+              <div class="strategyName" style="height:200px;">
+                <h3 class="strategyNameTitle">
+                  <span>应用信息</span>
+                </h3>
+                <div class="strategyNameContent">
+                  <el-row v-if="strategyDetailItem">
+                    <el-col :span="6">
+                      <img
+                        :src="
+                          'data:image/jpg;base64,' +
+                            strategyDetailItem['reinforceInfo'].appIcon
+                        "
+                      />
+                    </el-col>
+                    <el-col :span="18">
+                      <p class="appName">
+                        {{ strategyDetailItem["reinforceInfo"].appName }}
+                      </p>
+                      <p class="appPackage">
+                        包名:&nbsp;&nbsp;
+                        {{ strategyDetailItem["reinforceInfo"].appPackage }}
+                      </p>
+                      <p>
+                        <span style="margin-right:10px;">
+                          版本:&nbsp;&nbsp;{{
+                            strategyDetailItem["reinforceInfo"].appVersion
+                          }}
+                        </span>
+                        <span
+                          >大小:&nbsp;&nbsp;{{
+                            strategyDetailItem["reinforceInfo"].appMbSize
+                          }}</span
+                        >
+                      </p>
+                    </el-col>
+                  </el-row>
+                </div>
+              </div>
+              <div class="strategyName">
+                <h3 class="strategyNameTitle">
+                  <span>配置策略</span>
+                </h3>
+                <div class="strategyNameContent">
+                  <el-form-item
+                    v-for="strategyItem in strategyItemData"
+                    :key="strategyItem.id"
+                    :label="strategyItem.reinforceItemName"
+                    label-width="22%"
+                  >
+                    <!-- 有子选项 -->
+
+                    <template v-if="strategyItem.children">
+                      <el-checkbox
+                        v-for="strategySubItem in strategyItem.children"
+                        :key="strategySubItem.id"
+                        :label="strategySubItem.id"
+                        :disabled="true"
+                        :checked="strategySubItem.isChecked == 1"
+                        >{{ strategySubItem.reinforceItemName }}
+                      </el-checkbox>
+                    </template>
+                    <!-- 没有子选项 -->
+                    <template v-else>
+                      <el-checkbox
+                        :label="strategyItem.id"
+                        :disabled="true"
+                        :checked="strategyItem.isChecked == 1"
+                        >启用</el-checkbox
+                      >
+                    </template>
+                  </el-form-item>
+                </div>
+              </div>
+            </el-form>
+          </div>
+          <div class="el-drawer-footer">
+            <el-button plain @click="cancelstrategyDetail()">取消</el-button>
           </div>
         </el-drawer>
       </div>
@@ -349,6 +483,10 @@
               <span>{{ (curPage - 1) * limit + scope.$index + 1 }}</span>
             </template>
           </el-table-column>
+          <el-table-column
+            prop="reinforce_strategy_name"
+            label="策略名称"
+          ></el-table-column>
           <el-table-column
             prop="reinforce_strategy_count"
             label="策略数量"
@@ -400,7 +538,6 @@
 </template>
 <script>
 import https from "../../http";
-import http from "../../http";
 export default {
   name: "reinforceStrategy",
   data() {
@@ -408,37 +545,53 @@ export default {
       ruleForm: {
         strategyName: ""
       },
-      rules: {
-        strategyName: [
-          { required: true, message: "请输入策略名称", trigger: "blur" }
-        ]
-      },
       curPage: 1,
       limit: 10,
       dataCount: 0,
       listItem: [],
       loading: false,
       createStrategyDrawer: false,
+      amendStrategyDrawer: false,
+      strategyDetailDrawer: false,
       strategyItemForm: {
         strategyName: "",
         signMd5Items: [{ value: "" }],
         tamperChoiceItem: [],
         choiceItem: [],
         addSignatureClick: false,
-        soItemList: [],
-        h5Disabled: false,
-        soDisabled: false
+        soItemList: []
+      },
+      rules: {
+        strategyName: [
+          { required: true, message: "请输入策略名称", trigger: "blur" }
+        ]
       },
       createStrategyFileItem: [],
       createStrategyUploadShow: true,
       strategyItemData: [],
+      h5Disabled: false,
+      soDisabled: false,
       md5Checked: false,
-      soChecked: false
+      soChecked: false,
+      saveStrategyBox: false,
+      strategyDetailForm: {},
+      strategyDetailItem: null
     };
   },
   inject: ["reload"],
   beforeMount() {
-    this.getData();
+    let _this = this,
+      baseUrl = _this.api.baseUrl;
+    _this.getData();
+    https
+      .fetchPost(baseUrl + "/api/reinforce/item/findReinforceItemTree", {
+        reinforceItem: {}
+      })
+      .then(res => {
+        if (res.data.code === "00") {
+          _this.strategyItemData = res.data.data;
+        }
+      });
   },
   mounted() {},
   methods: {
@@ -466,15 +619,22 @@ export default {
     handleCurrenChange(val) {
       this.curPage = val;
       this.getData();
-      console.log(val);
     },
-    search() {},
+    search() {
+      let _this = this,
+        reinforceStrategyName = _this.ruleForm.strategyName,
+        queryInfo = { reinforceStrategyName };
+      _this.loading = true;
+      _this.getData(queryInfo);
+      setTimeout(function() {
+        _this.loading = false;
+      }, 500);
+    },
     refresh() {
       this.reload();
     },
     //创建策略
     createStrategy() {
-      console.log("创建策略");
       this.createStrategyDrawer = true;
     },
     //上传策略开始
@@ -514,25 +674,11 @@ export default {
           }
           if (res.data.code === "00") {
             _this.createStrategyUploadShow = false;
+            _this.saveStrategyBox = true;
             let data = res.data.data,
               keyData = data.appPath,
               keyTreeData = [];
             let dataItem = { data, keyTreeData };
-            https
-              .fetchPost(
-                baseUrl + "/api/reinforce/item/findReinforceItemTree",
-                {
-                  reinforceItem: {}
-                }
-              )
-              .then(res => {
-                if (res.data.code === "00") {
-                  _this.strategyItemData = res.data.data;
-                  console.log(_this.strategyItemData, "哈哈");
-                } else {
-                  console.log("出错");
-                }
-              });
             //得到签名MD5,SO,h5
             https
               .fetchGet(
@@ -542,10 +688,10 @@ export default {
                 if (res.data.code == "00") {
                   let data = res.data.data;
                   if (data.soItems.length == 0) {
-                    _this.strategyItemForm.soDisabled = true;
+                    _this.soDisabled = true;
                   }
                   if (data.h5Items.length == 0) {
-                    _this.strategyItemForm.h5Disabled = true;
+                    _this.h5Disabled = true;
                   }
                   _this.createStrategyFileItem.push(dataItem);
                   keyTreeData.push(data);
@@ -556,19 +702,33 @@ export default {
     },
     //上传策略结束
     //勾选启用
-    handleCheckedChange(checked, checkboxType) {
-      const _this = this;
-      _this.strategyItemForm[checkboxType] = checked;
-      if (checkboxType === "MD5") {
-        _this.strategyItemForm.md5Checked = checked;
-        _this.strategyItemForm.addSignatureClick = false;
-        if (!checked) {
-          _this.strategyItemForm.signMd5Items = [];
+    handleCheckedChange(checked, checkboxType, value, id) {
+      const _this = this,
+        strategyItemForm = _this.strategyItemForm;
+      strategyItemForm[checkboxType] = checked;
+      if (checkboxType === "falsify") {
+        if (checked) {
+          if (id) {
+            strategyItemForm.choiceItem.push(id);
+          }
         } else {
-          _this.strategyItemForm.signMd5Items = [{ value: "" }];
+          strategyItemForm.choiceItem = strategyItemForm.choiceItem.filter(
+            v => v != 3
+          );
+        }
+      }
+      if (checkboxType === "MD5") {
+        strategyItemForm.md5Checked = checked;
+        strategyItemForm.addSignatureClick = false;
+        if (!checked) {
+          strategyItemForm.signMd5Items = [];
+        } else {
+          strategyItemForm.signMd5Items = [{ value }];
         }
       } else if (checkboxType === "SO") {
-        _this.strategyItemForm.soChecked = checked;
+        strategyItemForm.soChecked = checked;
+      } else if (checkboxType === "H5") {
+        strategyItemForm.h5Checked = checked;
       }
     },
     //得到SO选中的值
@@ -577,7 +737,6 @@ export default {
       _this.$refs.soTree.forEach((v, i) => {
         let result = v.getCheckedNodes().map(v => v.value);
         _this.strategyItemForm.soItemList = result;
-        console.log(_this.strategyItemForm.soItemList, "soItemList");
       });
     },
     //得到H5选中的值
@@ -586,25 +745,26 @@ export default {
       _this.$refs.h5Tree.forEach((v, i) => {
         let result = v.getCheckedNodes().map(v => v.value);
         _this.strategyItemForm.h5ItemList = result;
-        console.log(_this.strategyItemForm.h5ItemList, "h5ItemList");
       });
     },
     //添加签名
     addSignature(value) {
-      this.strategyItemForm.addSignatureClick = true;
+      let strategyItemForm = this.strategyItemForm;
+      strategyItemForm.addSignatureClick = true;
       let regularResult = /^[A-Fa-f0-9]{32}$/.test(value);
       if (regularResult) {
-        this.strategyItemForm.signMd5Items.push({ value: "" });
-        this.strategyItemForm.signMd5Items[0].value = value;
-        this.strategyItemForm.signMd5Items.reverse();
+        strategyItemForm.signMd5Items.push({ value: "" });
+        strategyItemForm.signMd5Items[0].value = value;
+        strategyItemForm.signMd5Items.reverse();
       } else {
         this.$message.error("长度32位,仅支持数字和字母A-F,不区分大小写");
       }
     },
     //删除签名
     deleteSignature(addSignatureItem, addSignatureIndex) {
-      if (this.strategyItemForm.signMd5Items.indexOf(addSignatureItem) > -1) {
-        this.strategyItemForm.signMd5Items.splice(addSignatureIndex, 1);
+      let strategyItemForm = this.strategyItemForm;
+      if (strategyItemForm.signMd5Items.indexOf(addSignatureItem) > -1) {
+        strategyItemForm.signMd5Items.splice(addSignatureIndex, 1);
       }
     },
     //取消保存策略
@@ -616,16 +776,150 @@ export default {
 
     //保存创建的策略
     saveStrategy() {
-      console.log(this.strategyItemForm, "###");
       let _this = this,
-        baseUrl = _this.api.baseUrl;
-      console.log("嘻嘻");
-      console.log(_this.$refs["strategyItemForm"][0].validate);
+        baseUrl = _this.api.baseUrl,
+        taskList = _this.strategyItemForm,
+        allValid = true;
+      _this.$refs["strategyItemForm"][0].validate(valid => {
+        if (valid) {
+        } else {
+          allValid = false;
+          return false;
+        }
+      });
+      if (taskList.soChecked) {
+        if (taskList.soItemList.length) {
+        } else {
+          _this.$message.error("请选择SO文件");
+          allValid = false;
+        }
+      }
+      if (taskList.h5Checked) {
+        if (taskList.h5ItemList.length) {
+        } else {
+          _this.$message.error("请选择H5文件");
+          allValid = false;
+        }
+      }
+      if (taskList.md5Checked) {
+        let md5Value = taskList.signMd5Items[0].value,
+          regularResult = /^[A-Fa-f0-9]{32}$/.test(md5Value);
+        if (md5Value) {
+          if (regularResult) {
+          } else {
+            this.$message.error("长度32位,仅支持数字和字母A-F,不区分大小写");
+            allValid = false;
+          }
+        }
+      }
+
+      //必填项都已经填写
+      if (allValid) {
+        let _this = this,
+          strategyItemForm = _this.strategyItemForm,
+          createStrategyFileItem = _this.createStrategyFileItem[0].data,
+          signMd5ItemsData = [];
+        if (strategyItemForm.h5ItemList) {
+          strategyItemForm.h5ItemList = strategyItemForm.h5ItemList.filter(
+            v => {
+              return v != "";
+            }
+          );
+        }
+        if (strategyItemForm.soItemList) {
+          strategyItemForm.soItemList = strategyItemForm.soItemList.filter(
+            v => {
+              return v != "";
+            }
+          );
+        }
+        strategyItemForm.signMd5Items = strategyItemForm.signMd5Items.filter(
+          v => {
+            return v.value != "";
+          }
+        );
+        strategyItemForm.signMd5Items.forEach((v, i) => {
+          signMd5ItemsData.push(v.value);
+        });
+        strategyItemForm.choiceItem = strategyItemForm.choiceItem
+          .concat(strategyItemForm.tamperChoiceItem, 22)
+          .filter(v => {
+            return v != "";
+          });
+        let reinforceInfo = {
+          appName: createStrategyFileItem.appName,
+          appIcon: createStrategyFileItem.appIcon,
+          appPackage: createStrategyFileItem.appPackage,
+          appFileName: createStrategyFileItem.appFileName,
+          appPath: createStrategyFileItem.appPath,
+          appSize: createStrategyFileItem.appSize,
+          appVersion: createStrategyFileItem.appVersion
+        };
+        let strategyItemDto = {
+          reinforceStrategyName: strategyItemForm.strategyName,
+          reinforceItemList: strategyItemForm.choiceItem,
+          h5ItemList: strategyItemForm.h5ItemList,
+          soItemList: strategyItemForm.soItemList,
+          signMd5Items: signMd5ItemsData,
+          reinforceInfo
+        };
+        https
+          .fetchPost(
+            baseUrl + "/api/reinforce/strategy/saveOrUpdateStrategy",
+            strategyItemDto
+          )
+          .then(res => {
+            if (res.data.code == "00") {
+              _this.createStrategyDrawer = false;
+              _this.$notify({
+                title: "成功",
+                message: "新增策略成功",
+                type: "success"
+              });
+              _this.reload();
+            }
+            console.log(res);
+          });
+      }
     },
     //修改策略
-    amendStrategy() {},
+    amendStrategy(id) {
+      let baseUrl = this.api.baseUrl,
+        strategyItemForm = this.strategyItemForm;
+      /* strategyItemDto = { id, reinforceItemList }; */
+      this.amendStrategyDrawer = true;
+      console.log(strategyItemForm);
+      /*    https
+        .fetchPost(baseUrl + "/api/reinforce/strategy/saveOrUpdateStrategy", {
+          id
+        })
+        .then(res => {
+          console.log(res);
+        }); */
+    },
+    //取消修改策略
+    cancelAmendStrategy() {
+      this.amendStrategyDrawer = false;
+    },
     //策略详细
-    strategyDetail() {},
+    strategyDetail(id) {
+      this.strategyDetailDrawer = true;
+      let baseUrl = this.api.baseUrl;
+      https
+        .fetchGet(baseUrl + "/api/reinforce/strategy/getStrategyDetail", {
+          id
+        })
+        .then(res => {
+          if (res.data.code === "00") {
+            this.strategyDetailItem = res.data.data;
+            console.log(this.strategyDetailItem.reinforceItemList, "哈哈");
+          }
+        });
+    },
+    //取消查看策略详细
+    cancelstrategyDetail() {
+      this.strategyDetailDrawer = false;
+    },
     //删除策略
     deleteStrategy() {}
   }
@@ -706,9 +1000,8 @@ export default {
   margin-top: 20px;
 }
 .reinforceStrategy .el-drawer-footer {
+  text-align: right;
   width: 100%;
-  position: fixed;
-  bottom: 0px;
   background: white;
   z-index: 9;
   padding: 10px 20px;
@@ -717,7 +1010,8 @@ export default {
 .strategyItemForm {
   margin-top: 20px;
 }
-.strategyItemForm .el-row:first-child p {
+.strategyItemForm .el-row:first-child p,
+.strategyDetailForm .el-row:first-child p {
   line-height: 36px;
   color: #606266;
   margin: 10px 0;
@@ -726,26 +1020,48 @@ export default {
   font-weight: 700;
   font-size: 16px;
 }
-.strategyItemForm .appName {
+.strategyItemForm .appName,
+.strategyDetailForm .appName {
   line-height: 40px;
   font-size: 16px;
   color: #333;
   font-weight: 700;
 }
-.strategyItemForm .appInfo {
+.strategyItemForm .appInfo,
+.strategyDetailForm .appInfo {
   display: flex;
   margin: 30px 0;
 }
-.strategyItemForm img {
+.strategyItemForm img,
+.strategyDetailForm img {
   width: 55%;
   border-radius: 15px;
   margin: 30px 35px 0 0;
   vertical-align: middle;
 }
-.strategyItemForm .el-form-item__label {
+.reinforceStrategy .el-form-item__label {
   text-align: left;
 }
 .strategyItemForm .strategyItemContent {
   margin-top: 10px;
+}
+/* 修改策略详情Drawer */
+.strategyDetailDrawer .el-drawer-content {
+  padding-top: 20px;
+}
+.strategyDetailDrawer .strategyNameTitle {
+  margin-bottom: 20px;
+  position: relative;
+}
+.strategyDetailDrawer .strategyNameTitle span {
+  margin-left: 10px;
+  color: #515a6e;
+  font-size: 16px;
+}
+.reinforceStrategy
+  .el-checkbox__input.is-disabled.is-checked
+  .el-checkbox__inner {
+  background-color: #409eff;
+  border-color: #409eff;
 }
 </style>

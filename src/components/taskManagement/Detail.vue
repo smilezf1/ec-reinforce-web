@@ -251,7 +251,7 @@ export default {
       id = parseInt(this.$route.params.id);
     https
       .fetchGet(baseUrl + "/api/reinforce/info/findReinforceDetailById", {
-        reinforceId: id
+        reinforceTaskId: id
       })
       .then(res => {
         if (res.data.code === "00") {

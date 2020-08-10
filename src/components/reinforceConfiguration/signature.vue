@@ -254,9 +254,9 @@ export default {
   name: "signature",
   data() {
     return {
-      curPage: 1, //当前页
-      limit: 10, //每页显示的条目数
-      dataCount: 0, //总条目数
+      curPage: 1,
+      limit: 10,
+      dataCount: 0,
       listItem: [],
       ruleForm: {
         signatureName: ""
