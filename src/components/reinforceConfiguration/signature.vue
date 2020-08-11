@@ -206,15 +206,15 @@
             label="签名名称"
             :show-overflow-tooltip="true"
           ></el-table-column>
-          <el-table-column prop="signPwd" label="签名密码"></el-table-column>
+          <!-- <el-table-column prop="signPwd" label="签名密码"></el-table-column> -->
           <el-table-column
             prop="signAliasName"
             label="签名别名"
           ></el-table-column>
-          <el-table-column
+         <!--  <el-table-column
             prop="signAliasPwd"
             label="别名密码"
-          ></el-table-column>
+          ></el-table-column> -->
           <el-table-column prop="userName" label="创建人"></el-table-column>
           <el-table-column
             prop="createTime"

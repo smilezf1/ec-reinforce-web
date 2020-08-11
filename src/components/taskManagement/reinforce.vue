@@ -757,10 +757,10 @@ export default {
   data() {
     return {
       labelPosition: "right",
-      curPage: 1, //当前页
-      limit: 10, //每页显示的条目个数
-      dataCount: 0, //总条目
-      listItem: [], //调用接口获取的数据
+      curPage: 1,
+      limit: 10,
+      dataCount: 0,
+      listItem: [],
       ruleForm: {
         appName: "",
         appFileName: "",

@@ -439,15 +439,16 @@
                     label-width="22%"
                   >
                     <!-- 有子选项 -->
-
                     <template v-if="strategyItem.children">
                       <el-checkbox
                         v-for="strategySubItem in strategyItem.children"
                         :key="strategySubItem.id"
                         :label="strategySubItem.id"
                         :disabled="true"
-                        :checked="strategySubItem.isChecked == 1"
-                        >{{ strategySubItem.reinforceItemName }}
+                        :checked="true"
+                        >{{ strategySubItem.reinforceItemName }}--{{
+                          strategySubItem.checked
+                        }}
                       </el-checkbox>
                     </template>
                     <!-- 没有子选项 -->
@@ -455,8 +456,8 @@
                       <el-checkbox
                         :label="strategyItem.id"
                         :disabled="true"
-                        :checked="strategyItem.isChecked == 1"
-                        >启用</el-checkbox
+                        :checked="strategyItem.checked"
+                        >启用{{ strategyItem.checked }}</el-checkbox
                       >
                     </template>
                   </el-form-item>
@@ -593,7 +594,6 @@ export default {
         }
       });
   },
-  mounted() {},
   methods: {
     //获取列表数据
     getData(queryInfo) {
@@ -807,78 +807,90 @@ export default {
         if (md5Value) {
           if (regularResult) {
           } else {
-            this.$message.error("长度32位,仅支持数字和字母A-F,不区分大小写");
+            _this.$message.error("长度32位,仅支持数字和字母A-F,不区分大小写");
             allValid = false;
           }
         }
       }
-
-      //必填项都已经填写
-      if (allValid) {
-        let _this = this,
-          strategyItemForm = _this.strategyItemForm,
-          createStrategyFileItem = _this.createStrategyFileItem[0].data,
-          signMd5ItemsData = [];
-        if (strategyItemForm.h5ItemList) {
-          strategyItemForm.h5ItemList = strategyItemForm.h5ItemList.filter(
-            v => {
-              return v != "";
-            }
-          );
-        }
-        if (strategyItemForm.soItemList) {
-          strategyItemForm.soItemList = strategyItemForm.soItemList.filter(
-            v => {
-              return v != "";
-            }
-          );
-        }
-        strategyItemForm.signMd5Items = strategyItemForm.signMd5Items.filter(
-          v => {
-            return v.value != "";
-          }
-        );
-        strategyItemForm.signMd5Items.forEach((v, i) => {
-          signMd5ItemsData.push(v.value);
-        });
-        strategyItemForm.choiceItem = strategyItemForm.choiceItem
-          .concat(strategyItemForm.tamperChoiceItem, 22)
-          .filter(v => {
-            return v != "";
-          });
-        let reinforceInfo = {
-          appName: createStrategyFileItem.appName,
-          appIcon: createStrategyFileItem.appIcon,
-          appPackage: createStrategyFileItem.appPackage,
-          appFileName: createStrategyFileItem.appFileName,
-          appPath: createStrategyFileItem.appPath,
-          appSize: createStrategyFileItem.appSize,
-          appVersion: createStrategyFileItem.appVersion
-        };
-        let strategyItemDto = {
-          reinforceStrategyName: strategyItemForm.strategyName,
-          reinforceItemList: strategyItemForm.choiceItem,
-          h5ItemList: strategyItemForm.h5ItemList,
-          soItemList: strategyItemForm.soItemList,
-          signMd5Items: signMd5ItemsData,
-          reinforceInfo
-        };
+      if (taskList.strategyName) {
+        let strategyName = taskList.strategyName;
         https
-          .fetchPost(
-            baseUrl + "/api/reinforce/strategy/saveOrUpdateStrategy",
-            strategyItemDto
-          )
+          .fetchGet(baseUrl + "/api/reinforce/strategy/checkStrategyName", {
+            strategyName
+          })
           .then(res => {
-            if (res.data.code == "00") {
-              _this.createStrategyDrawer = false;
-              _this.$notify({
-                title: "成功",
-                message: "新增策略成功",
-                type: "success"
-              });
-              _this.reload();
+            if (res.data) {
+              //必填项都已经填写 请求异步 需写在这里
+              if (allValid) {
+                let _this = this,
+                  strategyItemForm = _this.strategyItemForm,
+                  createStrategyFileItem = _this.createStrategyFileItem[0].data,
+                  signMd5ItemsData = [];
+                if (strategyItemForm.h5ItemList) {
+                  strategyItemForm.h5ItemList = strategyItemForm.h5ItemList.filter(
+                    v => {
+                      return v != "";
+                    }
+                  );
+                }
+                if (strategyItemForm.soItemList) {
+                  strategyItemForm.soItemList = strategyItemForm.soItemList.filter(
+                    v => {
+                      return v != "";
+                    }
+                  );
+                }
+                strategyItemForm.signMd5Items = strategyItemForm.signMd5Items.filter(
+                  v => {
+                    return v.value != "";
+                  }
+                );
+                strategyItemForm.signMd5Items.forEach((v, i) => {
+                  signMd5ItemsData.push(v.value);
+                });
+                strategyItemForm.choiceItem = strategyItemForm.choiceItem
+                  .concat(strategyItemForm.tamperChoiceItem, 22)
+                  .filter(v => {
+                    return v != "";
+                  });
+                let reinforceInfo = {
+                  appName: createStrategyFileItem.appName,
+                  appIcon: createStrategyFileItem.appIcon,
+                  appPackage: createStrategyFileItem.appPackage,
+                  appFileName: createStrategyFileItem.appFileName,
+                  appPath: createStrategyFileItem.appPath,
+                  appSize: createStrategyFileItem.appSize,
+                  appVersion: createStrategyFileItem.appVersion
+                };
+                let strategyItemDto = {
+                  reinforceStrategyName: strategyItemForm.strategyName,
+                  reinforceItemList: strategyItemForm.choiceItem,
+                  h5ItemList: strategyItemForm.h5ItemList,
+                  soItemList: strategyItemForm.soItemList,
+                  signMd5Items: signMd5ItemsData,
+                  reinforceInfo
+                };
+                https
+                  .fetchPost(
+                    baseUrl + "/api/reinforce/strategy/saveOrUpdateStrategy",
+                    strategyItemDto
+                  )
+                  .then(res => {
+                    if (res.data.code == "00") {
+                      _this.createStrategyDrawer = false;
+                      _this.$notify({
+                        title: "成功",
+                        message: "新增策略成功",
+                        type: "success"
+                      });
+                      _this.reload();
+                    }
+                  });
+              }
+            } else {
+              allValid = false;
+              _this.$message.error("策略名称不能重复哦");
             }
-            console.log(res);
           });
       }
     },
@@ -901,9 +913,30 @@ export default {
     cancelAmendStrategy() {
       this.amendStrategyDrawer = false;
     },
+    //扁平数组转化为树形结构
+    listToTree(list) {
+      var map = {},
+        node,
+        tree = [],
+        i;
+      for (i = 0; i < list.length; i++) {
+        map[list[i].id] = list[i];
+        list[i].children = [];
+      }
+      for (i = 0; i < list.length; i += 1) {
+        node = list[i];
+        if (node.parentId) {
+          map[node.parentId].children.push(node);
+        } else {
+          tree.push(node);
+        }
+      }
+      return tree;
+    },
     //策略详细
     strategyDetail(id) {
-      this.strategyDetailDrawer = true;
+      const _this = this;
+      _this.strategyDetailDrawer = true;
       let baseUrl = this.api.baseUrl;
       https
         .fetchGet(baseUrl + "/api/reinforce/strategy/getStrategyDetail", {
@@ -911,8 +944,28 @@ export default {
         })
         .then(res => {
           if (res.data.code === "00") {
-            this.strategyDetailItem = res.data.data;
-            console.log(this.strategyDetailItem.reinforceItemList, "哈哈");
+            _this.strategyDetailItem = res.data.data;
+            let selectedList = _this.strategyDetailItem.reinforceItemList;
+            /*  selectedList = _this.listToTree(selectedList); */
+            console.log(selectedList, "selcet");
+            _this.strategyItemData.forEach(obj => {
+              if (obj.children) {
+                selectedList.some((obj1, index) => {
+                  obj.children.forEach((v, i) => {
+                    if (v.id == obj1.id) {
+                      v["checked"] = true;
+                      console.log(v, "11");
+                    }
+                  });
+                });
+              }
+              selectedList.some((obj1, index) => {
+                if (obj1.id == obj.id) {
+                  obj["checked"] = true;
+                }
+              });
+            });
+            console.log(_this.strategyItemData, "哈哈");
           }
         });
     },
@@ -1000,8 +1053,9 @@ export default {
   margin-top: 20px;
 }
 .reinforceStrategy .el-drawer-footer {
-  text-align: right;
   width: 100%;
+  position: fixed;
+  bottom: 0px;
   background: white;
   z-index: 9;
   padding: 10px 20px;
