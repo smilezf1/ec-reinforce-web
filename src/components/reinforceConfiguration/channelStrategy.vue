@@ -58,11 +58,13 @@ export default {
   },
   inject: ["reload"],
   beforeMount() {
-    let baseUrl = this.api.baseUrl;
-    https.fetchPost(
+    let _this = this,
+      baseUrl = this.api.baseUrl;
+    /*  https.fetchPost(
       baseUrl + "/api/channel/strategy/findChannelStrategyByPage",
       { pn: this.curPage, limit: this.limit }
-    );
+    ); */
+    _this.getData();
   },
   methods: {
     //获取表格数据
@@ -74,7 +76,7 @@ export default {
           { pn: this.curPage, limit: this.limit, queryInfo }
         )
         .then(res => {
-          console.log(res);
+          console.log(res, "res");
           if (res.data.code === "00") {
             let data = res.data.data;
             this.listItem = data.items;
@@ -83,7 +85,7 @@ export default {
           }
         });
     },
-    beforeMount(){},
+    beforeMount() {},
     //查询渠道策略名称
     searchChannelStrategyName() {
       console.log(this.ruleForm.channelStrategyName);

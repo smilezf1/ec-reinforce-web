@@ -101,6 +101,7 @@
                         placeholder="请输入签名名称"
                         v-model="signatureItemForm[index].signatureName"
                         @input="showSaveSignatureBox"
+                        @blur="checkSignName"
                       ></el-input>
                     </el-form-item>
                     <el-form-item label="签名密码" prop="signaturePwd">
@@ -206,15 +207,10 @@
             label="签名名称"
             :show-overflow-tooltip="true"
           ></el-table-column>
-          <!-- <el-table-column prop="signPwd" label="签名密码"></el-table-column> -->
           <el-table-column
             prop="signAliasName"
             label="签名别名"
           ></el-table-column>
-         <!--  <el-table-column
-            prop="signAliasPwd"
-            label="别名密码"
-          ></el-table-column> -->
           <el-table-column prop="userName" label="创建人"></el-table-column>
           <el-table-column
             prop="createTime"
@@ -225,7 +221,7 @@
               <el-tooltip effect="dark" content="删除" placement="top-start">
                 <i
                   class="el-icon-delete deleteIcon"
-                  @click="deleteSignature(scope.row.id)"
+                  @click="deleteSignature(scope.row.id, scope.row.signName)"
                 ></i>
               </el-tooltip>
             </template>
@@ -378,8 +374,28 @@ export default {
         });
     },
     //删除签名
-    deleteSignature(id) {
-      console.log(id);
+    deleteSignature(id, name) {
+      let _this = this,
+        baseUrl = _this.api.baseUrl;
+      _this
+        .$confirm("确定要删除" + name + "签名吗?", "提示", {
+          confirmButtonText: "确定",
+          cancelButonText: "取消",
+          type: "warning"
+        })
+        .then(() => {
+          https
+            .fetchGet(
+              baseUrl + "/api/reinforce/sign/deleteReinforceSignById/" + id
+            )
+            .then(res => {
+              if (res.data.code == "00") {
+                _this.$message({ message: "删除成功!", type: "success" });
+                _this.reload();
+              }
+            });
+        })
+        .catch(() => {});
     },
     //上传签名结束
     //获取签名别名
@@ -425,6 +441,26 @@ export default {
           }
         });
       });
+    },
+    //检查签名名称是否重复
+    checkSignName() {
+      let _this = this,
+        signName = _this.signatureItemForm[0]["signatureName"],
+        baseUrl = _this.api.baseUrl;
+      if (signName) {
+        https
+          .fetchGet(baseUrl + "/api/reinforce/sign/checkSignName", {
+            signName
+          })
+          .then(res => {
+            if (res.data) {
+            } else {
+              _this.$message.error("签名名称不能重复哦");
+              _this.saveSignatureBox = false;
+            }
+          });
+      } else {
+      }
     },
     //保存上传的签名
     saveSignature() {

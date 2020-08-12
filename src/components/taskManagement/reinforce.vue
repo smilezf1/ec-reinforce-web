@@ -57,6 +57,7 @@
           :destroy-on-close="true"
           ref="addTaskDrawer"
           size="40%"
+          class="addTaskDrawer"
         >
           <div class="el-drawer-header">
             <h3>新增任务</h3>
@@ -1214,7 +1215,7 @@ export default {
         Authorization = localStorage.getItem("Authorization");
       let downloadUrl =
         baseUrl +
-        "/api/reinforce/info/downloadPackage/?reinforceInfoId=" +
+        "/api/reinforce/info/downloadPackage/?reinforceTaskId=" +
         id +
         "&type=1&Authorization=" +
         Authorization;
@@ -1430,6 +1431,7 @@ export default {
   font-size: 14px;
   margin-top: 5px;
 }
+
 .el-drawer-content .el-collapse {
   margin-top: 10px;
   border-top: none !important;
@@ -1514,7 +1516,7 @@ export default {
   font-size: 12px !important;
 }
 .el-table__header-wrapper {
-  background: #f8f8f9;
+ /*  background: #f8f8f9; */
 }
 .el-table__header-wrapper th {
   background: #f2f5f7 !important;
@@ -1543,7 +1545,7 @@ export default {
 .el-drawer-content {
   margin-top: 50px;
   position: relative;
-  overflow: auto;
+  overflow-y: auto;
   padding: 0px 20px 40px 20px;
 }
 .el-drawer-content .upload {
@@ -1556,11 +1558,9 @@ export default {
 }
 .reinfore .el-drawer-footer {
   width: 100%;
-  position: fixed;
-  bottom: 0px;
-  background: white;
-  z-index: 9;
-  padding: 10px 20px;
+  padding: 20px;
   border-top: 1px solid #ebebeb;
+  position: fixed;
+  bottom: 0;
 }
 </style>

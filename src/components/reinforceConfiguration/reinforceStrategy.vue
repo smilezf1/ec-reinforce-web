@@ -107,9 +107,9 @@
                     </el-row>
                   </div>
                 </div>
-                <!-- 配置策略 -->
+                <!-- 新建策略---配置策略 -->
                 <div class="strategyItem">
-                  <h3 class="strategyItemTitle">配置策略</h3>
+                  <h3 class="strategyItemTitle"><span>配置策略</span></h3>
                   <div class="strategyItemContent">
                     <el-form-item
                       v-for="strategyItem in strategyItemData"
@@ -364,7 +364,97 @@
           <div class="el-drawer-header">
             <h3>修改策略</h3>
           </div>
-          <div class="el-drawer-content"></div>
+          <div class="el-drawer-content">
+            <!-- 修改策略--应用信息 -->
+            <el-form :model="amendStrategyForm" class="amendStrategyForm">
+              <div class="strategyName">
+                <h3 class="strategyNameTitle">
+                  <span>应用信息</span>
+                </h3>
+                <div class="strategyNameContent">
+                  <el-row v-if="amendStrategyItem">
+                    <el-col :span="6">
+                      <img
+                        :src="
+                          'data:image/jpg;base64,' +
+                            amendStrategyItem['reinforceInfo'].appIcon
+                        "
+                      />
+                    </el-col>
+                    <el-col :span="18">
+                      <p class="appName">
+                        {{ amendStrategyItem["reinforceInfo"].appName }}
+                      </p>
+                      <p class="appPackage">
+                        包名:&nbsp;&nbsp;
+                        {{ amendStrategyItem["reinforceInfo"].appPackage }}
+                      </p>
+                      <p>
+                        <span style="margin-right:10px;">
+                          版本:&nbsp;&nbsp;{{
+                            amendStrategyItem["reinforceInfo"].appVersion
+                          }}
+                        </span>
+                        <span
+                          >大小:&nbsp;&nbsp;{{
+                            amendStrategyItem["reinforceInfo"].appMbSize
+                          }}</span
+                        >
+                      </p>
+                    </el-col>
+                  </el-row>
+                </div>
+              </div>
+              <div class="strategyName">
+                <h3 class="strategyNameTitle">
+                  <span>配置策略</span>
+                </h3>
+                <div class="strategyNameContent">
+                  <el-form-item
+                    v-for="strategyItem in strategyItemData"
+                    :key="strategyItem.id"
+                    :label="strategyItem.reinforceItemName"
+                    label-width="22%"
+                  >
+                    <template v-if="strategyItem.children">
+                      <el-checkbox-group
+                        v-model="tamperArray"
+                        v-if="strategyItem.reinforceItemName == '防篡改'"
+                        :min="0"
+                        :max="1"
+                      >
+                        <el-checkbox
+                          v-for="strategySubItem in strategyItem.children"
+                          :key="strategySubItem.id"
+                          :label="strategySubItem.id"
+                          :checked="strategySubItem.checked"
+                          >{{ strategySubItem.reinforceItemName }}
+                        </el-checkbox>
+                      </el-checkbox-group>
+                      <el-checkbox-group v-else v-model="choiceArray">
+                        <el-checkbox
+                          v-for="strategySubItem in strategyItem.children"
+                          :key="strategySubItem.id"
+                          :label="strategySubItem.id"
+                          >{{ strategySubItem.reinforceItemName }}
+                        </el-checkbox>
+                      </el-checkbox-group>
+                    </template>
+                    <template v-else>
+                      <el-checkbox-group v-model="choiceArray">
+                        <el-checkbox
+                          :label="strategyItem.id"
+                          :disabled="strategyItem.isCancel == 2"
+                          :checked="strategyItem.isChecked == 1"
+                          >启用</el-checkbox
+                        >
+                      </el-checkbox-group>
+                    </template>
+                  </el-form-item>
+                </div>
+              </div>
+            </el-form>
+          </div>
           <div class="el-drawer-footer">
             <el-button type="primary" @click="amendStrategy()">修改</el-button>
             <el-button @click="cancelAmendStrategy()" plain>取消</el-button>
@@ -389,7 +479,7 @@
           <div class="el-drawer-content">
             <!-- 策略详情-应用信息 -->
             <el-form :model="strategyDetailForm" class="strategyDetailForm">
-              <div class="strategyName" style="height:200px;">
+              <div class="strategyName">
                 <h3 class="strategyNameTitle">
                   <span>应用信息</span>
                 </h3>
@@ -440,25 +530,70 @@
                   >
                     <!-- 有子选项 -->
                     <template v-if="strategyItem.children">
-                      <el-checkbox
-                        v-for="strategySubItem in strategyItem.children"
-                        :key="strategySubItem.id"
-                        :label="strategySubItem.id"
-                        :disabled="true"
-                        :checked="true"
-                        >{{ strategySubItem.reinforceItemName }}--{{
-                          strategySubItem.checked
-                        }}
-                      </el-checkbox>
+                      <el-checkbox-group v-model="disabledChoiceItem">
+                        <el-checkbox
+                          v-for="strategySubItem in strategyItem.children"
+                          :key="strategySubItem.id"
+                          :label="strategySubItem.id"
+                          :disabled="true"
+                          :checked="strategySubItem.checked"
+                          >{{ strategySubItem.reinforceItemName }}
+                        </el-checkbox>
+                      </el-checkbox-group>
                     </template>
                     <!-- 没有子选项 -->
                     <template v-else>
-                      <el-checkbox
-                        :label="strategyItem.id"
-                        :disabled="true"
-                        :checked="strategyItem.checked"
-                        >启用{{ strategyItem.checked }}</el-checkbox
+                      <el-checkbox-group v-model="disabledChoiceItem">
+                        <el-checkbox
+                          :label="strategyItem.id"
+                          :disabled="true"
+                          :checked="strategyItem.checked"
+                          >启用</el-checkbox
+                        >
+                      </el-checkbox-group>
+                    </template>
+                    <!-- SO高级加固 -->
+                    <template
+                      v-if="
+                        strategyItem.reinforceItemName == 'SO高级加固' &&
+                          disabledSoItemList.length != 0
+                      "
+                    >
+                      <el-tree
+                        :data="disabledSoItemList"
+                        node-key="id"
+                      ></el-tree>
+                    </template>
+                    <!-- H5文件加固 -->
+                    <template
+                      v-if="
+                        strategyItem.reinforceItemName == 'H5文件加固' &&
+                          disabledH5ItemList.length != 0
+                      "
+                    >
+                      <el-tree
+                        :data="disabledH5ItemList"
+                        node-key="id"
+                      ></el-tree>
+                    </template>
+                    <!-- 自定义签名MD5 -->
+                    <template
+                      v-if="
+                        strategyItem.reinforceItemName == '自定义签名MD5' &&
+                          disabledMd5ItemList.length != 0
+                      "
+                    >
+                      <template
+                        v-for="item in disabledMd5ItemList"
+                        style="height:200px;overflow:auto"
                       >
+                        <el-input
+                          :placeholder="item"
+                          :disabled="true"
+                          :key="item"
+                          class="md5Input"
+                        ></el-input>
+                      </template>
                     </template>
                   </el-form-item>
                 </div>
@@ -514,7 +649,12 @@
               <el-tooltip effect="dark" content="删除" placement="top-start">
                 <i
                   class="el-icon-delete deleteIcon"
-                  @click="deleteStrategy(scope.row.id)"
+                  @click="
+                    deleteStrategy(
+                      scope.row.id,
+                      scope.row.reinforce_strategy_name
+                    )
+                  "
                 ></i>
               </el-tooltip>
             </template>
@@ -543,6 +683,7 @@ export default {
   name: "reinforceStrategy",
   data() {
     return {
+      test: [],
       ruleForm: {
         strategyName: ""
       },
@@ -554,6 +695,10 @@ export default {
       createStrategyDrawer: false,
       amendStrategyDrawer: false,
       strategyDetailDrawer: false,
+      disabledChoiceItem: [],
+      disabledSoItemList: [],
+      disabledH5ItemList: [],
+      disabledMd5ItemList: [],
       strategyItemForm: {
         strategyName: "",
         signMd5Items: [{ value: "" }],
@@ -576,7 +721,11 @@ export default {
       soChecked: false,
       saveStrategyBox: false,
       strategyDetailForm: {},
-      strategyDetailItem: null
+      amendStrategyForm: {},
+      strategyDetailItem: null,
+      amendStrategyItem: null,
+      choiceArray: [],
+      tamperArray: []
     };
   },
   inject: ["reload"],
@@ -894,14 +1043,84 @@ export default {
           });
       }
     },
+    //取消修改策略
+    cancelAmendStrategy() {
+      this.amendStrategyDrawer = false;
+    },
+    //获取策略具体内容
+    getstrategy(id) {
+      let _this = this,
+        baseUrl = _this.api.baseUrl;
+      https
+        .fetchGet(baseUrl + "/api/reinforce/strategy/getStrategyDetail", {
+          id
+        })
+        .then(res => {
+          if (res.data.code === "00") {
+            let data = res.data.data;
+            _this.amendStrategyItem = data;
+            let selectedList = data.reinforceItemList;
+            _this.strategyItemData.forEach(obj => {
+              obj["checked"] = false;
+              if (obj.children) {
+                obj.children.forEach(v => {
+                  v["checked"] = false;
+                  selectedList.some(obj1 => {
+                    if (obj1.id == v.id) {
+                      v["checked"] = true;
+                    }
+                  });
+                });
+              }
+              selectedList.some(obj1 => {
+                if (obj1.id == obj.id) {
+                  obj["checked"] = true;
+                }
+              });
+            });
+            let choiceArray = [],
+              tamperArray = [];
+            let result = _this.strategyItemData.map(item => {
+              if (item.children) {
+                if (item.reinforceItemName == "防篡改") {
+                  item.children.forEach(v => {
+                    if (v.checked == true) {
+                      tamperArray.push(v.id);
+                    }
+                  });
+                } else {
+                  item.children.forEach(v => {
+                    if (v.checked == true) {
+                      choiceArray.push(v.id);
+                    }
+                  });
+                }
+              }
+              if (item.checked == true) {
+                return item.id;
+              }
+            });
+            _this.choiceArray = result.concat(choiceArray);
+            _this.tamperArray = tamperArray;
+            console.log(_this.strategyItemData, "哈哈");
+          }
+        });
+    },
     //修改策略
     amendStrategy(id) {
-      let baseUrl = this.api.baseUrl,
-        strategyItemForm = this.strategyItemForm;
-      /* strategyItemDto = { id, reinforceItemList }; */
-      this.amendStrategyDrawer = true;
-      console.log(strategyItemForm);
-      /*    https
+      let _this = this,
+        baseUrl = _this.api.baseUrl,
+        strategyItemForm = _this.strategyItemForm;
+      _this.amendStrategyDrawer = true;
+      _this.getstrategy(id);
+      let x = _this.choiceArray.concat(_this.tamperArray);
+      let y = [];
+      x.forEach(item => {
+        if (item) {
+          y.push(item);
+        }
+      });
+      /*  https
         .fetchPost(baseUrl + "/api/reinforce/strategy/saveOrUpdateStrategy", {
           id
         })
@@ -909,72 +1128,44 @@ export default {
           console.log(res);
         }); */
     },
-    //取消修改策略
-    cancelAmendStrategy() {
-      this.amendStrategyDrawer = false;
-    },
-    //扁平数组转化为树形结构
-    listToTree(list) {
-      var map = {},
-        node,
-        tree = [],
-        i;
-      for (i = 0; i < list.length; i++) {
-        map[list[i].id] = list[i];
-        list[i].children = [];
-      }
-      for (i = 0; i < list.length; i += 1) {
-        node = list[i];
-        if (node.parentId) {
-          map[node.parentId].children.push(node);
-        } else {
-          tree.push(node);
-        }
-      }
-      return tree;
-    },
+
     //策略详细
     strategyDetail(id) {
       const _this = this;
       _this.strategyDetailDrawer = true;
       let baseUrl = this.api.baseUrl;
-      https
-        .fetchGet(baseUrl + "/api/reinforce/strategy/getStrategyDetail", {
-          id
-        })
-        .then(res => {
-          if (res.data.code === "00") {
-            _this.strategyDetailItem = res.data.data;
-            let selectedList = _this.strategyDetailItem.reinforceItemList;
-            /*  selectedList = _this.listToTree(selectedList); */
-            console.log(selectedList, "selcet");
-            _this.strategyItemData.forEach(obj => {
-              if (obj.children) {
-                selectedList.some((obj1, index) => {
-                  obj.children.forEach((v, i) => {
-                    if (v.id == obj1.id) {
-                      v["checked"] = true;
-                      console.log(v, "11");
-                    }
-                  });
-                });
-              }
-              selectedList.some((obj1, index) => {
-                if (obj1.id == obj.id) {
-                  obj["checked"] = true;
-                }
-              });
-            });
-            console.log(_this.strategyItemData, "哈哈");
-          }
-        });
+      _this.getstrategy(id);
     },
     //取消查看策略详细
     cancelstrategyDetail() {
       this.strategyDetailDrawer = false;
     },
     //删除策略
-    deleteStrategy() {}
+    deleteStrategy(id, name) {
+      let _this = this,
+        baseUrl = _this.api.baseUrl;
+      _this
+        .$confirm("确定删除" + name + "策略吗?", "提示", {
+          confirmButtonTex: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        })
+        .then(() => {
+          https
+            .fetchGet(
+              baseUrl +
+                "/api/reinforce/strategy/deleteReinforceStrategyById/" +
+                id
+            )
+            .then(res => {
+              if (res.data.code == "00") {
+                _this.$message({ message: "删除成功!", type: "success" });
+                _this.reload();
+              }
+            });
+        })
+        .catch(() => {});
+    }
   }
 };
 </script>
@@ -1052,6 +1243,12 @@ export default {
 .reinforceStrategyBase .paginationBox {
   margin-top: 20px;
 }
+.md5Input .el-input__inner {
+  height: 32px;
+  width: 50%;
+  display: block;
+  margin: 10px 0;
+}
 .reinforceStrategy .el-drawer-footer {
   width: 100%;
   position: fixed;
@@ -1061,33 +1258,51 @@ export default {
   padding: 10px 20px;
   border-top: 1px solid #ebebeb;
 }
-.strategyItemForm {
+.strategyItemForm,
+.strategyDetailForm,
+.amendStrategyForm {
   margin-top: 20px;
 }
+.strategyItemForm .strategyItemTitle,
+.strategyDetailForm .strategyItemTitle,
+.amendStrategyForm .strategyItemTitle {
+  font-weight: 700;
+  font-size: 16px;
+}
+.amendStrategyForm .strategyNameTitle {
+  margin-bottom: 10px;
+}
+.strategyItemForm .strategyNameTitle span,
+.strategyDetailForm .strategyNameTitle span,
+.amendStrategyForm .strategyNameTitle span {
+  color: #515a6e;
+  font-size: 16px;
+}
+
 .strategyItemForm .el-row:first-child p,
-.strategyDetailForm .el-row:first-child p {
+.strategyDetailForm .el-row:first-child p,
+.amendStrategyForm .el-row:first-child p {
   line-height: 36px;
   color: #606266;
   margin: 10px 0;
 }
-.strategyItemForm .strategyItemTitle {
-  font-weight: 700;
-  font-size: 16px;
-}
 .strategyItemForm .appName,
-.strategyDetailForm .appName {
+.strategyDetailForm .appName,
+.amendStrategyForm .appName {
   line-height: 40px;
   font-size: 16px;
   color: #333;
   font-weight: 700;
 }
 .strategyItemForm .appInfo,
-.strategyDetailForm .appInfo {
+.strategyDetailForm .appInfo,
+.amendStrategyForm .appInfo {
   display: flex;
   margin: 30px 0;
 }
 .strategyItemForm img,
-.strategyDetailForm img {
+.strategyDetailForm img,
+.amendStrategyForm img {
   width: 55%;
   border-radius: 15px;
   margin: 30px 35px 0 0;
@@ -1107,11 +1322,7 @@ export default {
   margin-bottom: 20px;
   position: relative;
 }
-.strategyDetailDrawer .strategyNameTitle span {
-  margin-left: 10px;
-  color: #515a6e;
-  font-size: 16px;
-}
+
 .reinforceStrategy
   .el-checkbox__input.is-disabled.is-checked
   .el-checkbox__inner {
