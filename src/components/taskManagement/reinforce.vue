@@ -1516,7 +1516,7 @@ export default {
   font-size: 12px !important;
 }
 .el-table__header-wrapper {
- /*  background: #f8f8f9; */
+  /*  background: #f8f8f9; */
 }
 .el-table__header-wrapper th {
   background: #f2f5f7 !important;
@@ -1562,5 +1562,7 @@ export default {
   border-top: 1px solid #ebebeb;
   position: fixed;
   bottom: 0;
+  z-index: 99;
+  background: white;
 }
 </style>

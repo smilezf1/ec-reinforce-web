@@ -248,23 +248,26 @@
                               size="small"
                               clearable
                               maxLength="32"
-                              style="width:55%"
+                              style="width:51%"
                               v-model="item.keyTreeData[0].signMd5Value"
                             ></el-input>
                             <el-button
                               type="text"
                               @click="
-                                addSignature(item.keyTreeData[0].signMd5Value)
+                                addSignature(
+                                  item.keyTreeData[0].signMd5Value,
+                                  'createAddSignatureClick'
+                                )
                               "
                               >添加</el-button
                             >
                           </template>
-                          <template v-if="addSignatureClick">
+                          <template v-else>
                             <el-input
                               size="small"
                               clearable
                               maxLength="32"
-                              style="width:55%"
+                              style="width:51%"
                               v-model="strategyItemForm.signMd5Items[0].value"
                             ></el-input>
                             <el-button
@@ -287,7 +290,7 @@
                         >
                           <el-input
                             size="small"
-                            style="width:55%"
+                            style="width:58%"
                             clearable
                             maxlength="32"
                             :disabled="true"
@@ -371,7 +374,7 @@
             <el-form :model="strategyItemForm" class="amendStrategyForm">
               <div class="strategyName">
                 <h3 class="strategyNameTitle">
-                  <span>应用信息</span>
+                  <span>应用信息 </span>
                 </h3>
                 <div class="strategyNameContent">
                   <el-row v-if="strategyDetailItem">
@@ -400,6 +403,13 @@
                         <span
                           >大小:&nbsp;&nbsp;{{
                             strategyDetailItem["reinforceInfo"].appMbSize
+                          }}</span
+                        >
+                      </p>
+                      <p>
+                        <span
+                          >策略名称:&nbsp;&nbsp;{{
+                            strategyDetailItem.reinforceStrategyName
                           }}</span
                         >
                       </p>
@@ -472,7 +482,7 @@
                                 strategyItem.checked
                               )
                           "
-                          >启用</el-checkbox
+                          >启用--{{ strategyItem.checked }}</el-checkbox
                         >
                       </el-checkbox-group>
                       <!-- 启用SO高级加固 -->
@@ -498,7 +508,7 @@
                                 strategyItem.checked
                               )
                           "
-                          >启用--{{ strategyItem.checked }}</el-checkbox
+                          >启用</el-checkbox
                         >
                       </el-checkbox-group>
                       <!-- 启用H5文件加固 -->
@@ -536,43 +546,111 @@
                         >
                       </el-checkbox-group>
                       <!-- 自定义签名MD5 -->
+                      <!-- 没点击自定义签名MD5 -->
                       <template
                         v-if="
                           strategyItem.reinforceItemName == '自定义签名MD5' &&
-                            strategyItem.checked
+                            !md5Click
                         "
                       >
-                        <!--  <el-form-item label="签名MD5">
-                          <el-input
-                            size="small"
-                            clearable
-                            maxLength="32"
-                            style="width:55%"
-                            v-model="md5ArrayList"
-                          />
-                          <el-button
-                            type="text"
-                            @click="addSignature(md5ArrayList)"
-                            >添加</el-button
-                          >
-                        </el-form-item>
-                        <el-form-item
-                          v-for="(addSignatureItem,
-                          addSignatureIndex) in strategyItem.signMd5Items"
-                          :key="addSignatureIndex"
-                          v-show="addSignatureIndex"
-                        >
-                          <el-input
-                            size="small"
-                            style="width:55%"
-                            clearable
-                            maxLength="32"
-                            :disabled="true"
-                          ></el-input>
-                          <el-button type="text" @click="deleteSignature()"
-                            >删除--{{ addSignatureItem }}</el-button
-                          >
-                        </el-form-item> -->
+                        <template v-if="strategyItem.checked">
+                          <el-form-item label="签名MD5">
+                            <el-input
+                              size="small"
+                              clearable
+                              maxLength="32"
+                              style="width:51%;"
+                              v-model="strategyItemForm.signMd5Items[0].value"
+                            />
+                            <el-button
+                              type="text"
+                              @click="
+                                addSignature(
+                                  strategyItemForm.signMd5Items[0].value,
+                                  'amendAddSignatureClick'
+                                )
+                              "
+                              >添加</el-button
+                            >
+                            <template v-if="disabledMd5ArrayList.length != 0">
+                              <div
+                                v-for="(item, index) in disabledMd5ArrayList"
+                                :key="item"
+                              >
+                                <el-input
+                                  size="small"
+                                  style="width:51%;margin-left:70px;"
+                                  :placeholder="item"
+                                  :disabled="true"
+                                ></el-input>
+                                <el-button
+                                  type="text"
+                                  @click="
+                                    deleteSignature(
+                                      item,
+                                      index,
+                                      'amendDeleteSignatureClick'
+                                    )
+                                  "
+                                  >删除</el-button
+                                >
+                              </div>
+                            </template>
+                          </el-form-item>
+                        </template>
+                      </template>
+                      <template
+                        v-if="
+                          strategyItem.reinforceItemName == '自定义签名MD5' &&
+                            md5Click
+                        "
+                      >
+                        <template v-if="strategyItemForm['MD5'] == true">
+                          <el-form-item label="签名MD5">
+                            <el-input
+                              size="small"
+                              clearable
+                              maxLength="32"
+                              style="width:51%"
+                              v-model="strategyItemForm.signMd5Items[0].value"
+                            />
+                            <el-button
+                              type="text"
+                              @click="
+                                addSignature(
+                                  strategyItemForm.signMd5Items[0].value,
+                                  'amendAddSignatureClick'
+                                )
+                              "
+                              >添加</el-button
+                            >
+                            <template v-if="disabledMd5ArrayList.length != 0">
+                              <div
+                                v-for="(item, index) in disabledMd5ArrayList"
+                                :key="item"
+                              >
+                                <el-input
+                                  v-if="item"
+                                  size="small"
+                                  style="width:51%;margin-left:70px"
+                                  :placeholder="item"
+                                  :disabled="true"
+                                ></el-input>
+                                <el-button
+                                  type="text"
+                                  @click="
+                                    deleteSignature(
+                                      item,
+                                      index,
+                                      'amendDeleteSignatureClick'
+                                    )
+                                  "
+                                  >删除</el-button
+                                >
+                              </div>
+                            </template>
+                          </el-form-item>
+                        </template>
                       </template>
                       <!-- SO高级加固 -->
                       <!-- 没点击SO高级加固 -->
@@ -591,7 +669,7 @@
                           <el-tree
                             :data="soArrayList"
                             show-checkbox
-                            node-key="label"
+                            node-key="value"
                             style="height:250px;overflow:auto;"
                             default-expand-all
                             ref="soTree"
@@ -601,12 +679,7 @@
                         </template>
                       </template>
                       <!-- 点击了SO高级加固 -->
-                      <template
-                        v-if="
-                          strategyItem.reinforceItemName == 'SO高级加固' &&
-                            soClick
-                        "
-                      >
+                      <template v-else>
                         <template
                           v-if="
                             strategyItem.reinforceItemName == 'SO高级加固' &&
@@ -616,7 +689,7 @@
                           <el-tree
                             :data="soArrayList"
                             show-checkbox
-                            node-key="label"
+                            node-key="value"
                             style="height:250px;overflow:auto;"
                             default-expand-all
                             ref="soTree"
@@ -642,7 +715,7 @@
                           <el-tree
                             :data="h5ArrayList"
                             show-checkbox
-                            node-key="label"
+                            node-key="value"
                             style="height:250px;overflow:auto"
                             ref="h5Tree"
                             :default-checked-keys="flatH5Array"
@@ -666,7 +739,7 @@
                           <el-tree
                             :data="h5ArrayList"
                             show-checkbox
-                            node-key="label"
+                            node-key="value"
                             style="height:250px;overflow:auto"
                             ref="h5Tree"
                             :default-checked-keys="flatH5Array"
@@ -675,24 +748,6 @@
                           ></el-tree>
                         </template>
                       </template>
-
-                      <!--  <template
-                        v-if="
-                          strategyItem.reinforceItemName == 'H5文件加固' &&
-                            strategyItem.checked
-                        "
-                      >
-                        <el-tree
-                          :data="h5ArrayList"
-                          show-checkbox
-                          node-key="label"
-                          style="height:250px;overflow:auto"
-                          ref="h5Tree"
-                          :default-checked-keys="flatH5Array"
-                          @check-change="getH5CheckedNodes()"
-                          default-expand-all
-                        ></el-tree>
-                      </template> -->
                     </template>
                   </el-form-item>
                 </div>
@@ -700,7 +755,9 @@
             </el-form>
           </div>
           <div class="el-drawer-footer">
-            <el-button type="primary" @click="saveAmendStrategy()"
+            <el-button
+              type="primary"
+              @click="saveAmendStrategy(strategyDetailItem['id'])"
               >修改</el-button
             >
             <el-button @click="cancelAmendStrategy()" plain>取消</el-button>
@@ -755,7 +812,14 @@
                         </span>
                         <span
                           >大小:&nbsp;&nbsp;{{
-                            strategyDetailItem["reinforceInfo"].appMbSize
+                            strategyDetailItem["reinforceInfo"].appMbSize + "MB"
+                          }}</span
+                        >
+                      </p>
+                      <p>
+                        <span
+                          >策略名称:&nbsp;&nbsp;{{
+                            strategyDetailItem.reinforceStrategyName
                           }}</span
                         >
                       </p>
@@ -845,7 +909,7 @@
                       "
                     >
                       <template
-                        v-for="item in md5ArrayList"
+                        v-for="item in disabledMd5ArrayList"
                         style="height:200px;overflow:auto"
                       >
                         <el-input
@@ -957,7 +1021,7 @@ export default {
       amendStrategyDrawer: false,
       strategyDetailDrawer: false,
       soArrayList: [],
-      md5ArrayList: [],
+      md5ArrayList: "",
       h5ArrayList: [],
       disabledSoArrayList: [],
       disabledH5ArrayList: [],
@@ -1061,9 +1125,9 @@ export default {
     },
     //上传策略开始
     createStrategyFile(file) {
-      let params = new FormData(),
-        baseUrl = this.api.baseUrl,
-        _this = this;
+      let _this = this,
+        params = new FormData(),
+        baseUrl = _this.api.baseUrl;
       params.append("file", file.file);
       //进度条配置
       let config = {
@@ -1115,24 +1179,23 @@ export default {
                   if (data.h5Items.length == 0) {
                     _this.h5Disabled = true;
                   }
-                  _this.createStrategyFileItem.push(dataItem);
                   keyTreeData.push(data);
                 }
               });
+            _this.createStrategyFileItem.push(dataItem);
           }
         });
     },
     //上传策略结束
     //勾选启用
     handleCheckedChange(checked, checkboxType, value, id) {
-      const _this = this,
+      let _this = this,
         strategyItemForm = _this.strategyItemForm;
       strategyItemForm[checkboxType] = checked;
       if (checkboxType === "falsify") {
         if (checked) {
           if (id) {
             strategyItemForm.choiceItem.push(id);
-            console.log(strategyItemForm.choiceItem, "choiceItem");
           }
         } else {
           strategyItemForm.choiceItem = strategyItemForm.choiceItem.filter(
@@ -1141,7 +1204,8 @@ export default {
         }
       }
       if (checkboxType === "MD5") {
-        _this.addSignatureClick = false;
+        strategyItemForm.md5Checked = checked;
+        _this.md5Click = true;
         if (!checked) {
           strategyItemForm.signMd5Items = [];
         } else {
@@ -1178,25 +1242,38 @@ export default {
       );
     },
     //添加签名
-    addSignature(value) {
-      console.log(value);
-      let strategyItemForm = this.strategyItemForm;
+    addSignature(value, clicktype) {
+      let signMd5Items = this.strategyItemForm.signMd5Items,
+        disabledMd5ArrayList = this.disabledMd5ArrayList,
+        regularResult = /^[A-Fa-f0-9]{32}$/.test(value);
       this.addSignatureClick = true;
-      let regularResult = /^[A-Fa-f0-9]{32}$/.test(value);
       if (regularResult) {
-        strategyItemForm.signMd5Items.push({ value: "" });
-        strategyItemForm.signMd5Items[0].value = value;
-        strategyItemForm.signMd5Items.reverse();
+        if (clicktype == "amendAddSignatureClick") {
+          disabledMd5ArrayList.push(value);
+          signMd5Items.push({ value: "" });
+          signMd5Items[0].value = value;
+          signMd5Items.reverse();
+        } else {
+          signMd5Items.push({ value: "" });
+          signMd5Items[0].value = value;
+          signMd5Items.reverse();
+        }
       } else {
         this.$message.error("长度32位,仅支持数字和字母A-F,不区分大小写");
       }
-      console.log(strategyItemForm.signMd5Items);
     },
     //删除签名
-    deleteSignature(addSignatureItem, addSignatureIndex) {
-      let strategyItemForm = this.strategyItemForm;
-      if (strategyItemForm.signMd5Items.indexOf(addSignatureItem) > -1) {
-        strategyItemForm.signMd5Items.splice(addSignatureIndex, 1);
+    deleteSignature(addSignatureItem, addSignatureIndex, clicktype) {
+      let signMd5Items = this.strategyItemForm.signMd5Items,
+        disabledMd5ArrayList = this.disabledMd5ArrayList;
+      if (clicktype == "amendDeleteSignatureClick") {
+        if (disabledMd5ArrayList.indexOf(addSignatureItem) > -1) {
+          disabledMd5ArrayList.splice(addSignatureIndex, 1);
+        }
+      } else {
+        if (signMd5Items.indexOf(addSignatureItem) > -1) {
+          signMd5Items.splice(addSignatureIndex, 1);
+        }
       }
     },
     //取消保存策略
@@ -1205,7 +1282,6 @@ export default {
       this.$refs.createStrategyUpload.clearFiles();
       this.reload();
     },
-
     //保存创建的策略
     saveStrategy() {
       let _this = this,
@@ -1220,15 +1296,13 @@ export default {
         }
       });
       if (taskList.soChecked) {
-        if (taskList.soItemList.length) {
-        } else {
+        if (!taskList.soItemList.length) {
           _this.$message.error("请选择SO文件");
           allValid = false;
         }
       }
       if (taskList.h5Checked) {
-        if (taskList.h5ItemList.length) {
-        } else {
+        if (!taskList.h5ItemList.length) {
           _this.$message.error("请选择H5文件");
           allValid = false;
         }
@@ -1237,8 +1311,7 @@ export default {
         let md5Value = taskList.signMd5Items[0].value,
           regularResult = /^[A-Fa-f0-9]{32}$/.test(md5Value);
         if (md5Value) {
-          if (regularResult) {
-          } else {
+          if (!regularResult) {
             _this.$message.error("长度32位,仅支持数字和字母A-F,不区分大小写");
             allValid = false;
           }
@@ -1268,6 +1341,7 @@ export default {
                   .filter(v => {
                     return v != "";
                   });
+                new Set(strategyItemForm.choiceItem);
                 let reinforceInfo = {
                   appName: createStrategyFileItem.appName,
                   appIcon: createStrategyFileItem.appIcon,
@@ -1321,7 +1395,8 @@ export default {
           if (item.children) {
             _this.traverseTree(item.children, flatArray);
           } else {
-            flatArray.push(item.label);
+            flatArray.push(item.value);
+            console.log(item.value);
           }
         });
       }
@@ -1344,11 +1419,11 @@ export default {
               )
               .then(res => {
                 if (res.data.code === "00") {
+                  console.log(data.reinforceItemList, "data数据");
                   let keyData = res.data.data;
                   _this.soArrayList = keyData.soItems;
                   _this.h5ArrayList = keyData.h5Items;
                   _this.md5ArrayList = keyData.signMd5Value;
-                  console.log(_this.md5ArrayList, "md5");
                   if (keyData.soItems.length == 0) {
                     _this.amendSoDisabled = true;
                   }
@@ -1357,7 +1432,6 @@ export default {
                   } else {
                     _this.amendH5Disabled = false;
                   }
-                  console.log(_this.amendH5Disabled);
                   _this.strategyDetailItem = data;
                   _this.disabledSoArrayList = data.soItemList;
                   _this.disabledH5ArrayList = data.h5ItemList;
@@ -1392,30 +1466,29 @@ export default {
               });
             });
             let choiceArray = [],
-              tamperArray = [];
-            let result = _this.strategyItemData.map(item => {
-              if (item.children) {
-                if (item.reinforceItemName == "防篡改") {
-                  item.children.forEach(v => {
-                    if (v.checked == true) {
-                      tamperArray.push(v.id);
-                    }
-                  });
-                } else {
-                  item.children.forEach(v => {
-                    if (v.checked == true) {
-                      choiceArray.push(v.id);
-                    }
-                  });
+              tamperArray = [],
+              result = _this.strategyItemData.map(item => {
+                if (item.children) {
+                  if (item.reinforceItemName == "防篡改") {
+                    item.children.forEach(v => {
+                      if (v.checked == true) {
+                        tamperArray.push(v.id);
+                      }
+                    });
+                  } else {
+                    item.children.forEach(v => {
+                      if (v.checked == true) {
+                        choiceArray.push(v.id);
+                      }
+                    });
+                  }
                 }
-              }
-              if (item.checked == true) {
-                return item.id;
-              }
-            });
+                if (item.checked == true) {
+                  return item.id;
+                }
+              });
             _this.choiceArray = result.concat(choiceArray);
             _this.tamperArray = tamperArray;
-            console.log(_this.strategyItemData, "哈哈");
           }
         });
     },
@@ -1428,10 +1501,14 @@ export default {
       _this.getstrategy(id);
     },
     //保存修改的策略
-    saveAmendStrategy() {
-      let _this = this;
-      let choiceItem = _this.choiceArray.concat(_this.tamperArray),
-        choiceList = []; //选中的id集合
+    saveAmendStrategy(id) {
+      let _this = this,
+        baseUrl = _this.api.baseUrl,
+        strategyDetailItem = _this.strategyDetailItem["reinforceInfo"],
+        strategyItemForm = _this.strategyItemForm,
+        choiceItem = _this.choiceArray.concat(_this.tamperArray),
+        choiceList = [], //选中的id集合
+        allValid = true;
       //去空
       choiceItem.forEach(item => {
         if (item) {
@@ -1439,26 +1516,69 @@ export default {
         }
       });
       _this.test1 = choiceList.concat(_this.strategyItemForm.choiceItem);
-      console.log(
-        _this.test1,
-        _this.strategyItemForm.soItemList,
-        _this.strategyItemForm.h5ItemList,
-        "保存的策略"
-      );
-      /*  https
-        .fetchPost(baseUrl + "/api/reinforce/strategy/saveOrUpdateStrategy", {
-          id
-        })
-        .then(res => {
-          console.log(res);
-        }); */
+      if (strategyItemForm.soChecked) {
+        if (!strategyItemForm.soItemList.length) {
+          _this.$message.error("请选择SO文件");
+          allValid = false;
+        }
+      }
+      if (strategyItemForm.h5Checked) {
+        if (!strategyItemForm.h5ItemList.length) {
+          _this.$message.error("请选择H5文件");
+          allValid = false;
+        }
+      }
+      if (strategyItemForm.md5Checked) {
+        let md5Value = strategyItemForm.signMd5Items[0],
+          regularResult = /^[A-Fa-f0-9]{32}$/.test(md5Value);
+        if (md5Value) {
+          if (!regularResult) {
+            _this.$message.error("长度32位,仅支持数字和字母A-F,不区分大小写");
+            allValid = false;
+          }
+        }
+      }
+      let strategyItemDto = {
+        id,
+        reinforceInfo: {
+          appFileName: strategyDetailItem.appFileName,
+          appIcon: strategyDetailItem.appIcon,
+          appMbSize: strategyDetailItem.appMbSize,
+          appPackage: strategyDetailItem.appPackage,
+          appPath: strategyDetailItem.appPath,
+          appVersion: strategyDetailItem.appVersion
+        },
+        reinforceItemList: _this.test1,
+        soItemList: strategyItemForm.soItemList,
+        signMd5Items: _this.disabledMd5ArrayList,
+        h5ItemList: strategyItemForm.h5ItemList
+      };
+      console.log(strategyItemDto);
+      /*  if (allValid) {
+        https
+          .fetchPost(
+            baseUrl + "/api/reinforce/strategy/saveOrUpdateStrategy",
+            strategyItemDto
+          )
+          .then(res => {
+            if (res.data.code == "00") {
+              _this.$notify({
+                title: "成功",
+                message: "修改策略成功",
+                type: "success"
+              });
+              this.amendStrategyDrawer = false;
+              _this.reload();
+            }
+          });
+      } */
     },
 
     //策略详细
     strategyDetail(id) {
-      const _this = this;
+      let _this = this,
+        baseUrl = _this.api.baseUrl;
       _this.strategyDetailDrawer = true;
-      let baseUrl = this.api.baseUrl;
       _this.getstrategy(id);
     },
     //取消查看策略详细
