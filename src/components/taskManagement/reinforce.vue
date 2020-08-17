@@ -153,6 +153,9 @@
                     </el-row> -->
                     <!-- 加固项 -->
                     <el-row class="reinforceItem">
+                      <el-form-item label="策略名称">
+                        <!--    <el-select placeholder="请选择策略名称"></el-select> -->
+                      </el-form-item>
                       <el-col :span="24">
                         <h3 style="font-size:16px">加固项</h3>
                         <div
@@ -973,6 +976,7 @@ export default {
         }
       });
       if (allValid) {
+        _this.saveReinforceTaskBox = true;
         const reinforceInfoDto = taskList.map((formItem, index) => {
           const curFileItem = _this.uploadFileItems[index].data;
           let signMd5Items = [];
@@ -1000,7 +1004,6 @@ export default {
           formItem.choiceItem = formItem.choiceItem.filter(function(v) {
             return v != "";
           });
-          console.log(formItem, "####");
           const result = {
             appName: curFileItem.appName,
             appIcon: curFileItem.appIcon,
@@ -1048,20 +1051,24 @@ export default {
     },
     //取消加固任务
     cancelReinforceTask() {
-      this.$confirm("会清空当前上传的文件,是否继续?", "提示", {
-        closeOnClickModal: false,
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      })
-        .then(() => {
-          this.addTaskDrawer = false;
-          this.$refs.upload.clearFiles();
-          this.reload();
+      if (this.uploadFileItems.length) {
+        this.$confirm("会清空当前上传的文件,是否继续?", "提示", {
+          closeOnClickModal: false,
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
         })
-        .catch(() => {
-          console.log("取消");
-        });
+          .then(() => {
+            this.addTaskDrawer = false;
+            this.$refs.upload.clearFiles();
+            this.reload();
+          })
+          .catch(() => {
+            console.log("取消");
+          });
+      } else {
+        this.addTaskDrawer = false;
+      }
     },
     //加固
     reinforce(id) {
@@ -1515,9 +1522,7 @@ export default {
   color: #515a6e !important;
   font-size: 12px !important;
 }
-.el-table__header-wrapper {
-  /*  background: #f8f8f9; */
-}
+
 .el-table__header-wrapper th {
   background: #f2f5f7 !important;
 }

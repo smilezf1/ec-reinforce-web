@@ -21,7 +21,7 @@
             prop="reinforce_item_describe"
             label="加固项描述"
           ></el-table-column>
-         <!--  <el-table-column
+          <!--  <el-table-column
             prop="reinforce_item_code"
             label="加固项编码"
           ></el-table-column> -->
@@ -105,11 +105,8 @@ export default {
   border: 1px solid #dcdee2;
   border-bottom: 1px solid transparent !important;
 }
-.reinforceItemBody .el-table thead {
-  color: #515a6a;
-}
-.reinforceItemBody .el-table__header-wrapper {
-  background: #f8f8f9;
+.el-table__header-wrapper th {
+  background: #f2f5f7 !important;
 }
 .reinforceItemBase {
   margin-top: 20px;

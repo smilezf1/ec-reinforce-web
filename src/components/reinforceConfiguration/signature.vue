@@ -490,21 +490,26 @@ export default {
     },
     //取消上传的签名
     cancelSignature() {
-      this.$confirm("会清空当前上传的文件,是否继续?", "提示", {
-        closeOnClickModal: false,
-        confirmButtonText: "确定",
-        cancelButonText: "取消",
-        type: "warning"
-      })
-        .then(() => {
-          this.uploadSignatureDrawer = false;
-          this.$refs.uploadSignature.clearFiles();
-          this.reload();
+      console.log(this.signatureItemForm.length);
+      if (this.signatureItemForm.length) {
+        this.$confirm("会清空当前上传的文件,是否继续?", "提示", {
+          closeOnClickModal: false,
+          confirmButtonText: "确定",
+          cancelButonText: "取消",
+          type: "warning"
         })
-        .catch(() => {
-          console.log("取消");
-        });
-      this.$refs.uploadSignature.clearFiles();
+          .then(() => {
+            this.uploadSignatureDrawer = false;
+            this.$refs.uploadSignature.clearFiles();
+            this.reload();
+          })
+          .catch(() => {
+            console.log("取消");
+          });
+        this.$refs.uploadSignature.clearFiles();
+      } else {
+        this.uploadSignatureDrawer = false;
+      }
     }
   },
   beforeMount() {
@@ -533,8 +538,8 @@ export default {
 .signatureBody .el-table thead {
   color: #515a6a;
 }
-.signatureBody .el-table__header-wrapper {
-  background: #f8f8f9;
+.el-table__header-wrapper th {
+  background: #f2f5f7 !important;
 }
 .signatureBody .deleteIcon {
   font-size: 22px;
@@ -587,9 +592,9 @@ export default {
   margin-top: 20px;
 }
 .signatureItemForm .signatureNameTitle {
-  font-size: 14px;
+  font-size: 16px;
   margin-bottom: 20px;
-  font-weight: normal;
+  font-weight: 530;
   position: relative;
 }
 .signatureItemForm .el-form-item__label {

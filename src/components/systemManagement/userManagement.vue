@@ -974,11 +974,8 @@ th {
   color: #515a6e;
   font-size: 12px;
 }
-.el-table__header-wrapper {
-  background: #f8f8f9;
-}
 .el-table__header-wrapper th {
-  background: #f2f5f7;
+  background: #f2f5f7 !important;
 }
 .el-table ::before {
   background: white;

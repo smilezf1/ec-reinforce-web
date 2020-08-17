@@ -77,7 +77,10 @@
               >
                 <!-- 上传文件的信息 -->
                 <div class="strategyItem">
-                  <h3 class="strategyItemTitle">应用信息</h3>
+                  <h3 class="strategyItemTitle">
+                    <i class="strategyItemTitleIcon"></i>
+                    <span> 应用信息</span>
+                  </h3>
                   <div class="strategyItemContent">
                     <el-row>
                       <el-col :span="6">
@@ -111,7 +114,10 @@
                 </div>
                 <!-- 新建策略---配置策略 -->
                 <div class="strategyItem">
-                  <h3 class="strategyItemTitle"><span>配置策略</span></h3>
+                  <h3 class="strategyItemTitle">
+                    <i class="strategyItemTitleIcon"></i>
+                    <span>配置策略</span>
+                  </h3>
                   <div class="strategyItemContent">
                     <el-form-item
                       v-for="strategyItem in strategyItemData"
@@ -281,6 +287,7 @@
                             >
                           </template>
                         </el-form-item>
+
                         <el-form-item
                           v-for="(addSignatureItem,
                           addSignatureIndex) in strategyItemForm.signMd5Items"
@@ -374,6 +381,7 @@
             <el-form :model="strategyItemForm" class="amendStrategyForm">
               <div class="strategyName">
                 <h3 class="strategyNameTitle">
+                  <i class="strategyItemTitleIcon"></i>
                   <span>应用信息 </span>
                 </h3>
                 <div class="strategyNameContent">
@@ -419,6 +427,7 @@
               </div>
               <div class="strategyName">
                 <h3 class="strategyNameTitle">
+                  <i class="strategyItemTitleIcon"></i>
                   <span>配置策略</span>
                 </h3>
                 <div class="strategyNameContent">
@@ -482,7 +491,7 @@
                                 strategyItem.checked
                               )
                           "
-                          >启用--{{ strategyItem.checked }}</el-checkbox
+                          >启用</el-checkbox
                         >
                       </el-checkbox-group>
                       <!-- 启用SO高级加固 -->
@@ -546,7 +555,6 @@
                         >
                       </el-checkbox-group>
                       <!-- 自定义签名MD5 -->
-                      <!-- 没点击自定义签名MD5 -->
                       <template
                         v-if="
                           strategyItem.reinforceItemName == '自定义签名MD5' &&
@@ -572,30 +580,28 @@
                               "
                               >添加</el-button
                             >
-                            <template v-if="disabledMd5ArrayList.length != 0">
-                              <div
-                                v-for="(item, index) in disabledMd5ArrayList"
-                                :key="item"
+                            <div
+                              v-for="(item, index) in disabledMd5ArrayList"
+                              :key="index"
+                            >
+                              <el-input
+                                size="small"
+                                style="width:51%;margin-left:70px;"
+                                :placeholder="item"
+                                :disabled="true"
+                              ></el-input>
+                              <el-button
+                                type="text"
+                                @click="
+                                  deleteSignature(
+                                    item,
+                                    index,
+                                    'amendDeleteSignatureClick'
+                                  )
+                                "
+                                >删除</el-button
                               >
-                                <el-input
-                                  size="small"
-                                  style="width:51%;margin-left:70px;"
-                                  :placeholder="item"
-                                  :disabled="true"
-                                ></el-input>
-                                <el-button
-                                  type="text"
-                                  @click="
-                                    deleteSignature(
-                                      item,
-                                      index,
-                                      'amendDeleteSignatureClick'
-                                    )
-                                  "
-                                  >删除</el-button
-                                >
-                              </div>
-                            </template>
+                            </div>
                           </el-form-item>
                         </template>
                       </template>
@@ -611,7 +617,7 @@
                               size="small"
                               clearable
                               maxLength="32"
-                              style="width:51%"
+                              style="width:51%;"
                               v-model="strategyItemForm.signMd5Items[0].value"
                             />
                             <el-button
@@ -624,31 +630,28 @@
                               "
                               >添加</el-button
                             >
-                            <template v-if="disabledMd5ArrayList.length != 0">
-                              <div
-                                v-for="(item, index) in disabledMd5ArrayList"
-                                :key="item"
+                            <div
+                              v-for="(item, index) in disabledMd5ArrayList"
+                              :key="index"
+                            >
+                              <el-input
+                                size="small"
+                                style="width:51%;margin-left:70px;"
+                                :placeholder="item"
+                                :disabled="true"
+                              ></el-input>
+                              <el-button
+                                type="text"
+                                @click="
+                                  deleteSignature(
+                                    item,
+                                    index,
+                                    'amendDeleteSignatureClick'
+                                  )
+                                "
+                                >删除</el-button
                               >
-                                <el-input
-                                  v-if="item"
-                                  size="small"
-                                  style="width:51%;margin-left:70px"
-                                  :placeholder="item"
-                                  :disabled="true"
-                                ></el-input>
-                                <el-button
-                                  type="text"
-                                  @click="
-                                    deleteSignature(
-                                      item,
-                                      index,
-                                      'amendDeleteSignatureClick'
-                                    )
-                                  "
-                                  >删除</el-button
-                                >
-                              </div>
-                            </template>
+                            </div>
                           </el-form-item>
                         </template>
                       </template>
@@ -784,6 +787,7 @@
             <el-form class="strategyDetailForm">
               <div class="strategyName">
                 <h3 class="strategyNameTitle">
+                  <i class="strategyItemTitleIcon"></i>
                   <span>应用信息</span>
                 </h3>
                 <div class="strategyNameContent">
@@ -829,6 +833,7 @@
               </div>
               <div class="strategyName">
                 <h3 class="strategyNameTitle">
+                  <i class="strategyItemTitleIcon"></i>
                   <span>配置策略</span>
                 </h3>
                 <div class="strategyNameContent">
@@ -881,7 +886,8 @@
                     <template
                       v-if="
                         strategyItem.reinforceItemName == 'SO高级加固' &&
-                          disabledSoArrayList.length != 0
+                          disabledSoArrayList.length != 0 &&
+                          strategyItem.checked
                       "
                     >
                       <el-tree
@@ -893,7 +899,8 @@
                     <template
                       v-if="
                         strategyItem.reinforceItemName == 'H5文件加固' &&
-                          disabledH5ArrayList.length != 0
+                          disabledH5ArrayList.length != 0 &&
+                          strategyItem.checked
                       "
                     >
                       <el-tree
@@ -1055,6 +1062,7 @@ export default {
       saveStrategyBox: false,
       amendStrategyForm: {},
       strategyDetailItem: null,
+      reinforceItemList: [],
       choiceArray: [],
       tamperArray: [],
       flatSoArray: [],
@@ -1173,6 +1181,7 @@ export default {
               .then(res => {
                 if (res.data.code == "00") {
                   let data = res.data.data;
+                  console.log(data.signMd5Value, "yayayaya");
                   if (data.soItems.length == 0) {
                     _this.soDisabled = true;
                   }
@@ -1289,8 +1298,7 @@ export default {
         taskList = _this.strategyItemForm,
         allValid = true;
       _this.$refs["strategyItemForm"][0].validate(valid => {
-        if (valid) {
-        } else {
+        if (!valid) {
           allValid = false;
           return false;
         }
@@ -1396,7 +1404,6 @@ export default {
             _this.traverseTree(item.children, flatArray);
           } else {
             flatArray.push(item.value);
-            console.log(item.value);
           }
         });
       }
@@ -1419,7 +1426,6 @@ export default {
               )
               .then(res => {
                 if (res.data.code === "00") {
-                  console.log(data.reinforceItemList, "data数据");
                   let keyData = res.data.data;
                   _this.soArrayList = keyData.soItems;
                   _this.h5ArrayList = keyData.h5Items;
@@ -1444,6 +1450,11 @@ export default {
                     _this.disabledH5ArrayList,
                     _this.flatH5Array
                   );
+                  _this.strategyItemForm.soItemList = _this.flatSoArray;
+                  _this.strategyItemForm.h5ItemList = _this.flatH5Array;
+                  _this.disabledMd5ArrayList.forEach(v => {
+                    _this.strategyItemForm.signMd5Items.push({ value: v });
+                  });
                 }
               });
             let selectedList = data.reinforceItemList;
@@ -1515,22 +1526,35 @@ export default {
           choiceList.push(item);
         }
       });
-      _this.test1 = choiceList.concat(_this.strategyItemForm.choiceItem);
-      if (strategyItemForm.soChecked) {
+      _this.reinforceItemList = choiceList.concat(
+        _this.strategyItemForm.choiceItem
+      );
+      if (_this.reinforceItemList.includes(23)) {
         if (!strategyItemForm.soItemList.length) {
           _this.$message.error("请选择SO文件");
           allValid = false;
         }
       }
-      if (strategyItemForm.h5Checked) {
+      if (_this.reinforceItemList.includes(24)) {
         if (!strategyItemForm.h5ItemList.length) {
           _this.$message.error("请选择H5文件");
           allValid = false;
         }
       }
-      if (strategyItemForm.md5Checked) {
-        let md5Value = strategyItemForm.signMd5Items[0],
+      if (_this.reinforceItemList.includes(13)) {
+        let md5Value = strategyItemForm.signMd5Items[0].value,
           regularResult = /^[A-Fa-f0-9]{32}$/.test(md5Value);
+        if (!_this.disabledMd5ArrayList.length) {
+          if (_this.md5ArrayList.length) {
+            if (!/^[A-Fa-f0-9]{32}$/.test(_this.md5ArrayList)) {
+              _this.$message.error("长度32位,仅支持数字和字母A-F,不区分大小写");
+              allValid = false;
+            }
+          } else {
+            _this.$message({ message: "签名MD5不能为空哦!", type: "warning" });
+            allValid = false;
+          }
+        }
         if (md5Value) {
           if (!regularResult) {
             _this.$message.error("长度32位,仅支持数字和字母A-F,不区分大小写");
@@ -1548,13 +1572,13 @@ export default {
           appPath: strategyDetailItem.appPath,
           appVersion: strategyDetailItem.appVersion
         },
-        reinforceItemList: _this.test1,
+        reinforceItemList: _this.reinforceItemList,
         soItemList: strategyItemForm.soItemList,
         signMd5Items: _this.disabledMd5ArrayList,
         h5ItemList: strategyItemForm.h5ItemList
       };
-      console.log(strategyItemDto);
-      /*  if (allValid) {
+      console.log(strategyItemDto, "####");
+      if (allValid) {
         https
           .fetchPost(
             baseUrl + "/api/reinforce/strategy/saveOrUpdateStrategy",
@@ -1571,7 +1595,7 @@ export default {
               _this.reload();
             }
           });
-      } */
+      }
     },
 
     //策略详细
@@ -1629,6 +1653,16 @@ export default {
 .reinforceStrategy .el-drawer {
   overflow-y: auto;
 }
+.strategyItemTitleIcon {
+  display: inline-block;
+  width: 3px;
+  height: 14px;
+  background: #409eff;
+  margin-right: 10px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
 .reinforceStrategy .el-drawer-header {
   width: 100%;
   position: fixed;
@@ -1658,7 +1692,7 @@ export default {
   margin-top: 20px;
 }
 .reinforceStrategy .el-drawer-content {
-  margin-top: 50px;
+  margin-top: 60px;
   position: relative;
   padding: 0px 20px 40px 20px;
 }
@@ -1684,6 +1718,9 @@ export default {
 .reinforceStrategyBody .el-table__header-wrapper {
   background: #f8f8f9 !important;
 }
+.el-table__header-wrapper th {
+  background: #f2f5f7 !important;
+}
 .reinforceStrategyBase .paginationBox {
   margin-top: 20px;
 }
@@ -1702,25 +1739,31 @@ export default {
   padding: 10px 20px;
   border-top: 1px solid #ebebeb;
 }
-.strategyItemForm,
-.strategyDetailForm,
-.amendStrategyForm {
-  margin-top: 20px;
-}
 .strategyItemForm .strategyItemTitle,
 .strategyDetailForm .strategyItemTitle,
 .amendStrategyForm .strategyItemTitle {
+  position: relative;
   font-weight: 700;
   font-size: 16px;
 }
+.strategyItemForm .strategyItemTitle > span,
+.strategyDetailForm .strategyItemTitle > span,
+.amendStrategyForm .strategyItemTitle > span {
+  color: #333;
+  margin-left: 10px;
+  font-weight: 530;
+}
 .amendStrategyForm .strategyNameTitle {
   margin-bottom: 10px;
+  position: relative;
 }
 .strategyItemForm .strategyNameTitle span,
 .strategyDetailForm .strategyNameTitle span,
 .amendStrategyForm .strategyNameTitle span {
-  color: #515a6e;
+  color: #333;
   font-size: 16px;
+  font-weight: 530;
+  padding-left: 10px;
 }
 
 .strategyItemForm .el-row:first-child p,
@@ -1729,6 +1772,7 @@ export default {
   line-height: 36px;
   color: #606266;
   margin: 10px 0;
+  font-size: 14px;
 }
 .strategyItemForm .appName,
 .strategyDetailForm .appName,
