@@ -486,7 +486,7 @@
                               handleCheckedChange(
                                 checked,
                                 'MD5',
-                                '',
+                                md5ArrayList,
                                 '',
                                 strategyItem.checked
                               )
@@ -567,7 +567,7 @@
                               size="small"
                               clearable
                               maxLength="32"
-                              style="width:51%;"
+                              style="width:51%"
                               v-model="strategyItemForm.signMd5Items[0].value"
                             />
                             <el-button
@@ -613,46 +613,67 @@
                       >
                         <template v-if="strategyItemForm['MD5'] == true">
                           <el-form-item label="签名MD5">
-                            <el-input
-                              size="small"
-                              clearable
-                              maxLength="32"
-                              style="width:51%;"
-                              v-model="strategyItemForm.signMd5Items[0].value"
-                            />
-                            <el-button
-                              type="text"
-                              @click="
-                                addSignature(
-                                  strategyItemForm.signMd5Items[0].value,
-                                  'amendAddSignatureClick'
-                                )
-                              "
-                              >添加</el-button
-                            >
-                            <div
-                              v-for="(item, index) in disabledMd5ArrayList"
-                              :key="index"
-                            >
+                            <template v-if="!amendAddSignatureClick">
                               <el-input
                                 size="small"
-                                style="width:51%;margin-left:70px;"
-                                :placeholder="item"
-                                :disabled="true"
-                              ></el-input>
+                                clearable
+                                maxLength="32"
+                                style="width:51%"
+                                v-model="md5ArrayList"
+                              />
                               <el-button
                                 type="text"
                                 @click="
-                                  deleteSignature(
-                                    item,
-                                    index,
-                                    'amendDeleteSignatureClick'
+                                  addSignature(
+                                    md5ArrayList,
+                                    'amendAddSignatureClick'
                                   )
                                 "
-                                >删除</el-button
+                                >添加</el-button
                               >
-                            </div>
+                            </template>
+                            <template v-else>
+                              <el-input
+                                size="small"
+                                clearable
+                                maxLength="32"
+                                style="width:51%"
+                                v-model="strategyItemForm.signMd5Items[0].value"
+                              />
+                              <el-button
+                                type="text"
+                                @click="
+                                  addSignature(
+                                    strategyItemForm.signMd5Items[0].value,
+                                    'amendAddSignatureClick'
+                                  )
+                                "
+                                >添加</el-button
+                              >
+                            </template>
                           </el-form-item>
+                          <div
+                            v-for="(item, index) in disabledMd5ArrayList"
+                            :key="index"
+                          >
+                            <el-input
+                              size="small"
+                              style="width:51%;margin-left:70px;"
+                              :placeholder="item"
+                              :disabled="true"
+                            ></el-input>
+                            <el-button
+                              type="text"
+                              @click="
+                                deleteSignature(
+                                  item,
+                                  index,
+                                  'amendDeleteSignatureClick'
+                                )
+                              "
+                              >删除</el-button
+                            >
+                          </div>
                         </template>
                       </template>
                       <!-- SO高级加固 -->
@@ -672,8 +693,8 @@
                           <el-tree
                             :data="soArrayList"
                             show-checkbox
-                            node-key="value"
-                            style="height:250px;overflow:auto;"
+                            node-key="label"
+                            style="height:150px;overflow:auto;"
                             default-expand-all
                             ref="soTree"
                             :default-checked-keys="flatSoArray"
@@ -692,8 +713,8 @@
                           <el-tree
                             :data="soArrayList"
                             show-checkbox
-                            node-key="value"
-                            style="height:250px;overflow:auto;"
+                            node-key="label"
+                            style="height:150px;overflow:auto;"
                             default-expand-all
                             ref="soTree"
                             :default-checked-keys="flatSoArray"
@@ -718,11 +739,11 @@
                           <el-tree
                             :data="h5ArrayList"
                             show-checkbox
-                            node-key="value"
-                            style="height:250px;overflow:auto"
+                            node-key="label"
+                            style="height:150px;overflow:auto"
                             ref="h5Tree"
-                            :default-checked-keys="flatH5Array"
                             @check-change="getH5CheckedNodes()"
+                            :default-checked-keys="flatH5Array"
                             default-expand-all
                           ></el-tree>
                         </template>
@@ -742,8 +763,8 @@
                           <el-tree
                             :data="h5ArrayList"
                             show-checkbox
-                            node-key="value"
-                            style="height:250px;overflow:auto"
+                            node-key="label"
+                            style="height:150px;overflow:auto"
                             ref="h5Tree"
                             :default-checked-keys="flatH5Array"
                             @check-change="getH5CheckedNodes()"
@@ -923,6 +944,7 @@
                           :placeholder="item"
                           :disabled="true"
                           :key="item"
+                          style="font-size:12px"
                           class="md5Input"
                         ></el-input>
                       </template>
@@ -1044,6 +1066,7 @@ export default {
         soChecked: false
       },
       addSignatureClick: false,
+      amendAddSignatureClick: false,
       md5Click: false,
       soClick: false,
       h5Click: false,
@@ -1181,7 +1204,6 @@ export default {
               .then(res => {
                 if (res.data.code == "00") {
                   let data = res.data.data;
-                  console.log(data.signMd5Value, "yayayaya");
                   if (data.soItems.length == 0) {
                     _this.soDisabled = true;
                   }
@@ -1216,10 +1238,12 @@ export default {
         strategyItemForm.md5Checked = checked;
         _this.md5Click = true;
         if (!checked) {
+          _this.disabledMd5ArrayList = [];
           strategyItemForm.signMd5Items = [];
         } else {
           strategyItemForm.signMd5Items = [{ value }];
         }
+        console.log(strategyItemForm.signMd5Items, "嘻嘻");
       } else if (checkboxType === "SO") {
         strategyItemForm.soChecked = checked;
         _this.soClick = true;
@@ -1252,12 +1276,14 @@ export default {
     },
     //添加签名
     addSignature(value, clicktype) {
-      let signMd5Items = this.strategyItemForm.signMd5Items,
-        disabledMd5ArrayList = this.disabledMd5ArrayList,
+      let _this = this,
+        signMd5Items = _this.strategyItemForm.signMd5Items,
+        disabledMd5ArrayList = _this.disabledMd5ArrayList,
         regularResult = /^[A-Fa-f0-9]{32}$/.test(value);
-      this.addSignatureClick = true;
+      _this.addSignatureClick = true;
       if (regularResult) {
         if (clicktype == "amendAddSignatureClick") {
+          _this.amendAddSignatureClick = true;
           disabledMd5ArrayList.push(value);
           signMd5Items.push({ value: "" });
           signMd5Items[0].value = value;
@@ -1268,7 +1294,7 @@ export default {
           signMd5Items.reverse();
         }
       } else {
-        this.$message.error("长度32位,仅支持数字和字母A-F,不区分大小写");
+        _this.$message.error("长度32位,仅支持数字和字母A-F,不区分大小写");
       }
     },
     //删除签名
@@ -1278,12 +1304,14 @@ export default {
       if (clicktype == "amendDeleteSignatureClick") {
         if (disabledMd5ArrayList.indexOf(addSignatureItem) > -1) {
           disabledMd5ArrayList.splice(addSignatureIndex, 1);
+          signMd5Items.splice(addSignatureIndex, 1);
         }
       } else {
         if (signMd5Items.indexOf(addSignatureItem) > -1) {
           signMd5Items.splice(addSignatureIndex, 1);
         }
       }
+      console.log(signMd5Items, "xixi");
     },
     //取消保存策略
     cancelStrategy() {
@@ -1318,6 +1346,7 @@ export default {
       if (taskList.md5Checked) {
         let md5Value = taskList.signMd5Items[0].value,
           regularResult = /^[A-Fa-f0-9]{32}$/.test(md5Value);
+        console.log(md5Value, "md5Value值");
         if (md5Value) {
           if (!regularResult) {
             _this.$message.error("长度32位,仅支持数字和字母A-F,不区分大小写");
@@ -1403,7 +1432,7 @@ export default {
           if (item.children) {
             _this.traverseTree(item.children, flatArray);
           } else {
-            flatArray.push(item.value);
+            flatArray.push(item.label);
           }
         });
       }
@@ -1519,7 +1548,10 @@ export default {
         strategyItemForm = _this.strategyItemForm,
         choiceItem = _this.choiceArray.concat(_this.tamperArray),
         choiceList = [], //选中的id集合
-        allValid = true;
+        allValid = true,
+        signMd5ItemsData = [];
+      strategyItemForm.signMd5Items.filter(v => signMd5ItemsData.push(v.value));
+      signMd5ItemsData = signMd5ItemsData.filter(v => v);
       //去空
       choiceItem.forEach(item => {
         if (item) {
@@ -1574,11 +1606,11 @@ export default {
         },
         reinforceItemList: _this.reinforceItemList,
         soItemList: strategyItemForm.soItemList,
-        signMd5Items: _this.disabledMd5ArrayList,
+        signMd5Items: signMd5ItemsData,
         h5ItemList: strategyItemForm.h5ItemList
       };
-      console.log(strategyItemDto, "####");
       if (allValid) {
+        console.log(signMd5ItemsData);
         https
           .fetchPost(
             baseUrl + "/api/reinforce/strategy/saveOrUpdateStrategy",
@@ -1597,7 +1629,6 @@ export default {
           });
       }
     },
-
     //策略详细
     strategyDetail(id) {
       let _this = this,
@@ -1807,7 +1838,7 @@ export default {
   padding-top: 20px;
 }
 .strategyDetailDrawer .strategyNameTitle {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   position: relative;
 }
 

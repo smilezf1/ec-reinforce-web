@@ -118,17 +118,13 @@
                         </p>
                       </el-col>
                     </el-row>
+                    <!-- 加固项 -->
                     <!-- 策略名称 -->
-                    <!--   <el-row class="strategyName">
+                    <el-row class="strategyName">
                       <el-col :span="24">
                         <p class="strategyName">
-                          <el-form-item
-                            prop="curPrinter1"
-                            style="width:60%;display:inline-block"
-                          >
-                            <label slot="label"
-                              >加&nbsp;&nbsp;&nbsp;固&nbsp;&nbsp;&nbsp;策&nbsp;&nbsp;&nbsp;略:</label
-                            >
+                          <el-form-item prop="curPrinter1" label-width="22%">
+                            <label slot="label">加固策略:</label>
                             <el-select
                               v-model="addRoleFormArray[index].curPrinter1"
                               placeholder="请选择策略"
@@ -141,21 +137,34 @@
                               "
                             >
                               <el-option
-                                v-for="item in strategyOptions"
-                                :key="item.id"
-                                :value="item.id"
-                                :label="item.label"
+                                v-for="reinforceItem in item.packageTreeData[0]"
+                                :key="reinforceItem.id"
+                                :label="reinforceItem.reinforceStrategyName"
+                                :value="reinforceItem.id"
                               ></el-option>
                             </el-select>
                           </el-form-item>
                         </p>
                       </el-col>
-                    </el-row> -->
-                    <!-- 加固项 -->
-                    <el-row class="reinforceItem">
-                      <el-form-item label="策略名称">
-                        <!--    <el-select placeholder="请选择策略名称"></el-select> -->
-                      </el-form-item>
+                    </el-row>
+                    <el-row class="strategyDescribe">
+                      <el-col :span="24">
+                        <p class="strategyDescribe">
+                          <el-form-item prop="curPrinter7" label-width="22%">
+                            <label slot="label">策略描述:</label>
+                            <el-input
+                              placeholder="请输入"
+                              size="small"
+                              style="width:59%"
+                            ></el-input>
+                          </el-form-item>
+                        </p>
+                      </el-col>
+                    </el-row>
+                    <el-row
+                      class="reinforceItem"
+                      v-if="addRoleFormArray[index].showReinforceItem"
+                    >
                       <el-col :span="24">
                         <h3 style="font-size:16px">加固项</h3>
                         <div
@@ -451,6 +460,7 @@
                         </div>
                       </el-col>
                     </el-row>
+
                     <!-- 多渠道打包 -->
                     <!--  <el-row class="channelPack">
                       <el-col :span="24">
@@ -789,11 +799,15 @@ export default {
         curPrinter6: [
           { required: true, message: "请选择签名版本", trigger: "blur" }
         ],
+        curPrinter7: [
+          { required: true, message: "请输入策略描述", trigger: "blur" }
+        ],
         radio1: [
           { required: true, message: "是否多渠道打包", trigger: "blur" }
         ],
         radio2: [{ required: true, message: "是否签名", trigger: "blur" }]
       },
+      strategyName: "",
       addTaskDrawer: false,
       uploadFileItems: [],
       uploadShow: true,
@@ -852,6 +866,7 @@ export default {
         } else {
           _this.addRoleFormArray[index].signMd5Items = [{ value }];
         }
+        console.log(_this.addRoleFormArray[index].signMd5Items, "哈哈");
       } else if (checkboxType === "SO") {
         _this.addRoleFormArray[index].soChecked = checked;
       } else if (checkboxType == "H5") {
@@ -1027,7 +1042,7 @@ export default {
           return result;
         });
         console.log(reinforceInfoDto, "+++++");
-        https
+        /* https
           .fetchPost(
             baseUrl + "/api/reinforce/info/saveReinforceInfoOrUpdate",
             reinforceInfoDto
@@ -1044,7 +1059,7 @@ export default {
                 _this.reload();
               }
             }
-          });
+          }); */
       } else {
         return "";
       }
@@ -1128,8 +1143,10 @@ export default {
               if (res.data.data) {
                 let data = res.data.data,
                   keyData = data.appPath,
-                  keyTreeData = [];
-                let dataItem = { data, keyTreeData };
+                  packageData = data.appPackage,
+                  keyTreeData = [],
+                  packageTreeData = [],
+                  dataItem = { data, keyTreeData, packageTreeData };
                 this.addRoleFormArray.push({
                   curPrinter1: "",
                   curPrinter2: "",
@@ -1137,6 +1154,7 @@ export default {
                   curPrinter4: "",
                   curPrinter5: "",
                   curPrinter6: "",
+                  curPrinter7: "",
                   radio1: "",
                   radio2: "",
                   strategyItemDto: {},
@@ -1153,7 +1171,12 @@ export default {
                   soItemList: [],
                   h5ItemList: [],
                   md5List: [],
-                  addSignatureClick: false
+                  addSignatureClick: false,
+                  flatSoArray: [],
+                  flatH5Array: [],
+                  choiceArray: [],
+                  tamperArray: [],
+                  showReinforceItem: false
                 });
                 https
                   .fetchGet(
@@ -1162,7 +1185,6 @@ export default {
                       keyData
                   )
                   .then(res => {
-                    console.log(res);
                     if (res.data.code == "00") {
                       if (res.data.data.soItems.length == 0) {
                         this.addRoleFormArray.forEach((v, i) => {
@@ -1177,7 +1199,17 @@ export default {
                       keyTreeData.push(res.data.data);
                     }
                   });
-
+                https
+                  .fetchGet(
+                    baseUrl +
+                      "/api/reinforce/strategy/findStrategyByPackageName",
+                    { packageName: packageData }
+                  )
+                  .then(res => {
+                    if (res.data.code == "00") {
+                      packageTreeData.push(res.data.data);
+                    }
+                  });
                 this.uploadFileItems.push(dataItem);
                 for (var i = 0; i < this.uploadFileItems.length; i++) {
                   this.activeNames.push(i + 1);
@@ -1254,12 +1286,95 @@ export default {
           _this.reload();
         });
     },
+    //根据用户选中的策略名称得到的树形结构选中的原始值
+    traverseTree(treeNodes, flatArray) {
+      const _this = this;
+      if (treeNodes) {
+        treeNodes.forEach(item => {
+          if (item.children) {
+            _this.traverseTree(item.children, flatArray);
+          } else {
+            flatArray.push(item.label);
+          }
+        });
+      }
+    },
     //加固策略
-    strategyChange(item, index) {
-      let data = this.strategyOptions.filter(val => {
+    strategyChange(id, index) {
+      /*  let data = this.strategyOptions.filter(val => {
         return val["reinforce_describe"] == item;
       });
-      this.strategyItemDto = data;
+      this.strategyItemDto = data; */
+      let _this = this,
+        baseUrl = _this.api.baseUrl;
+      https
+        .fetchGet(baseUrl + "/api/reinforce/strategy/getStrategyDetail", {
+          id
+        })
+        .then(res => {
+          if (res.data.code == "00") {
+            _this.addRoleFormArray[index].showReinforceItem = true;
+            let data = res.data.data,
+              selectedList = data.reinforceItemList;
+            _this.reinforceItemData.forEach(obj => {
+              obj["checked"] = false;
+              if (obj.children) {
+                obj.children.forEach(v => {
+                  v["checked"] = false;
+                  selectedList.some(obj1 => {
+                    if (obj1.id == v.id) {
+                      v["checked"] = true;
+                    }
+                  });
+                });
+              }
+              selectedList.some(obj1 => {
+                if (obj1.id == obj.id) {
+                  obj["checked"] = true;
+                }
+              });
+            });
+            let choiceArray = [],
+              tamperArray = [],
+              result = _this.reinforceItemData.map(item => {
+                if (item.children) {
+                  if (item.reinforceItemName == "防篡改") {
+                    item.children.forEach(v => {
+                      if (v.checked == true) {
+                        tamperArray.push(v.id);
+                      }
+                    });
+                  } else {
+                    item.children.forEach(v => {
+                      if (v.checked == true) {
+                        choiceArray.push(v.id);
+                      }
+                    });
+                  }
+                }
+                if (item.checked == true) {
+                  return item.id;
+                }
+              });
+            _this.addRoleFormArray[index].choiceArray = result.concat(
+              choiceArray
+            );
+            _this.addRoleFormArray[index].tamperArray = tamperArray;
+            console.log(
+              _this.addRoleFormArray[index].choiceArray,
+              _this.addRoleFormArray[index].tamperArray,
+              "嘿嘿"
+            );
+            _this.traverseTree(
+              data.soItemList,
+              _this.addRoleFormArray[index].flatSoArray
+            );
+            _this.traverseTree(
+              data.h5ItemList,
+              _this.addRoleFormArray[index].flatH5Array
+            );
+          }
+        });
     },
     //是否多渠道打包
     channelPackChange(item) {
@@ -1461,7 +1576,9 @@ export default {
   margin-top: 10px;
 }
 .reinforceItem .el-form-item__label,
-.signature .el-form-item__label {
+.signature .el-form-item__label,
+.strategyName .el-form-item__label,
+.strategyDescribe .el-form-item__label {
   text-align: left !important;
 }
 .addApplicationForm {
@@ -1475,6 +1592,7 @@ export default {
 
 .addApplicationForm .el-select {
   width: 60%;
+  position: relative;
 }
 .addApplicationForm .handleBox {
   text-align: justify;
