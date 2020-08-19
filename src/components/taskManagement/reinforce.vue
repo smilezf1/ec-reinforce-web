@@ -182,9 +182,7 @@
                                 v-if="
                                   checkboxItem.reinforceItemName == '防篡改'
                                 "
-                                v-model="
-                                  addRoleFormArray[index].choiceTamperItem
-                                "
+                                v-model="addRoleFormArray[index].tamperArray"
                                 :min="0"
                                 :max="1"
                               >
@@ -193,7 +191,7 @@
                                   :key="subItem.id"
                                   :label="subItem.id"
                                   :disabled="subItem.isCancel == 2"
-                                  :checked="subItem.isChecked == 1"
+                                  :checked="subItem.checked"
                                   style="margin-right:8px"
                                   @change="
                                     checked =>
@@ -208,19 +206,16 @@
                                   >{{ subItem.reinforceItemName }}
                                 </el-checkbox>
                               </el-checkbox-group>
-
                               <el-checkbox-group
                                 v-else
-                                v-model="
-                                  addRoleFormArray[index].choiceDebugItem
-                                "
+                                v-model="addRoleFormArray[index].choiceArray"
                               >
                                 <el-checkbox
                                   v-for="subItem in checkboxItem.children"
                                   :key="subItem.id"
                                   :label="subItem.id"
                                   :disabled="subItem.isCancel == 2"
-                                  :checked="subItem.isChecked == 1"
+                                  :checked="subItem.checked"
                                   style="margin-right:8px"
                                   @change="
                                     checked =>
@@ -236,10 +231,9 @@
                                 >
                               </el-checkbox-group>
                             </template>
-
                             <template v-else>
                               <el-checkbox-group
-                                v-model="addRoleFormArray[index].choiceItem"
+                                v-model="addRoleFormArray[index].choiceArray"
                                 v-if="
                                   checkboxItem.reinforceItemName ==
                                     '自定义签名MD5'
@@ -248,7 +242,7 @@
                                 <el-checkbox
                                   :label="checkboxItem.id"
                                   :disabled="checkboxItem.isCancel == 2"
-                                  :checked="checkboxItem.isChecked == 1"
+                                  :checked="checkboxItem.checked"
                                   @change="
                                     checked =>
                                       handleCheckedChange(
@@ -262,24 +256,23 @@
                                   >启用</el-checkbox
                                 >
                               </el-checkbox-group>
-
                               <el-checkbox-group
-                                v-model="addRoleFormArray[index].choiceItem"
+                                v-model="addRoleFormArray[index].choiceArray"
                                 v-else-if="
                                   checkboxItem.reinforceItemName == 'SO高级加固'
                                 "
                               >
                                 <el-checkbox
                                   :label="checkboxItem.id"
-                                  :checked="checkboxItem.isChecked == 1"
                                   :disabled="
                                     addRoleFormArray[index].soDisabled ||
                                       checkboxItem.isCancel == 2
                                   "
+                                  v-model="checkboxItem.checked"
                                   @change="
                                     checked =>
                                       handleCheckedChange(
-                                        checked,
+                                        checkboxItem.checked,
                                         index,
                                         'SO',
                                         '',
@@ -290,7 +283,7 @@
                                 >
                               </el-checkbox-group>
                               <el-checkbox-group
-                                v-model="addRoleFormArray[index].choiceItem"
+                                v-model="addRoleFormArray[index].choiceArray"
                                 v-else-if="
                                   checkboxItem.reinforceItemName == 'H5文件加固'
                                 "
@@ -301,7 +294,7 @@
                                     addRoleFormArray[index].h5Disabled ||
                                       checkboxItem.isCancel == 2
                                   "
-                                  :checked="checkboxItem.isChecked == 1"
+                                  :checked="checkboxItem.checked"
                                   @change="
                                     checked =>
                                       handleCheckedChange(
@@ -317,12 +310,12 @@
                               </el-checkbox-group>
                               <el-checkbox-group
                                 v-else
-                                v-model="addRoleFormArray[index].choiceItem"
+                                v-model="addRoleFormArray[index].choiceArray"
                               >
                                 <el-checkbox
                                   :label="checkboxItem.id"
                                   :disabled="checkboxItem.isCancel == 2"
-                                  :checked="checkboxItem.isChecked == 1"
+                                  :checked="checkboxItem.checked"
                                   @change="
                                     checked =>
                                       handleCheckedChange(
@@ -422,9 +415,19 @@
                                 >
                               </el-form-item>
                             </template>
-
                             <!-- SO高级加固 -->
                             <template
+                              v-if="
+                                checkboxItem.reinforceItemName ===
+                                  'SO高级加固' &&
+                                  addRoleFormArray[index]['SO'] == true
+                              "
+                            >
+                              {{ checkboxItem.reinforceItemName }}
+                            </template>
+
+                            <!-- SO高级加固 -->
+                            <!--  <template
                               v-if="
                                 checkboxItem.reinforceItemName ==
                                   'SO高级加固' &&
@@ -439,7 +442,8 @@
                                 @check-change="getSoCheckedNodes(index)"
                               >
                               </el-tree>
-                            </template>
+                            </template> -->
+
                             <!-- H5文件加固 -->
                             <template
                               v-if="
@@ -845,6 +849,7 @@ export default {
       });
     },
     handleCheckedChange(checked, index, checkboxType, value, id) {
+      console.log(checked);
       const _this = this;
       _this.addRoleFormArray[index][checkboxType] = checked;
       if (checkboxType === "falsify") {
@@ -866,7 +871,6 @@ export default {
         } else {
           _this.addRoleFormArray[index].signMd5Items = [{ value }];
         }
-        console.log(_this.addRoleFormArray[index].signMd5Items, "哈哈");
       } else if (checkboxType === "SO") {
         _this.addRoleFormArray[index].soChecked = checked;
       } else if (checkboxType == "H5") {
@@ -1174,8 +1178,8 @@ export default {
                   addSignatureClick: false,
                   flatSoArray: [],
                   flatH5Array: [],
-                  choiceArray: [],
                   tamperArray: [],
+                  choiceArray: [],
                   showReinforceItem: false
                 });
                 https
@@ -1334,7 +1338,8 @@ export default {
                 }
               });
             });
-            let choiceArray = [],
+            console.log(selectedList);
+            /*  let choiceArray = [],
               tamperArray = [],
               result = _this.reinforceItemData.map(item => {
                 if (item.children) {
@@ -1356,15 +1361,9 @@ export default {
                   return item.id;
                 }
               });
-            _this.addRoleFormArray[index].choiceArray = result.concat(
-              choiceArray
-            );
-            _this.addRoleFormArray[index].tamperArray = tamperArray;
-            console.log(
-              _this.addRoleFormArray[index].choiceArray,
-              _this.addRoleFormArray[index].tamperArray,
-              "嘿嘿"
-            );
+            result = result.filter(v => v);
+            choiceArray = choiceArray.filter(v => v);
+            choiceArray = choiceArray.concat(result); */
             _this.traverseTree(
               data.soItemList,
               _this.addRoleFormArray[index].flatSoArray
@@ -1373,6 +1372,8 @@ export default {
               data.h5ItemList,
               _this.addRoleFormArray[index].flatH5Array
             );
+            /*  _this.addRoleFormArray[index].choiceArray = choiceArray;
+            _this.addRoleFormArray[index].tamperArray = tamperArray; */
           }
         });
     },
