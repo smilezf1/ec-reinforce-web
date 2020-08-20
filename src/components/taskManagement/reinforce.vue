@@ -125,42 +125,50 @@
                         <p class="strategyName">
                           <el-form-item prop="curPrinter1" label-width="22%">
                             <label slot="label">加固策略:</label>
-                            <el-select
-                              v-model="addRoleFormArray[index].curPrinter1"
-                              placeholder="请选择策略"
-                              size="small"
-                              @change="
-                                strategyChange(
-                                  addRoleFormArray[index].curPrinter1,
-                                  index
-                                )
-                              "
-                            >
-                              <el-option
-                                v-for="reinforceItem in item.packageTreeData[0]"
-                                :key="reinforceItem.id"
-                                :label="reinforceItem.reinforceStrategyName"
-                                :value="reinforceItem.id"
-                              ></el-option>
-                            </el-select>
+                            <template>
+                              <el-select
+                                v-model="addRoleFormArray[index].curPrinter1"
+                                placeholder="请选择策略"
+                                size="small"
+                                :popper-append-to-body="false"
+                                @change="
+                                  strategyChange(
+                                    addRoleFormArray[index].curPrinter1,
+                                    index
+                                  )
+                                "
+                              >
+                                <el-option
+                                  v-for="reinforceItem in item
+                                    .packageTreeData[0]"
+                                  :key="reinforceItem.id"
+                                  :label="reinforceItem.reinforceStrategyName"
+                                  :value="reinforceItem.id"
+                                ></el-option>
+                              </el-select>
+                            </template>
                           </el-form-item>
                         </p>
                       </el-col>
                     </el-row>
-                    <el-row class="strategyDescribe">
+                    <!--  <el-row class="strategyDescribe">
                       <el-col :span="24">
                         <p class="strategyDescribe">
-                          <el-form-item prop="curPrinter7" label-width="22%">
+                          <el-form-item
+                            prop="strategyDescribe"
+                            label-width="22%"
+                          >
                             <label slot="label">策略描述:</label>
                             <el-input
-                              placeholder="请输入"
+                              placeholder="策略描述"
                               size="small"
                               style="width:59%"
+                              v-model="addRoleFormArray[index].strategyDescribe"
                             ></el-input>
                           </el-form-item>
                         </p>
                       </el-col>
-                    </el-row>
+                    </el-row> -->
                     <el-row
                       class="reinforceItem"
                       v-if="addRoleFormArray[index].showReinforceItem"
@@ -190,8 +198,10 @@
                                   v-for="subItem in checkboxItem.children"
                                   :key="subItem.id"
                                   :label="subItem.id"
-                                  :disabled="subItem.isCancel == 2"
-                                  :checked="subItem.checked"
+                                  :disabled="
+                                    subItem.isCancel == 2 ||
+                                      addRoleFormArray[index].strategyType == 2
+                                  "
                                   style="margin-right:8px"
                                   @change="
                                     checked =>
@@ -214,8 +224,10 @@
                                   v-for="subItem in checkboxItem.children"
                                   :key="subItem.id"
                                   :label="subItem.id"
-                                  :disabled="subItem.isCancel == 2"
-                                  :checked="subItem.checked"
+                                  :disabled="
+                                    subItem.isCancel == 2 ||
+                                      addRoleFormArray[index].strategyType == 2
+                                  "
                                   style="margin-right:8px"
                                   @change="
                                     checked =>
@@ -241,8 +253,10 @@
                               >
                                 <el-checkbox
                                   :label="checkboxItem.id"
-                                  :disabled="checkboxItem.isCancel == 2"
-                                  :checked="checkboxItem.checked"
+                                  :disabled="
+                                    checkboxItem.isCancel == 2 ||
+                                      addRoleFormArray[index].strategyType == 2
+                                  "
                                   @change="
                                     checked =>
                                       handleCheckedChange(
@@ -266,18 +280,8 @@
                                   :label="checkboxItem.id"
                                   :disabled="
                                     addRoleFormArray[index].soDisabled ||
-                                      checkboxItem.isCancel == 2
-                                  "
-                                  v-model="checkboxItem.checked"
-                                  @change="
-                                    checked =>
-                                      handleCheckedChange(
-                                        checkboxItem.checked,
-                                        index,
-                                        'SO',
-                                        '',
-                                        ''
-                                      )
+                                      checkboxItem.isCancel == 2 ||
+                                      addRoleFormArray[index].strategyType == 2
                                   "
                                   >启用</el-checkbox
                                 >
@@ -292,9 +296,9 @@
                                   :label="checkboxItem.id"
                                   :disabled="
                                     addRoleFormArray[index].h5Disabled ||
-                                      checkboxItem.isCancel == 2
+                                      checkboxItem.isCancel == 2 ||
+                                      addRoleFormArray[index].strategyType == 2
                                   "
-                                  :checked="checkboxItem.checked"
                                   @change="
                                     checked =>
                                       handleCheckedChange(
@@ -314,8 +318,10 @@
                               >
                                 <el-checkbox
                                   :label="checkboxItem.id"
-                                  :disabled="checkboxItem.isCancel == 2"
-                                  :checked="checkboxItem.checked"
+                                  :disabled="
+                                    checkboxItem.isCancel == 2 ||
+                                      addRoleFormArray[index].strategyType == 2
+                                  "
                                   @change="
                                     checked =>
                                       handleCheckedChange(
@@ -335,7 +341,9 @@
                               v-if="
                                 checkboxItem.reinforceItemName ==
                                   '自定义签名MD5' &&
-                                  addRoleFormArray[index]['MD5'] == true
+                                  addRoleFormArray[index].choiceArray.includes(
+                                    13
+                                  )
                               "
                             >
                               <el-form-item label="签名MD5">
@@ -349,7 +357,10 @@
                                     clearable
                                     style="width:51%"
                                     maxlength="32"
-                                    v-model="item.keyTreeData[0].signMd5Value"
+                                    v-model="
+                                      addRoleFormArray[index].signMd5Items[0]
+                                        .value
+                                    "
                                   ></el-input>
                                   <el-button
                                     type="text"
@@ -418,45 +429,47 @@
                             <!-- SO高级加固 -->
                             <template
                               v-if="
-                                checkboxItem.reinforceItemName ===
-                                  'SO高级加固' &&
-                                  addRoleFormArray[index]['SO'] == true
-                              "
-                            >
-                              {{ checkboxItem.reinforceItemName }}
-                            </template>
-
-                            <!-- SO高级加固 -->
-                            <!--  <template
-                              v-if="
                                 checkboxItem.reinforceItemName ==
                                   'SO高级加固' &&
-                                  addRoleFormArray[index]['SO'] == true
+                                  addRoleFormArray[index].choiceArray.includes(
+                                    23
+                                  )
                               "
                             >
                               <el-tree
                                 :data="item.keyTreeData[0].soItems"
                                 show-checkbox
-                                node-key="label"
+                                style="height:150px;overflow:auto"
+                                node-key="key"
                                 ref="soTree"
+                                default-expand-all
+                                :default-checked-keys="
+                                  addRoleFormArray[index].flatSoArray
+                                "
                                 @check-change="getSoCheckedNodes(index)"
                               >
                               </el-tree>
-                            </template> -->
-
+                            </template>
                             <!-- H5文件加固 -->
                             <template
                               v-if="
                                 checkboxItem.reinforceItemName ==
                                   'H5文件加固' &&
-                                  addRoleFormArray[index]['H5'] == true
+                                  addRoleFormArray[index].choiceArray.includes(
+                                    24
+                                  )
                               "
                             >
                               <el-tree
                                 :data="item.keyTreeData[0].h5Items"
                                 show-checkbox
+                                style="height:150px;overflow:auto"
                                 ref="h5Tree"
-                                node-key="label"
+                                default-expand-all
+                                node-key="key"
+                                :default-checked-keys="
+                                  addRoleFormArray[index].flatH5Array
+                                "
                                 @check-change="getH5CheckedNodes(index)"
                               ></el-tree>
                             </template>
@@ -803,9 +816,9 @@ export default {
         curPrinter6: [
           { required: true, message: "请选择签名版本", trigger: "blur" }
         ],
-        curPrinter7: [
+        /*  strategyDescribe: [
           { required: true, message: "请输入策略描述", trigger: "blur" }
-        ],
+        ], */
         radio1: [
           { required: true, message: "是否多渠道打包", trigger: "blur" }
         ],
@@ -838,29 +851,28 @@ export default {
       const _this = this;
       _this.$refs.soTree.forEach((v, i) => {
         let result = v.getCheckedNodes().map(v => v.value);
-        _this.addRoleFormArray[index].soItemList = result;
+        _this.addRoleFormArray[index].flatSoArray = result;
       });
     },
     getH5CheckedNodes(index) {
       const _this = this;
       _this.$refs.h5Tree.forEach((v, i) => {
         let result = v.getCheckedNodes().map(v => v.value);
-        _this.addRoleFormArray[index].h5ItemList = result;
+        _this.addRoleFormArray[index].flatH5Array = result;
       });
     },
     handleCheckedChange(checked, index, checkboxType, value, id) {
-      console.log(checked);
       const _this = this;
       _this.addRoleFormArray[index][checkboxType] = checked;
       if (checkboxType === "falsify") {
         if (checked) {
           if (id) {
-            this.addRoleFormArray[index].choiceItem.push(id);
+            this.addRoleFormArray[index].choiceArray.push(id);
           }
         } else {
-          this.addRoleFormArray[index].choiceItem = this.addRoleFormArray[
+          this.addRoleFormArray[index].choiceArray = this.addRoleFormArray[
             index
-          ].choiceItem.filter(v => v !== 3);
+          ].choiceArray.filter(v => v !== 3);
         }
       }
       if (checkboxType === "MD5") {
@@ -958,39 +970,38 @@ export default {
         taskList = _this.addRoleFormArray,
         allValid = true;
       taskList.forEach((v, i) => {
-        this.$refs["addRoleForm"][i].validate(valid => {
-          if (valid) {
-          } else {
+        let addRoleFormArray = _this.addRoleFormArray[i];
+        _this.$refs["addRoleForm"][i].validate(valid => {
+          if (!valid) {
             allValid = false;
-            return false;
           }
         });
-        if (v.soChecked) {
-          if (_this.addRoleFormArray[i].soItemList.length) {
-          } else {
+        if (addRoleFormArray.choiceArray.includes(23)) {
+          if (!addRoleFormArray.flatSoArray.length) {
             _this.$message.error("请选择SO文件");
             allValid = false;
-            return false;
           }
         }
-        if (v.h5Checked) {
-          if (_this.addRoleFormArray[i].h5ItemList.length) {
-          } else {
+        if (addRoleFormArray.choiceArray.includes(24)) {
+          if (!addRoleFormArray.flatH5Array.length) {
             _this.$message.error("请选择H5文件");
             allValid = false;
-            return false;
           }
         }
-        if (v.md5Checked) {
-          let signMd5Items = _this.addRoleFormArray[i].signMd5Items[0].value,
+        if (addRoleFormArray.choiceArray.includes(13)) {
+          let signMd5Items =
+              addRoleFormArray.signMd5Items[
+                addRoleFormArray.signMd5Items.length - 1
+              ].value,
             regularResult = /^[A-Fa-f0-9]{32}$/.test(signMd5Items);
           if (signMd5Items) {
-            if (regularResult) {
-            } else {
-              this.$message.error("长度32位,仅支持数字和字母A-F,不区分大小写");
+            if (!regularResult) {
+              _this.$message.error("长度32位,仅支持数字和字母A-F,不区分大小写");
               allValid = false;
-              return false;
             }
+          } else {
+            _this.$message.error("签名MD5不能为空哦");
+            allValid = false;
           }
         }
       });
@@ -999,30 +1010,15 @@ export default {
         const reinforceInfoDto = taskList.map((formItem, index) => {
           const curFileItem = _this.uploadFileItems[index].data;
           let signMd5Items = [];
-          if (formItem.h5ItemList) {
-            formItem.h5ItemList = formItem.h5ItemList.filter(function(v) {
-              return v != "";
-            });
-          }
-          if (formItem.soItemList) {
-            formItem.soItemList = formItem.soItemList.filter(function(v) {
-              return v != "";
-            });
-          }
           formItem.signMd5Items.forEach((v, i) => {
             signMd5Items.push(v.value);
           });
-          let signMd5ItemsData = signMd5Items.filter(function(v) {
-            return v != "";
-          });
-          formItem.choiceItem = formItem.choiceItem.concat(
-            formItem.choiceTamperItem,
-            22,
-            formItem.choiceDebugItem
+          let signMd5ItemsData = signMd5Items.filter(v => v);
+          formItem.flatSoArray = formItem.flatSoArray.filter(v => v);
+          formItem.flatH5Array = formItem.flatH5Array.filter(v => v);
+          formItem.choiceArray = formItem.choiceArray.concat(
+            formItem.tamperArray
           );
-          formItem.choiceItem = formItem.choiceItem.filter(function(v) {
-            return v != "";
-          });
           const result = {
             appName: curFileItem.appName,
             appIcon: curFileItem.appIcon,
@@ -1037,22 +1033,27 @@ export default {
             signStrategyId: formItem.curPrinter5,
             signType: formItem.curPrinter6,
             strategyItemDto: {
-              reinforceItemList: [...new Set(formItem.choiceItem)],
+              reinforceItemList: [...new Set(formItem.choiceArray)],
               signMd5Items: signMd5ItemsData,
-              soItemList: formItem.soItemList,
-              h5ItemList: formItem.h5ItemList
+              soItemList: formItem.flatSoArray,
+              h5ItemList: formItem.flatH5Array,
+              id: formItem.curPrinter1
             }
           };
           return result;
         });
-        console.log(reinforceInfoDto, "+++++");
-        /* https
+        console.log(reinforceInfoDto, "*****");
+        https
           .fetchPost(
             baseUrl + "/api/reinforce/info/saveReinforceInfoOrUpdate",
             reinforceInfoDto
           )
           .then(res => {
             if (res) {
+              if (res.data.code == "500") {
+                _this.addTaskDrawer = false;
+                _this.reload();
+              }
               if (res.data.code == "00") {
                 _this.addTaskDrawer = false;
                 _this.$notify({
@@ -1063,7 +1064,7 @@ export default {
                 _this.reload();
               }
             }
-          }); */
+          });
       } else {
         return "";
       }
@@ -1133,12 +1134,6 @@ export default {
               res.data.code === "99" ||
               res.data.code === "500"
             ) {
-              _this.$notify({
-                title: "警告",
-                message: res.data.message,
-                type: "warning",
-                duration: 1000
-              });
               _this.addTaskDrawer = false;
               _this.$refs.upload.clearFiles();
             }
@@ -1158,7 +1153,6 @@ export default {
                   curPrinter4: "",
                   curPrinter5: "",
                   curPrinter6: "",
-                  curPrinter7: "",
                   radio1: "",
                   radio2: "",
                   strategyItemDto: {},
@@ -1180,7 +1174,9 @@ export default {
                   flatH5Array: [],
                   tamperArray: [],
                   choiceArray: [],
-                  showReinforceItem: false
+                  showReinforceItem: false,
+                  strategyType: 1,
+                  strategyDescribe: ""
                 });
                 https
                   .fetchGet(
@@ -1190,17 +1186,21 @@ export default {
                   )
                   .then(res => {
                     if (res.data.code == "00") {
-                      if (res.data.data.soItems.length == 0) {
+                      let data = res.data.data;
+                      this.amendOriginTree(data.soItems);
+                      this.amendOriginTree(data.h5Items);
+                      console.log(data.soItems, data.h5Items);
+                      if (data.soItems.length == 0) {
                         this.addRoleFormArray.forEach((v, i) => {
                           v.soDisabled = true;
                         });
                       }
-                      if (res.data.data.h5Items.length == 0) {
+                      if (data.h5Items.length == 0) {
                         this.addRoleFormArray.forEach((v, i) => {
                           v.h5Disabled = true;
                         });
                       }
-                      keyTreeData.push(res.data.data);
+                      keyTreeData.push(data);
                     }
                   });
                 https
@@ -1215,6 +1215,7 @@ export default {
                     }
                   });
                 this.uploadFileItems.push(dataItem);
+                console.log(this.uploadFileItems, "******");
                 for (var i = 0; i < this.uploadFileItems.length; i++) {
                   this.activeNames.push(i + 1);
                   this.activeNames = Array.from(new Set(this.activeNames));
@@ -1290,6 +1291,20 @@ export default {
           _this.reload();
         });
     },
+    //修改原始SOH5数据
+    amendOriginTree(treeNodes) {
+      const _this = this;
+      if (treeNodes) {
+        treeNodes.forEach(item => {
+          item["key"] = item.vaue ? item.value : item.label;
+          if (item.children) {
+            _this.amendOriginTree(item.children);
+          } else {
+            item["key"] = item.value ? item.value : item.label;
+          }
+        });
+      }
+    },
     //根据用户选中的策略名称得到的树形结构选中的原始值
     traverseTree(treeNodes, flatArray) {
       const _this = this;
@@ -1298,7 +1313,7 @@ export default {
           if (item.children) {
             _this.traverseTree(item.children, flatArray);
           } else {
-            flatArray.push(item.label);
+            flatArray.push(item.value);
           }
         });
       }
@@ -1320,6 +1335,26 @@ export default {
             _this.addRoleFormArray[index].showReinforceItem = true;
             let data = res.data.data,
               selectedList = data.reinforceItemList;
+            _this.addRoleFormArray[index].strategyType = data.strategyType;
+            _this.addRoleFormArray[index].strategyDescribe = "";
+            //初始化防止每次都push一下
+            _this.addRoleFormArray[index].signMd5Items = [{ value: "" }];
+            data.md5ItemList.map(v => {
+              _this.addRoleFormArray[index].signMd5Items.push({ value: v });
+            });
+            if (data.strategyType == 1) {
+              _this.$message({
+                message:
+                  "当前选择为用户自定义策略,会随您的操作进行更新,请谨慎操作！",
+                type: "warning"
+              });
+            }
+            if (data.strategyType == 2) {
+              _this.$message({
+                message: "当前选择为默认加固策略,不可做修改！",
+                type: "warning"
+              });
+            }
             _this.reinforceItemData.forEach(obj => {
               obj["checked"] = false;
               if (obj.children) {
@@ -1338,8 +1373,7 @@ export default {
                 }
               });
             });
-            console.log(selectedList);
-            /*  let choiceArray = [],
+            let choiceArray = [],
               tamperArray = [],
               result = _this.reinforceItemData.map(item => {
                 if (item.children) {
@@ -1363,7 +1397,7 @@ export default {
               });
             result = result.filter(v => v);
             choiceArray = choiceArray.filter(v => v);
-            choiceArray = choiceArray.concat(result); */
+            choiceArray = choiceArray.concat(result);
             _this.traverseTree(
               data.soItemList,
               _this.addRoleFormArray[index].flatSoArray
@@ -1372,8 +1406,8 @@ export default {
               data.h5ItemList,
               _this.addRoleFormArray[index].flatH5Array
             );
-            /*  _this.addRoleFormArray[index].choiceArray = choiceArray;
-            _this.addRoleFormArray[index].tamperArray = tamperArray; */
+            _this.addRoleFormArray[index].choiceArray = choiceArray;
+            _this.addRoleFormArray[index].tamperArray = tamperArray;
           }
         });
     },
@@ -1471,6 +1505,14 @@ export default {
 };
 </script>
 <style>
+.el-select-dropdown {
+  position: absolute !important;
+  top: 35px !important;
+  left: 0 !important;
+}
+.el-collapse-item__wrap {
+  overflow: visible;
+}
 .reinforeHeader {
   height: 50px;
   line-height: 50px;

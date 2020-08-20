@@ -57,8 +57,6 @@ export default {
       if (res) {
         if (res.data.code === "00") {
           _this.sidebarList = this.toTreeData(res.data.data);
-        } else {
-          console.log("请求出错");
         }
       }
     });

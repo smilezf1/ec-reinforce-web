@@ -252,7 +252,6 @@
                           <template v-if="!addSignatureClick">
                             <el-input
                               size="small"
-                              clearable
                               maxLength="32"
                               style="width:51%"
                               v-model="item.keyTreeData[0].signMd5Value"
@@ -1020,7 +1019,7 @@
     <div class="reinforceStrategyBase">
       <el-pagination
         @size-change="handleSizeChange"
-        @current-change="handleCurrenChange"
+        @current-change="handleCurrentChange"
         :current-page="curPage"
         :page-size="10"
         :page-sizes="[10, 20, 30, 40, 50]"
@@ -1133,7 +1132,7 @@ export default {
       this.limit = val;
       this.getData();
     },
-    handleCurrenChange(val) {
+    handleCurrentChange(val) {
       this.curPage = val;
       this.getData();
     },
@@ -1180,12 +1179,6 @@ export default {
             res.data.code === "99" ||
             res.data.code === "500"
           ) {
-            _this.$notify({
-              title: "警告",
-              message: res.data.message,
-              type: "warning",
-              duration: 1000
-            });
             _this.createStrategyDrawer = false;
             _this.$refs.createStrategyUpload.clearFiles();
           }
@@ -1334,14 +1327,17 @@ export default {
         }
       }
       if (taskList.md5Checked) {
-        let md5Value = taskList.signMd5Items[0].value,
+        let md5Value =
+            taskList.signMd5Items[taskList.signMd5Items.length - 1].value,
           regularResult = /^[A-Fa-f0-9]{32}$/.test(md5Value);
-        console.log(md5Value, "md5Value值");
-        if (md5Value) {
+        if (md5ItemList) {
           if (!regularResult) {
             _this.$message.error("长度32位,仅支持数字和字母A-F,不区分大小写");
             allValid = false;
           }
+        } else {
+          _this.$message.error("签名MD5不能为空哦");
+          allValid = false;
         }
       }
       if (taskList.strategyName) {
@@ -1587,13 +1583,19 @@ export default {
         }
       }
       if (_this.reinforceItemList.includes(13)) {
-        let md5Value = strategyItemForm.signMd5Items[0].value,
+        let md5Value =
+            strategyItemForm.signMd5Items[
+              strategyItemForm.signMd5Items.length - 1
+            ].value,
           regularResult = /^[A-Fa-f0-9]{32}$/.test(md5Value);
         if (md5Value) {
           if (!regularResult) {
             _this.$message.error("长度32位,仅支持数字和字母A-F,不区分大小写");
             allValid = false;
           }
+        } else {
+          _this.$message.error("签名MD5不能为空哦");
+          allValid = false;
         }
       }
       let strategyItemDto = {

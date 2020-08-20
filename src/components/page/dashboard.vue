@@ -112,7 +112,6 @@ export default {
           if (res.data.code === "00") {
             this.listItem = res.data.data.items;
             this.dataCount = res.data.data.count;
-            console.log(this.listItem, "哈哈");
           }
         });
     },

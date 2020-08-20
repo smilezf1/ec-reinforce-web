@@ -2,6 +2,7 @@ import axios from 'axios';
 import qs from 'qs';
 import router from './router'
 import Vue from 'vue';//引入vue
+import { reduce } from 'xe-utils/methods';
 let v = new Vue();
 axios.defaults.timeout = 200000;//响应时间
 axios.defaults.headers.post['Content-Type'] = "application/json";
@@ -29,13 +30,20 @@ axios.interceptors.response.use(response => {
             }
         })
     }
+    if (response.data.code === '500' || response.data.code === '01' || response.data.code === '99') {
+        v.$notify({
+            title: "警告",
+            message: response.data.message,
+            type: "warning",
+            duration: 2000
+        });
+    }
     return response;
 }, error => {
     v.$alert('请求超时', '系统提示', {
         confirmButtonText: '确定',
         type: "warning",
         callback: action => {
-
             router.push({ name: 'Login' });
             location.reload(true);
         }
