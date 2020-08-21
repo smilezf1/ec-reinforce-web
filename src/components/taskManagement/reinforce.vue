@@ -1698,10 +1698,11 @@ export default {
 }
 .operateBox .el-drawer {
   overflow-y: auto;
+  box-sizing: border-box !important;
 }
 .el-drawer-header {
   width: 100%;
-  position: fixed; /*  */
+  position: fixed;
   background: white;
   z-index: 99;
   height: 50px;

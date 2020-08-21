@@ -77,7 +77,6 @@ export function fetchGet(url, params, responseType) {
 
 //上传进度条
 export function uploadFile(url, param, config) {
-    console.log(url, param, config)
     let axiosConfig = {
         url: url,
         method: 'post',
