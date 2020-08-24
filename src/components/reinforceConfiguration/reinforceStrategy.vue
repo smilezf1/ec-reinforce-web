@@ -1392,7 +1392,7 @@ export default {
                       _this.createStrategyDrawer = false;
                       _this.$notify({
                         title: "成功",
-                        message: "新增策略成功",
+                        message: "新增策略成功!",
                         type: "success"
                       });
                       _this.reload();
@@ -1401,7 +1401,7 @@ export default {
               }
             } else {
               allValid = false;
-              _this.$message.error("策略名称不能重复哦");
+              _this.$message.error("策略名称已存在!");
             }
           });
       }

@@ -74,7 +74,12 @@
             :key="index"
           >
             <!-- 上传文件的信息 -->
-            <el-form :model="channelStrategyForm" class="channelStrategyForm">
+            <el-form
+              :model="channelStrategyForm"
+              class="channelStrategyForm"
+              ref="channelStrategyForm"
+              :rules="rules"
+            >
               <div class="channelStrategyItem">
                 <h3 class="channelStrategyItemTitle">
                   <i class="channelStrategyItemIcon"> </i>
@@ -98,6 +103,28 @@
                           >大小:&nbsp;&nbsp;{{ item.data.appMbSize }}MB</span
                         >
                       </p>
+                      <p class="strategyName">
+                        <el-form-item label="策略名称" prop="strategyName">
+                          <el-input
+                            size="small"
+                            style="width:50%"
+                            v-model="channelStrategyForm.strategyName"
+                          ></el-input>
+                        </el-form-item>
+                      </p>
+                      <p class="strategyDescribe">
+                        <el-form-item
+                          label="策略描述"
+                          prop="strategyDescribe"
+                          style="margin-left:10px"
+                        >
+                          <el-input
+                            size="small"
+                            style="width:50%"
+                            v-model="channelStrategyForm.strategyDescribe"
+                          ></el-input>
+                        </el-form-item>
+                      </p>
                     </el-col>
                   </el-row>
                 </div>
@@ -111,13 +138,10 @@
                   <el-row>
                     <el-col :span="24">
                       <div class="channelStrategyBox">
-                        <el-form-item
-                          label="渠道名称"
-                          prop="channelStrategyName"
-                        >
+                        <el-form-item label="渠道名称" prop="channelName">
                           <el-input
                             size="small"
-                            v-model="channelStrategyForm.channelStrategyName"
+                            v-model="channelStrategyList[0].channelName"
                             placeholder="请输入渠道名称"
                             style="width:40%"
                           ></el-input>
@@ -127,10 +151,14 @@
                           prop="channelStrategyParameter"
                         >
                           <el-select
-                            v-model="channelStrategyForm.channelKey"
-                            placeholder="请选择渠道参数"
+                            v-model="
+                              channelStrategyList[0]
+                                .channelStrategyParameteList[0].channelKey
+                            "
+                            placeholder="channelKey"
                             size="small"
                             :popper-append-to-body="false"
+                            style="width:30%"
                           >
                             <el-option
                               v-for="(channelKeyItem, channelKeyIndex) in item
@@ -141,109 +169,51 @@
                           </el-select>
                           <el-input
                             size="small"
-                            v-model="channelStrategyForm.channelValue"
+                            v-model="
+                              channelStrategyList[0]
+                                .channelStrategyParameteList[0].channelValue
+                            "
                             placeholder="channelValue"
                             style="width:40%"
                           ></el-input>
                           <el-button
-                            class="addChannelStrategyParameterButton"
-                            icon="el-icon-plus addIcon"
-                            type="text"
-                            plain
-                            @click="addChannelStrategyParameter(0)"
+                            style="margin-left:15px"
+                            type="primary"
+                            size="mini"
+                            icon="el-icon-plus"
+                            @click="
+                              addChannelStrategyParameter(0, item.data.appPath)
+                            "
                           ></el-button>
                           <el-button
-                            class="deleteChannelStrategyParameterButton"
-                            icon="el-icon-delete delIcon"
-                            type="text"
-                            plain
-                            @click="deleteChannelStrategyParameter(0)"
+                            type="primary"
+                            size="mini"
+                            icon="el-icon-delete"
+                            :disabled="
+                              channelStrategyList[0].channelStrategyParameteList
+                                .length == 1
+                            "
+                            @click="deleteChannelStrategyParameter(0, 0)"
                           ></el-button>
                         </el-form-item>
                         <!-- 渠道参数列表 -->
                         <div
                           v-for="(channelSubItem,
-                          channelSubIndex) in channelStrategyList[index]
+                          channelSubIndex) in channelStrategyList[0]
                             .channelStrategyParameteList"
                           :key="channelSubIndex"
+                          v-show="channelSubIndex"
                         >
                           <el-form-item
                             label="渠道参数"
                             prop="channelStrategyParameter"
                           >
                             <el-select
-                              v-model="channelStrategyForm.channelKey"
-                              placeholder="请选择渠道参数"
+                              v-model="channelSubItem.channelKey"
+                              placeholder="channelKey"
                               size="small"
                               :popper-append-to-body="false"
-                            ></el-select>
-                            <el-input
-                              size="small"
-                              v-model="channelStrategyForm.channelValue"
-                              placeholder="channelValue"
-                              style="width:40%"
-                            ></el-input>
-                            <el-button
-                              class="addChannelStrategyParameterButton"
-                              icon="el-icon-plus addIcon"
-                              type="text"
-                              plain
-                              @click="
-                                addChannelStrategyParameter(channelSubIndex)
-                              "
-                            ></el-button>
-                            <el-button
-                              class="deleteChannelStrategyParameterButton"
-                              icon="el-icon-delete delIcon"
-                              type="text"
-                              plain
-                              :disabled="
-                                channelStrategyList[index]
-                                  .channelStrategyParameteList.length == 1
-                              "
-                              @click="
-                                deleteChannelStrategyParameter(channelSubIndex)
-                              "
-                            ></el-button>
-                          </el-form-item>
-                        </div>
-                        <!--  <el-button
-                          class="deleteChannelStrategyButton"
-                          type="text"
-                          icon="el-icon-error"
-                          :disabled="channelStrategyList.length == 1"
-                          @click="deleteChannel(channelIndex)"
-                          plain
-                        ></el-button> -->
-                      </div>
-                      <!-- 渠道列表 -->
-                      <template v-if="channelStrategyList.length > 1">
-                        <div
-                          class="channelStrategyBox"
-                          v-for="(channelItem,
-                          channelIndex) in channelStrategyList"
-                          :key="channelIndex"
-                        >
-                          <el-form-item
-                            label="渠道名称"
-                            prop="channelStrategyName"
-                          >
-                            <el-input
-                              size="small"
-                              v-model="channelStrategyForm.channelStrategyName"
-                              placeholder="请输入渠道名称"
-                              style="width:40%"
-                            ></el-input>
-                          </el-form-item>
-                          <el-form-item
-                            label="渠道参数"
-                            prop="channelStrategyParameter"
-                          >
-                            <el-select
-                              v-model="channelStrategyForm.channelKey"
-                              placeholder="请选择渠道参数"
-                              size="small"
-                              :popper-append-to-body="false"
+                              style="width:30%"
                             >
                               <el-option
                                 v-for="(channelKeyItem, channelKeyIndex) in item
@@ -254,25 +224,183 @@
                             </el-select>
                             <el-input
                               size="small"
-                              v-model="channelStrategyForm.channelValue"
+                              v-model="channelSubItem.channelValue"
                               placeholder="channelValue"
                               style="width:40%"
                             ></el-input>
                             <el-button
-                              class="addChannelStrategyParameterButton"
-                              icon="el-icon-plus addIcon"
-                              type="text"
-                              plain
-                              @click="addChannelStrategyParameter()"
+                              style="margin-left:15px"
+                              type="primary"
+                              size="mini"
+                              icon="el-icon-plus"
+                              @click="
+                                addChannelStrategyParameter(
+                                  0,
+                                  item.data.appPath
+                                )
+                              "
                             ></el-button>
                             <el-button
-                              class="deleteChannelStrategyParameterButton"
-                              icon="el-icon-delete delIcon"
-                              type="text"
-                              plain
-                              @click="deleteChannelStrategyParameter()"
+                              type="primary"
+                              size="mini"
+                              icon="el-icon-delete"
+                              :disabled="channelSubItem.length == 1"
+                              @click="deleteChannelStrategyParameter(0, 0)"
                             ></el-button>
                           </el-form-item>
+                        </div>
+                        <el-button
+                          class="deleteChannelStrategyButton"
+                          type="text"
+                          icon="el-icon-error"
+                          :disabled="channelStrategyList.length == 1"
+                          @click="deleteChannel(0)"
+                          plain
+                        ></el-button>
+                      </div>
+                      <!-- 渠道列表 -->
+                      <template>
+                        <div
+                          class="channelStrategyBox"
+                          v-for="(channelItem,
+                          channelIndex) in channelStrategyList"
+                          :key="channelIndex"
+                          v-show="channelIndex"
+                        >
+                          <el-form-item label="渠道名称" prop="channelName">
+                            <el-input
+                              size="small"
+                              v-model="channelItem.channelName"
+                              placeholder="请输入渠道名称"
+                              style="width:40%"
+                            ></el-input>
+                          </el-form-item>
+                          <el-form-item
+                            label="渠道参数"
+                            prop="channelStrategyParameter"
+                          >
+                            <el-select
+                              v-model="
+                                channelItem.channelStrategyParameteList[0]
+                                  .channelKey
+                              "
+                              placeholder="channelKey"
+                              size="small"
+                              :popper-append-to-body="false"
+                              style="width:30%"
+                            >
+                              <el-option
+                                v-for="(channelKeyItem, channelKeyIndex) in item
+                                  .channelKeyData[0]"
+                                :key="channelKeyIndex"
+                                :value="channelKeyItem"
+                              ></el-option>
+                            </el-select>
+                            <el-input
+                              size="small"
+                              v-model="
+                                channelItem.channelStrategyParameteList[0]
+                                  .channelValue
+                              "
+                              placeholder="channelValue"
+                              style="width:40%"
+                            ></el-input>
+                            <el-button
+                              style="margin-left:15px"
+                              type="primary"
+                              size="mini"
+                              icon="el-icon-plus"
+                              @click="
+                                addChannelStrategyParameter(
+                                  channelIndex,
+                                  item.data.appPath
+                                )
+                              "
+                            ></el-button>
+                            <el-button
+                              type="primary"
+                              size="mini"
+                              icon="el-icon-delete"
+                              :disabled="
+                                channelItem.channelStrategyParameteList
+                                  .length == 1
+                              "
+                              @click="
+                                deleteChannelStrategyParameter(channelIndex, 0)
+                              "
+                            ></el-button>
+                          </el-form-item>
+                          <!-- 渠道参数列表 -->
+                          <div
+                            v-for="(channelSubItem,
+                            channelSubIndex) in channelStrategyList[
+                              channelIndex
+                            ].channelStrategyParameteList"
+                            :key="channelSubIndex"
+                            v-show="channelSubIndex"
+                          >
+                            <el-form-item
+                              label="渠道参数"
+                              prop="channelStrategyParameter"
+                            >
+                              <el-select
+                                v-model="channelSubItem.channelKey"
+                                placeholder="channelKey"
+                                size="small"
+                                :popper-append-to-body="false"
+                                style="width:30%"
+                              >
+                                <el-option
+                                  v-for="(channelKeyItem,
+                                  channelKeyIndex) in item.channelKeyData[0]"
+                                  :key="channelKeyIndex"
+                                  :value="channelKeyItem"
+                                ></el-option>
+                              </el-select>
+                              <el-input
+                                size="small"
+                                v-model="channelSubItem.channelValue"
+                                placeholder="channelValue"
+                                style="width:40%"
+                              ></el-input>
+                              <el-button
+                                style="margin-left:15px"
+                                type="primary"
+                                size="mini"
+                                icon="el-icon-plus"
+                                @click="
+                                  addChannelStrategyParameter(
+                                    channelIndex,
+                                    item.data.appPath
+                                  )
+                                "
+                              ></el-button>
+
+                              <el-button
+                                type="primary"
+                                size="mini"
+                                icon="el-icon-delete"
+                                :disabled="
+                                  channelItem.channelStrategyParameteList
+                                    .length == 1
+                                "
+                                @click="
+                                  deleteChannelStrategyParameter(
+                                    channelIndex,
+                                    channelSubIndex
+                                  )
+                                "
+                              ></el-button>
+                            </el-form-item>
+                          </div>
+                          <el-button
+                            class="deleteChannelStrategyButton"
+                            type="text"
+                            icon="el-icon-error"
+                            :disabled="channelStrategyList.length == 1"
+                            @click="deleteChannel(channelIndex)"
+                            plain
+                          ></el-button>
                         </div>
                       </template>
                       <el-button
@@ -292,7 +420,10 @@
         </div>
         <!-- 新建渠道Drawer尾部-->
         <div class="el-drawer-footer">
-          <el-button type="primary" @click="saveChannelStrategy()"
+          <el-button
+            type="primary"
+            @click="saveChannelStrategy()"
+            :disabled="showSaveChannelStrategy"
             >保存</el-button
           >
           <el-button @click="cancelChannelStrategy()" plain>取消</el-button>
@@ -338,7 +469,47 @@
         <div class="el-drawer-header">
           <h3>渠道详细</h3>
         </div>
-        <div class="el-drawer-content"></div>
+        <div class="el-drawer-content">
+          <div class="channelStrategyItem">
+            <h3 class="channelStrategyItemTitle">
+              <i class="channelStrategyItemIcon"> </i>
+              <span>应用信息</span>
+            </h3>
+            <div class="channelStrategyItemContent">
+              <el-row v-if="channelStrategyParticulars">
+                <el-col :span="6">
+                  <img
+                    :src="
+                      'data:image/jpg;base64,' +
+                        channelStrategyParticulars.reinforceInfo.appIcon
+                    "
+                /></el-col>
+                <el-col :span="18">
+                  <p class="appName">
+                    {{ channelStrategyParticulars.reinforceInfo.appName }}
+                  </p>
+                  <p class="appPackage">
+                    包名:&nbsp;&nbsp;{{
+                      channelStrategyParticulars.reinforceInfo.appPackage
+                    }}
+                  </p>
+                  <p>
+                    <span style="margin-right:10px">
+                      版本:&nbsp;&nbsp;{{
+                        channelStrategyParticulars.reinforceInfo.appVersion
+                      }}
+                    </span>
+                    <span
+                      >大小:&nbsp;&nbsp;{{
+                        channelStrategyParticulars.reinforceInfo.appMbSize
+                      }}MB</span
+                    >
+                  </p>
+                </el-col>
+              </el-row>
+            </div>
+          </div>
+        </div>
         <div class="el-drawer-footer">
           <el-button plain @click="cancelChannelStrategyDetail()"
             >取消</el-button
@@ -364,11 +535,11 @@
           label="渠道策略名称"
           :show-overflow-tooltip="true"
         ></el-table-column>
-        <el-table-column
+        <!--  <el-table-column
           prop="channel_strategy_describe"
           label="渠道策略描述"
           :show-overflow-tooltip="true"
-        ></el-table-column>
+        ></el-table-column> -->
         <el-table-column
           prop="channel_strategy_count"
           label="渠道策略数量"
@@ -429,7 +600,7 @@ export default {
       dataCount: 0,
       listItem: [],
       ruleForm: {
-        channelStrategyName: ""
+        channelName: ""
       },
       loading: false,
       createChannelStrategyDrawer: false,
@@ -438,11 +609,25 @@ export default {
       createChannelStrategyFileItem: [],
       createChannelStrategyUploadShow: true,
       channelStrategyForm: {
-        channelStrategyName: "",
+        strategyName: "",
+        strategyDescribe: "",
+        channelName: "",
         channelKey: "",
         channelValue: ""
       },
-      channelStrategyList: [{ channelStrategyParameteList: [] }]
+      rules: {
+        strategyName: [
+          { required: true, message: "请输入策略名称", tirgger: "blur" }
+        ]
+      },
+      channelStrategyList: [
+        {
+          channelName: "",
+          channelStrategyParameteList: [{ channelKey: "", channelValue: "" }]
+        }
+      ],
+      showSaveChannelStrategy: true,
+      channelStrategyParticulars: null
     };
   },
   inject: ["reload"],
@@ -492,6 +677,7 @@ export default {
           console.log(res);
           if (res.data.code == "00") {
             let data = res.data.data;
+            _this.channelStrategyParticulars = data;
             console.log(data, "渠道策略具体内容");
           }
         });
@@ -544,6 +730,7 @@ export default {
           }
           if (res.data.code === "00") {
             _this.createChannelStrategyUploadShow = false;
+            _this.showSaveChannelStrategy = false;
             let data = res.data.data,
               appPath = data.appPath,
               channelKeyData = [],
@@ -565,8 +752,79 @@ export default {
     },
     //保存创建的渠道策略
     saveChannelStrategy() {
-      let _this = this;
-      console.log(_this.channelStrategyForm, "表格里的数据");
+      let _this = this,
+        baseUrl = _this.api.baseUrl,
+        formItem = _this.createChannelStrategyFileItem[0].data,
+        channelStrategyName = _this.channelStrategyForm.strategyName,
+        channelStrategyDescribe = _this.channelStrategyForm.strategyDescribe,
+        allValid = true;
+      const itemDetailDtoList = _this.channelStrategyList.map((item, index) => {
+        let result = {
+          channelName: item.channelName,
+          channelDetails: item.channelStrategyParameteList
+        };
+        return result;
+      });
+      let channelStrategyDto = {
+        channelStrategyName,
+        channelStrategyDescribe,
+        itemDetailDtoList,
+        reinforceInfo: {
+          appName: formItem.appName,
+          appIcon: formItem.appIcon,
+          appPackage: formItem.appPackage,
+          appFileName: formItem.appFileName,
+          appPath: formItem.appPath,
+          appMbSize: formItem.appMbSize,
+          appVersion: formItem.appVersion
+        }
+      };
+      _this.$refs["channelStrategyForm"][0].validate(valid => {
+        console.log(valid);
+        if (!valid) {
+          allValid = false;
+        }
+      });
+      https
+        .fetchGet(baseUrl + "/api/channel/strategy/checkChannelStrategyName", {
+          channelStrategyName
+        })
+        .then(res => {
+          if (res.data) {
+            //比填项已经填写好,异步请求
+            if (allValid) {
+              console.log(channelStrategyDto, "#######");
+              https
+                .fetchPost(
+                  baseUrl + "/api/channel/strategy/saveOrUpdateChannelStrategy",
+                  channelStrategyDto
+                )
+                .then(res => {
+                  if (
+                    res.data.code === "01" ||
+                    res.data.code == "99" ||
+                    res.data.code === "500"
+                  ) {
+                    _this.createChannelStrategyDrawer = false;
+                    _this.$refs.createChannelStrategyUpload.clearFiles();
+                  }
+                  if (res.data.code === "00") {
+                    _this.createChannelStrategyDrawer = false;
+                    _this.$notify({
+                      title: "成功",
+                      message: "新增渠道成功!",
+                      type: "success"
+                    });
+                    _this.reload();
+                  }
+                  console.log(res);
+                });
+            }
+          } else {
+            allValid = false;
+            _this.$message.error("策略名称已存在");
+          }
+        });
     },
     //取消保存创建的渠道策略
     cancelChannelStrategy() {
@@ -592,26 +850,86 @@ export default {
       }
     },
     //添加渠道参数
-    addChannelStrategyParameter(index) {
-      this.channelStrategyList[index].channelStrategyParameteList.push({});
+    addChannelStrategyParameter(index, appPath) {
+      let _this = this,
+        baseUrl = _this.api.baseUrl,
+        channelList =
+          _this.channelStrategyList[index].channelStrategyParameteList,
+        channelKey = channelList[0].channelKey,
+        channelValue = channelList[0].channelValue,
+        fileKey = appPath,
+        allValid = true;
+      if (!channelList[0].channelValue) {
+        _this.$message.error("渠道参数 channelValue不能为空!");
+        allValid = false;
+      }
+      if (!channelList[0].channelKey) {
+        _this.$message.error("渠道参数 channelKey不能为空!");
+        allValid = false;
+      }
+      if (allValid) {
+        console.log(appPath);
+        https
+          .fetchGet(
+            baseUrl +
+              "/api/channel/strategy/checkChannelValueType?channelKey=" +
+              channelKey +
+              "&&channelValue=channelValue&&fileKey=" +
+              fileKey
+          )
+          .then(res => {
+            if (res.data) {
+              console.log("输入的正确");
+              _this.channelStrategyList[index].channelStrategyParameteList.push(
+                {
+                  channelKey: "",
+                  channelValue: ""
+                }
+              );
+            } else {
+              console.log("格式错误");
+            }
+          });
+      }
     },
     //删除渠道参数
-    deleteChannelStrategyParameter(index) {
-      console.log("删除渠道参数", index);
+    deleteChannelStrategyParameter(index, subIndex) {
       this.channelStrategyList[index].channelStrategyParameteList.splice(
-        index,
+        subIndex,
         1
       );
     },
     //添加渠道
     addChannelStrategy() {
-      this.channelStrategyList.push({});
-      console.log("添加渠道", this.channelStrategyList);
+      console.log(this.channelStrategyList, "添加渠道");
+      this.channelStrategyList.push({
+        channelName: "",
+        channelStrategyParameteList: [{ channelKey: "", channelValue: "" }]
+      });
     },
     //删除渠道
     deleteChannel(index) {
-      console.log(index, "删除渠道");
       this.channelStrategyList.splice(index, 1);
+    },
+    //检查渠道名称
+    checkChannelName(channelName, index) {
+      /*   let _this = this,
+        baseUrl = _this.api.baseUrl;
+      https
+        .fetchGet(baseUrl + "/api/channel/strategy/checkChannelName", {
+          channelName
+        })
+        .then(res => {
+          console.log(res.data);
+          if (res.data) {
+            console.log("策略名称没有重复");
+            _this.channelStrategyList[index].errorMsg = "";
+          } else {
+            console.log(index);
+            _this.channelStrategyList[index].errorMsg = "策略名称已存在";
+          }
+        });
+      console.log(channelName, "渠道名称"); */
     },
     //修改渠道策略
     amendChannelStrategy() {
