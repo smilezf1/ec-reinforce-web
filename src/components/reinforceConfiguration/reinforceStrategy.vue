@@ -1142,7 +1142,7 @@ export default {
         queryInfo = { reinforceStrategyName };
       _this.loading = true;
       _this.getData(queryInfo);
-      setTimeout(function() {
+      setTimeout(() => {
         _this.loading = false;
       }, 500);
     },
