@@ -69,12 +69,10 @@ export default {
           queryInfo
         })
         .then(res => {
-          console.log(res);
           if (res.data.code === "00") {
             let data = res.data.data;
             this.listItem = data.items;
             this.dataCount = data.count;
-            console.log(this.listItem, this.dataCount);
           }
         });
     },
@@ -84,7 +82,6 @@ export default {
       this.getData();
     },
     handleCurrentChange(val) {
-      console.log(val);
       this.curPage = val;
       this.getData();
     }

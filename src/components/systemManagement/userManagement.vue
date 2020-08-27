@@ -66,6 +66,7 @@
           :wrapperClosable="false"
           :close-on-press-escape="false"
           ref="addUserDrawer"
+          @close="resetForm('addUserForm')"
         >
           <div class="el-drawer-header">
             <h3>新增用户</h3>
@@ -77,34 +78,50 @@
               :rules="editRules"
               :label-position="labelPosition"
             >
-              <el-form-item label="用户名" prop="trueName">
+              <el-form-item prop="trueName">
+                <label slot="label"> 用&nbsp;户&nbsp;名</label>
                 <el-input
+                  size="small"
                   v-model="addUserForm.trueName"
                   autocomplete="off"
                 ></el-input>
               </el-form-item>
-              <el-form-item label="登录名" prop="userName">
+              <el-form-item prop="userName">
+                <label slot="label">登&nbsp;录&nbsp;名</label>
                 <el-input
+                  size="small"
                   v-model="addUserForm.userName"
                   autocomplete="off"
                 ></el-input>
               </el-form-item>
-              <el-form-item label="用户密码" prop="pass">
+              <el-form-item prop="pass">
+                <label slot="label">用户密码</label>
                 <el-input
+                  size="small"
                   show-password
                   v-model="addUserForm.pass"
                   auto-complete="off"
                 ></el-input>
               </el-form-item>
-              <el-form-item label="确认密码" prop="checkPass">
+              <el-form-item prop="checkPass">
+                <label slot="label">确认密码</label>
                 <el-input
+                  size="small"
                   show-password
                   v-model="addUserForm.checkPass"
                   auto-complete="off"
                 ></el-input>
               </el-form-item>
-              <el-form-item label="性别" prop="sex">
-                <el-select v-model="addUserForm.sex">
+              <el-form-item prop="sex">
+                <label slot="label"
+                  >性&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;别</label
+                >
+                <el-select
+                  v-model="addUserForm.sex"
+                  size="small"
+                  style="width:80%"
+                  placeholder="请选择性别"
+                >
                   <el-option
                     v-for="item in genderoptions"
                     :key="item.value"
@@ -113,20 +130,28 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="手机号" prop="mobile">
+              <el-form-item prop="mobile">
+                <label slot="label">手&nbsp;机&nbsp;号</label>
                 <el-input
+                  size="small"
                   v-model="addUserForm.mobile"
                   autocomplete="off"
                 ></el-input>
               </el-form-item>
               <el-form-item label="电子邮箱" prop="email">
                 <el-input
+                  size="small"
                   v-model="addUserForm.email"
                   autocomplete="off"
                 ></el-input>
               </el-form-item>
               <el-form-item label="是否有效" prop="status">
-                <el-select v-model="addUserForm.status" placeholder="请选择">
+                <el-select
+                  v-model="addUserForm.status"
+                  placeholder="请选择"
+                  size="small"
+                  style="width:80%"
+                >
                   <el-option
                     v-for="item in statusOptions"
                     :key="item.id"
@@ -277,7 +302,10 @@
                       ></el-input>
                     </el-form-item>
                     <el-form-item label="是否有效:" prop="status">
-                      <el-select v-model="editForm.status">
+                      <el-select
+                        v-model="editForm.status"
+                        :disabled="editForm.userName == getLocalStorageUserName"
+                      >
                         <el-option
                           v-for="item in statusOptions"
                           :key="item.id"
@@ -387,7 +415,10 @@
                 effect="dark"
                 content="停用"
                 placement="top-start"
-                v-if="scope.row.status == 1"
+                v-if="
+                  !(scope.row.userName == getLocalStorageUserName) &&
+                    scope.row.status == 1
+                "
               >
                 <i
                   class="el-icon-close closeIcon"
@@ -569,6 +600,9 @@ export default {
   computed: {
     changeRoleList: function() {
       return this.roleList.map(Number);
+    },
+    getLocalStorageUserName: function() {
+      return localStorage.getItem("userName");
     }
   },
   inject: ["reload"],
@@ -604,6 +638,10 @@ export default {
         status = this.ruleForm.status;
       let queryInfo = { trueName, userName, mobile, email, status };
       this.getData(queryInfo);
+    },
+    //关闭Drawer时清空表单中的值
+    resetForm(formName) {
+      this.$refs[formName].resetFields();
     },
     //设置角色开始
     handleCheck(checkedNodes, checkedKeys) {
@@ -696,9 +734,9 @@ export default {
                 this.editDrawer = false;
                 this.reload();
                 this.$notify.success({
-                  title: "成功",
                   message: "编辑成功",
-                  showClose: false
+                  showClose: false,
+                  duration: 1000
                 });
               }
             });
@@ -730,14 +768,12 @@ export default {
             })
             .then(res => {
               if (res.data.code == "00") {
-                this.$notify({
-                  title: "成功",
+                this.$notify.success({
                   message: "重置密码成功",
-                  type: "success",
-                  showClose: false
+                  showClose: false,
+                  duration: 1000
                 });
               }
-              console.log(res);
             });
 
           this.resetPasswordDrawer = false;
@@ -774,9 +810,9 @@ export default {
                 this.addUserDrawer = false;
                 this.reload();
                 this.$notify.success({
-                  title: "成功",
                   message: "新增用户成功",
-                  showClose: false
+                  showClose: false,
+                  duration: 1000
                 });
               }
             });
@@ -800,9 +836,6 @@ export default {
             if (v.checked == true) {
               this.setRoleList.push(v.id);
               this.setRoleList = Array.from(new Set(this.setRoleList));
-              console.log(this.setRoleList);
-            } else {
-              console.log("11");
             }
           });
         });
@@ -816,7 +849,6 @@ export default {
         for (var i = 0; i < nodes.length; i++) {
           if (!nodes[i].parent) {
             roleList.push(nodes[i].id);
-            console.log(roleList, "---");
             roleList = Array.from(new Set(roleList));
           }
         }
@@ -835,18 +867,16 @@ export default {
             .then(res => {
               if (res.data.code == "00") {
                 this.$notify({
-                  title: "成功",
                   message: "更新成功",
-                  type: "success"
+                  type: "success",
+                  duration: 1000
                 });
                 this.reload();
                 this.dialogVisible = false;
               }
             });
         })
-        .catch(() => {
-          console.log("取消操作");
-        });
+        .catch(() => {});
     },
     //设置角色结束
     //启用
@@ -865,14 +895,13 @@ export default {
                 this.reload();
                 this.$notify.success({
                   message: "启用成功",
-                  showClose: false
+                  showClose: false,
+                  duration: 1000
                 });
               }
             });
         })
-        .catch(() => {
-          console.log("取消启用");
-        });
+        .catch(() => {});
     },
     //停用
     blockUp(id) {
@@ -888,17 +917,16 @@ export default {
             .then(res => {
               if (res.data.code === "00") {
                 this.reload();
-                this.$notify.success({
+                this.$notify({
                   message: "停用成功",
                   type: "warning",
-                  showClose: false
+                  showClose: false,
+                  duration: 1000
                 });
               }
             });
         })
-        .catch(() => {
-          console.log("取消停用");
-        });
+        .catch(() => {});
     }
   },
   mounted() {

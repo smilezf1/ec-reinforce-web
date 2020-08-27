@@ -16,6 +16,7 @@
         :wrapperClosable="false"
         :close-on-press-escape="false"
         ref="addDrawer"
+        @close="resetForm('addCatalogueForm')"
       >
         <div class="el-drawer-header">
           <h3>新增目录</h3>
@@ -339,6 +340,10 @@ export default {
     cancelAddCatalogueForm() {
       this.addDrawer = false;
     },
+    //关闭Drawer时清空表单中的值
+    resetForm(formName) {
+      this.$refs[formName].resetFields();
+    },
     cancelAddLinkForm() {
       this.addLinkDrawer = false;
     },
@@ -390,7 +395,8 @@ export default {
                 this.reload();
                 this.$notify.success({
                   message: "保存成功",
-                  showClose: false
+                  showClose: false,
+                  duration: 1000
                 });
               }
             });
@@ -431,7 +437,8 @@ export default {
                 this.reload();
                 this.$notify.success({
                   message: "新增成功",
-                  showClose: false
+                  showClose: false,
+                  duration: 1000
                 });
               }
             });
@@ -472,7 +479,8 @@ export default {
                 this.reload();
                 this.$notify.success({
                   message: "新增成功",
-                  showClose: false
+                  showClose: false,
+                  duration: 1000
                 });
               }
             });
@@ -496,10 +504,11 @@ export default {
             .then(res => {
               if (res.data.code === "00") {
                 this.reload();
-                this.$notify.success({
+                this.$notify({
                   message: "停用成功",
                   type: "warning",
-                  showClose: false
+                  showClose: false,
+                  duration: 1000
                 });
               }
             });
@@ -524,7 +533,8 @@ export default {
                 this.reload();
                 this.$notify.success({
                   message: "启用成功",
-                  showClose: false
+                  showClose: false,
+                  duration: 1000
                 });
               }
             });

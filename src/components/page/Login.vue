@@ -105,7 +105,6 @@ export default {
           http
             .fetchPost(baseUrl + "/api/system/login/login", params)
             .then(res => {
-              console.log(res);
               if (res.data.code === "00") {
                 const accessToken = res.data.data.accessToken,
                   userName = res.data.data.userName;
@@ -119,14 +118,7 @@ export default {
                     _this.$router.push("/dashboard");
                   }
                 });
-              } else if (res.data.code === "05") {
-                console.log("执行了吗");
               } else {
-                let message = res.data.message;
-                _this.$message({
-                  message: message,
-                  type: "error"
-                });
                 _this.Guid = this.guid.getGuid();
               }
             })

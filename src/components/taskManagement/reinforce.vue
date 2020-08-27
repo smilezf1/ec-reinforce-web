@@ -477,9 +477,8 @@
                         </div>
                       </el-col>
                     </el-row>
-
                     <!-- 多渠道打包 -->
-                    <!--  <el-row class="channelPack">
+                    <el-row class="channelPack">
                       <el-col :span="24">
                         <p class="channelPack">
                           <el-form-item
@@ -489,12 +488,14 @@
                           >
                             <el-radio-group
                               v-model="addRoleFormArray[index].radio1"
+                              style="margin-left:8%"
                             >
                               <el-radio
                                 label="是"
                                 @change="
                                   channelPackChange(
-                                    addRoleFormArray[index].radio1
+                                    addRoleFormArray[index].radio1,
+                                    item.data.appPackage
                                   )
                                 "
                               ></el-radio>
@@ -502,7 +503,8 @@
                                 label="否"
                                 @change="
                                   channelPackChange(
-                                    addRoleFormArray[index].radio1
+                                    addRoleFormArray[index].radio1,
+                                    item.data.appPackage
                                   )
                                 "
                               ></el-radio>
@@ -515,16 +517,18 @@
                             <el-form-item
                               label="多渠道打包策略"
                               prop="curPrinter4"
+                              label-width="22%"
                             >
                               <el-select
                                 size="small"
                                 placeholder="请选择多渠道打包策略"
                                 v-model="addRoleFormArray[index].curPrinter4"
+                                :popper-append-to-body="false"
                               >
                                 <el-option
                                   v-for="item in channelPackList"
                                   :key="item.id"
-                                  :label="item.channel_strategy_name"
+                                  :label="item.channelStrategyName"
                                   :value="item.id"
                                 ></el-option>
                               </el-select>
@@ -532,7 +536,7 @@
                           </template>
                         </p>
                       </el-col>
-                    </el-row> -->
+                    </el-row>
                     <!-- 签名策略 -->
                     <el-row>
                       <el-col :span="24">
@@ -544,7 +548,7 @@
                             <label slot="label">是否签名:</label>
                             <el-radio-group
                               v-model="addRoleFormArray[index].radio2"
-                              style="margin-left:17%"
+                              style="margin-left:18%"
                             >
                               <el-radio
                                 label="是"
@@ -577,6 +581,7 @@
                                 placeholder="请选择签名策略"
                                 v-model="addRoleFormArray[index].curPrinter5"
                                 style="margin-left: 10%;"
+                                :popper-append-to-body="false"
                               >
                                 <el-option
                                   v-for="item in signatureList"
@@ -1042,7 +1047,6 @@ export default {
           };
           return result;
         });
-        console.log(reinforceInfoDto, "*****");
         https
           .fetchPost(
             baseUrl + "/api/reinforce/info/saveReinforceInfoOrUpdate",
@@ -1057,9 +1061,9 @@ export default {
               if (res.data.code == "00") {
                 _this.addTaskDrawer = false;
                 _this.$notify({
-                  title: "成功",
                   message: "新增任务成功",
-                  type: "success"
+                  type: "success",
+                  duration: 1000
                 });
                 _this.reload();
               }
@@ -1083,16 +1087,13 @@ export default {
             this.$refs.upload.clearFiles();
             this.reload();
           })
-          .catch(() => {
-            console.log("取消");
-          });
+          .catch(() => {});
       } else {
         this.addTaskDrawer = false;
       }
     },
     //加固
     reinforce(id) {
-      console.log(id);
       let baseUrl = this.api.baseUrl;
       https
         .fetchGet(baseUrl + "/api/reinforce/info/startReinforce", {
@@ -1100,7 +1101,6 @@ export default {
         })
         .then(res => {
           this.$notify({
-            title: "成功",
             message: "启动成功！",
             type: "success"
           });
@@ -1189,7 +1189,6 @@ export default {
                       let data = res.data.data;
                       this.amendOriginTree(data.soItems);
                       this.amendOriginTree(data.h5Items);
-                      console.log(data.soItems, data.h5Items);
                       if (data.soItems.length == 0) {
                         this.addRoleFormArray.forEach((v, i) => {
                           v.soDisabled = true;
@@ -1215,7 +1214,6 @@ export default {
                     }
                   });
                 this.uploadFileItems.push(dataItem);
-                console.log(this.uploadFileItems, "******");
                 for (var i = 0; i < this.uploadFileItems.length; i++) {
                   this.activeNames.push(i + 1);
                   this.activeNames = Array.from(new Set(this.activeNames));
@@ -1412,19 +1410,30 @@ export default {
         });
     },
     //是否多渠道打包
-    channelPackChange(item) {
+    channelPackChange(item, packageName) {
       let baseUrl = this.api.baseUrl;
       if (item == "是") {
+        console.log(packageName);
         https
+          .fetchGet(
+            baseUrl + "/api/channel/strategy/findChannelStrategyByPackageName",
+            { packageName }
+          )
+          .then(res => {
+            if (res.data.code == "00") {
+              this.channelPackList = res.data.data;
+              console.log(res.data.data);
+            }
+          });
+        /*   https
           .fetchPost(
             baseUrl + "/api/channel/strategy/findChannelStrategyByPage",
             { limit: 20, pn: 1 }
           )
           .then(res => {
+            console.log(res.data.data.items);
             this.channelPackList = res.data.data.items;
-          });
-      } else {
-        console.log("不做操作");
+          }); */
       }
     },
     //是否签名
@@ -1438,7 +1447,6 @@ export default {
           })
           .then(res => {
             this.signatureList = res.data.data.items;
-            console.log(this.signatureList);
           });
       }
     }
@@ -1472,14 +1480,14 @@ export default {
         }
       });
     //查询渠道策略分页列表 是否多渠道打包
-    https
+    /*  https
       .fetchPost(baseUrl + "/api/channel/strategy/findChannelStrategyByPage", {
         pn: 1,
         limit: 20
       })
       .then(res => {
-        /*  console.log(res.data.data.items, "-----"); */
-      });
+         console.log(res.data.data.items, "-----");
+      }); */
     //查询签名列表 签名策略列表
     https
       .fetchPost(baseUrl + "/api/reinforce/sign/page", { pn: 1, limit: 20 })
@@ -1535,6 +1543,10 @@ export default {
 .reinforeBody {
   width: 99%;
   box-sizing: border-box;
+}
+.el-select-dropdown {
+  height: 200%;
+  overflow-y:auto;
 }
 .reinforeBody img {
   width: 33px;
@@ -1618,10 +1630,8 @@ export default {
 .reinfore .reinforceItem {
   margin-top: 10px;
 }
-.reinforceItem .el-form-item__label,
-.signature .el-form-item__label,
-.strategyName .el-form-item__label,
-.strategyDescribe .el-form-item__label {
+
+.el-form-item__label {
   text-align: left !important;
 }
 .addApplicationForm {

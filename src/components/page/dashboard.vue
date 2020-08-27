@@ -128,7 +128,6 @@ export default {
   },
   mounted() {
     this.getData();
-    console.log(this.listItem);
   }
 };
 </script>

@@ -1298,9 +1298,24 @@ export default {
     },
     //取消保存策略
     cancelStrategy() {
-      this.createStrategyDrawer = false;
-      this.$refs.createStrategyUpload.clearFiles();
-      this.reload();
+      const _this = this;
+      if (_this.createStrategyFileItem.length) {
+        _this
+          .$confirm("会清空当前上传文件,是否继续?", "提示", {
+            closeOnClickModal: false,
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning"
+          })
+          .then(() => {
+            _this.reload();
+            _this.createStrategyDrawer = false;
+            _this.$refs.createStrategyUpload.clearFiles();
+          })
+          .catch(() => {});
+      } else {
+        _this.createStrategyDrawer = false;
+      }
     },
     //保存创建的策略
     saveStrategy() {
@@ -1391,9 +1406,9 @@ export default {
                     if (res.data.code == "00") {
                       _this.createStrategyDrawer = false;
                       _this.$notify({
-                        title: "成功",
                         message: "新增策略成功!",
-                        type: "success"
+                        type: "success",
+                        duration: 1000
                       });
                       _this.reload();
                     }
@@ -1622,9 +1637,9 @@ export default {
           .then(res => {
             if (res.data.code == "00") {
               _this.$notify({
-                title: "成功",
                 message: "修改策略成功",
-                type: "success"
+                type: "success",
+                duration: 1000
               });
               this.amendStrategyDrawer = false;
               _this.reload();
@@ -1662,7 +1677,11 @@ export default {
             )
             .then(res => {
               if (res.data.code == "00") {
-                _this.$message({ message: "删除成功!", type: "success" });
+                _this.$message({
+                  message: "删除成功!",
+                  type: "success",
+                  duration: 1000
+                });
                 _this.reload();
               }
             });
@@ -1680,6 +1699,7 @@ export default {
 }
 .reinforceStrategy .searchForm {
   display: flex;
+  margin-bottom: 15px;
 }
 .reinforceStrategy .searchForm .operateBox {
   margin-left: 20px;
@@ -1729,9 +1749,6 @@ export default {
   margin-top: 60px;
   position: relative;
   padding: 0px 20px 40px 20px;
-}
-.reinforceStrategyBody {
-  margin-top: 20px;
 }
 .editIcon,
 .floderIcon,

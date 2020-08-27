@@ -18,7 +18,6 @@ import index from '@/components/treeTable/index.vue'
 import detail from '@/components/taskManagement/detail.vue'
 //加固日志
 import log from '@/components/taskManagement/log.vue'
-import xx from '@/components/page/xx.vue'
 Vue.use(Router);
 //解决 Element UI 导航栏重复点击菜单报错问题
 const originalPush = VueRouter.prototype.push;

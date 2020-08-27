@@ -13,6 +13,7 @@ import axios from 'axios'
 import QS from 'qs';
 import guid from './guid'
 import VueRouter from 'vue-router';
+import resetMessage from './resetMessage';//设置ElementUi中的消息提示每次只弹出一个
 //树形结构表
 Vue.config.productionTip = false
 Vue.prototype.api = api; //全局变量地址  this.api.baseUrl
@@ -21,6 +22,7 @@ Vue.prototype.$axios = axios;//在其他组件中this.$http.post(get)发送请�
 Vue.prototype.qs = QS;
 Vue.use(ElementUI);
 Vue.use(iview);
+Vue.prototype.$message = resetMessage
 new Vue({
   el: '#app',
   router,

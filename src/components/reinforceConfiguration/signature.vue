@@ -280,6 +280,9 @@ export default {
     };
   },
   inject: ["reload"],
+  beforeMount() {
+    this.getData();
+  },
   methods: {
     //获取后台数据
     getData(queryInfo) {
@@ -390,7 +393,11 @@ export default {
             )
             .then(res => {
               if (res.data.code == "00") {
-                _this.$message({ message: "删除成功!", type: "success" });
+                _this.$message({
+                  message: "删除成功!",
+                  type: "success",
+                  duration: 1000
+                });
                 _this.reload();
               }
             });
@@ -482,7 +489,11 @@ export default {
         })
         .then(res => {
           if (res.data.code === "00") {
-            _this.$message({ message: "新增签名成功", type: "success" });
+            _this.$message({
+              message: "新增签名成功",
+              type: "success",
+              duration: 1000
+            });
             this.$refs.uploadSignature.clearFiles();
             _this.reload();
           }
@@ -490,7 +501,6 @@ export default {
     },
     //取消上传的签名
     cancelSignature() {
-      console.log(this.signatureItemForm.length);
       if (this.signatureItemForm.length) {
         this.$confirm("会清空当前上传的文件,是否继续?", "提示", {
           closeOnClickModal: false,
@@ -503,19 +513,13 @@ export default {
             this.$refs.uploadSignature.clearFiles();
             this.reload();
           })
-          .catch(() => {
-            console.log("取消");
-          });
+          .catch(() => {});
         this.$refs.uploadSignature.clearFiles();
       } else {
         this.uploadSignatureDrawer = false;
       }
     }
-  },
-  beforeMount() {
-    this.getData();
-  },
-  mounted() {}
+  }
 };
 </script>
 <style>
@@ -526,9 +530,7 @@ export default {
 }
 .signature .searchForm {
   display: flex;
-}
-.signatureBody {
-  margin-top: 15px;
+  margin-bottom: 15px;
 }
 .signatureBody .el-table {
   font-size: 12px;

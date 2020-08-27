@@ -157,8 +157,8 @@
                             size="small"
                             :popper-append-to-body="false"
                             style="width:30%"
-                            @change="changeChannelKey(0)"
-                            @focus="focusChannelKey(0)"
+                            @change="changeChannelKey('createChannel', 0)"
+                            @focus="focusChannelKey('createChannel', 0)"
                           >
                             <el-option
                               v-for="(channelKeyItem,
@@ -226,8 +226,8 @@
                               size="small"
                               :popper-append-to-body="false"
                               style="width:30%"
-                              @change="changeChannelKey(0)"
-                              @focus="focusChannelKey(0)"
+                              @change="changeChannelKey('createChannel', 0)"
+                              @focus="focusChannelKey('createChannel', 0)"
                             >
                               <el-option
                                 v-for="(channelKeyItem,
@@ -311,8 +311,12 @@
                               size="small"
                               :popper-append-to-body="false"
                               style="width:30%"
-                              @change="changeChannelKey(channelIndex)"
-                              @focus="focusChannelKey(channelIndex)"
+                              @change="
+                                changeChannelKey('createChannel', channelIndex)
+                              "
+                              @focus="
+                                focusChannelKey('createChannel', channelIndex)
+                              "
                             >
                               <el-option
                                 v-for="(channelKeyItem,
@@ -380,8 +384,15 @@
                                 size="small"
                                 :popper-append-to-body="false"
                                 style="width:30%"
-                                @change="changeChannelKey(channelIndex)"
-                                @focus="focusChannelKey(channelIndex)"
+                                @change="
+                                  changeChannelKey(
+                                    'createChannel',
+                                    channelIndex
+                                  )
+                                "
+                                @focus="
+                                  focusChannelKey('createChannel', channelIndex)
+                                "
                               >
                                 <el-option
                                   v-for="(channelKeyItem,
@@ -558,9 +569,6 @@
                       parameterIndex) in detailItem.channelDetails"
                       :key="parameterItem.id"
                     >
-                      <!--  <p style="border:1px solid blue">
-                        {{ detailItem }}
-                      </p> -->
                       <el-form-item
                         label="渠道参数"
                         prop="channelStrategyParameter"
@@ -570,8 +578,10 @@
                           size="small"
                           :popper-append-to-body="false"
                           style="width:30%"
-                          @change="changeChannelKey(parameterIndex)"
-                          @focus="focusChannelKey(parameterIndex)"
+                          @change="
+                            changeChannelKey('amendChannel', detailIndex)
+                          "
+                          @focus="focusChannelKey('amendChannel', detailIndex)"
                         >
                           <el-option
                             v-for="(channelKeyItem,
@@ -619,7 +629,9 @@
                       type="text"
                       icon="el-icon-error"
                       plain
-                      :disabled="detailItem.length == 1"
+                      :disabled="
+                        channelStrategyParticulars.itemDetailDtoList.length == 1
+                      "
                       @click="deleteChannel(detailIndex, 'amendChannel')"
                     ></el-button>
                   </div>
@@ -637,7 +649,9 @@
           </el-form>
         </div>
         <div class="el-drawer-footer">
-          <el-button type="primary" @click="amendChannelStrategy()"
+          <el-button
+            type="primary"
+            @click="saveAmendChannelStrategy(channelStrategyParticulars.id)"
             >修改</el-button
           >
           <el-button plain @click="cancelAmendChannelStrategy()"
@@ -876,39 +890,57 @@ export default {
   },
   inject: ["reload"],
   beforeMount() {
-    let _this = this,
+    const _this = this,
       baseUrl = this.api.baseUrl;
     _this.getData();
   },
   methods: {
     //去除select选项同一级不能选重复的值
-    removeRepetitionChannelKeyData(index) {
-      let _this = this,
-        dropDownList = _this.channelStrategyList[index].channelKeyData,
-        parameteList =
-          _this.channelStrategyList[index].channelStrategyParameteList;
-      for (var i = 0; i < dropDownList.length; i++) {
-        dropDownList[i]["disabled"] = false;
+    removeRepetitionChannelKeyData(typeChannel, index) {
+      const _this = this;
+      if (typeChannel == "createChannel") {
+        const dropDownList = _this.channelStrategyList[index].channelKeyData,
+          parameteList =
+            _this.channelStrategyList[index].channelStrategyParameteList;
+        for (var i = 0; i < dropDownList.length; i++) {
+          _this.$set(dropDownList[i], "disabled", false);
+        }
+        for (var j = 0; j < parameteList.length; j++) {
+          for (var k = 0; k < dropDownList.length; k++) {
+            if (parameteList[j].channelKey == dropDownList[k].value) {
+              _this.$set(dropDownList[k], "disabled", true);
+            }
+          }
+        }
       }
-      for (var j = 0; j < parameteList.length; j++) {
-        for (var k = 0; k < dropDownList.length; k++) {
-          if (parameteList[j].channelKey == dropDownList[k].value) {
-            _this.channelStrategyList[index].channelKeyData[k][
-              "disabled"
-            ] = true;
+      if (typeChannel == "amendChannel") {
+        const dropDownList =
+            _this.channelStrategyParticulars.itemDetailDtoList[index]
+              .channelKeyData,
+          parameteList =
+            _this.channelStrategyParticulars.itemDetailDtoList[index]
+              .channelDetails;
+        for (var i = 0; i < dropDownList.length; i++) {
+          _this.$set(dropDownList[i], "disabled", false);
+        }
+        for (var j = 0; j < parameteList.length; j++) {
+          for (var k = 0; k < dropDownList.length; k++) {
+            if (parameteList[j].channelKey == dropDownList[k].value) {
+              _this.$set(dropDownList[k], "disabled", true);
+            }
           }
         }
       }
     },
-    changeChannelKey(index) {
-      this.removeRepetitionChannelKeyData(index);
+    changeChannelKey(typeChannel, index) {
+      this.removeRepetitionChannelKeyData(typeChannel, index);
     },
-    focusChannelKey(index) {
-      this.removeRepetitionChannelKeyData(index);
+    focusChannelKey(typeChannel, index) {
+      this.removeRepetitionChannelKeyData(typeChannel, index);
     },
     //获取表格数据
     getData(queryInfo) {
-      let baseUrl = this.api.baseUrl;
+      const baseUrl = this.api.baseUrl;
       https
         .fetchPost(
           baseUrl + "/api/channel/strategy/findChannelStrategyByPage",
@@ -936,17 +968,17 @@ export default {
     },
     //获取渠道策略具体的内容
     getChannelStrategy(id) {
-      let _this = this,
-        baseUrl = _this.api.baseUrl,
-        appPath = null;
+      const _this = this,
+        baseUrl = _this.api.baseUrl;
+      let appPath = null;
       https
         .fetchGet(
           baseUrl + "/api/channel/strategy/findChannelStrategyDetail/" + id
         )
         .then(res => {
           if (res.data.code == "00") {
-            let data = res.data.data;
-            appPath = data.reinforceInfo.appPath;
+            let data = res.data.data,
+              appPath = data.reinforceInfo.appPath;
             _this.channelStrategyParticulars = data;
             https
               .fetchGet(
@@ -962,7 +994,7 @@ export default {
                   });
                   _this.channelStrategyParticulars.itemDetailDtoList.forEach(
                     v => {
-                      v["channelKeyData"] = channelKeyData;
+                      _this.$set(v, "channelKeyData", channelKeyData);
                     }
                   );
                   _this.channelKeyData = channelKeyData;
@@ -978,7 +1010,7 @@ export default {
     },
     //删除渠道策略
     deleteChannelStrategy(id, channelStrategyName) {
-      let _this = this,
+      const _this = this,
         baseUrl = _this.api.baseUrl;
       _this
         .$confirm("确定要删除" + channelStrategyName + "渠道吗?", "提示", {
@@ -995,7 +1027,11 @@ export default {
             )
             .then(res => {
               if (res.data.code == "00") {
-                _this.$message({ message: "删除成功!", type: "success" });
+                _this.$message({
+                  message: "删除成功!",
+                  type: "success",
+                  duration: 1000
+                });
                 _this.reload();
               }
             });
@@ -1004,7 +1040,7 @@ export default {
     },
     //查询渠道策略名称
     searchChannelStrategyName() {
-      let _this = this,
+      const _this = this,
         channelStrategyName = _this.ruleForm.channelStrategyName;
       _this.getData({ channelStrategyName });
       _this.loading = true;
@@ -1018,9 +1054,9 @@ export default {
     },
     //上传渠道策略开始
     createChannelStrategyFile(file) {
-      let _this = this,
-        params = new FormData(),
+      const _this = this,
         baseUrl = _this.api.baseUrl;
+      let params = new FormData();
       params.append("file", file.file);
       //进度条配置
       let config = {
@@ -1071,9 +1107,9 @@ export default {
     },
     //保存创建的渠道策略
     saveChannelStrategy() {
-      let _this = this,
-        baseUrl = _this.api.baseUrl,
-        formItem = _this.createChannelStrategyFileItem[0],
+      const _this = this,
+        baseUrl = _this.api.baseUrl;
+      let formItem = _this.createChannelStrategyFileItem[0],
         channelStrategyName = _this.channelStrategyForm.strategyName,
         channelStrategyDescribe = _this.channelStrategyForm.strategyDescribe,
         allValid = true,
@@ -1136,6 +1172,20 @@ export default {
             return false;
           }
         });
+      let channelStrategyDto = {
+        channelStrategyName,
+        channelStrategyDescribe,
+        itemDetailDtoList,
+        reinforceInfo: {
+          appName: formItem.appName,
+          appIcon: formItem.appIcon,
+          appPackage: formItem.appPackage,
+          appFileName: formItem.appFileName,
+          appPath: formItem.appPath,
+          appSize: formItem.appSize,
+          appVersion: formItem.appVersion
+        }
+      };
       Promise.all([checkChannelValueType, checkChannelStrategyName]).then(
         values => {
           let valid = values.every(item => item);
@@ -1157,9 +1207,9 @@ export default {
                 if (res.data.code === "00") {
                   _this.createChannelStrategyDrawer = false;
                   _this.$notify({
-                    title: "成功",
                     message: "新增渠道成功!",
-                    type: "success"
+                    type: "success",
+                    duration: 1000
                   });
                   _this.reload();
                 }
@@ -1168,20 +1218,6 @@ export default {
           }
         }
       );
-      let channelStrategyDto = {
-        channelStrategyName,
-        channelStrategyDescribe,
-        itemDetailDtoList,
-        reinforceInfo: {
-          appName: formItem.appName,
-          appIcon: formItem.appIcon,
-          appPackage: formItem.appPackage,
-          appFileName: formItem.appFileName,
-          appPath: formItem.appPath,
-          appSize: formItem.appSize,
-          appVersion: formItem.appVersion
-        }
-      };
     },
     //取消保存创建的渠道策略
     cancelChannelStrategy() {
@@ -1199,20 +1235,17 @@ export default {
             _this.createChannelStrategyDrawer = false;
             _this.$refs.createChannelStrategyUpload.clearFiles();
           })
-          .catch(() => {
-            console.log("取消");
-          });
+          .catch(() => {});
       } else {
         _this.createChannelStrategyDrawer = false;
       }
     },
     //添加渠道参数
     addChannelStrategyParameter(typeChannel, index, appPath) {
-      console.log(typeChannel, index, appPath);
-      let _this = this,
+      const _this = this,
         baseUrl = _this.api.baseUrl,
-        fileKey = appPath,
-        parameterIsValid = true,
+        fileKey = appPath;
+      let parameterIsValid = true,
         parameterDetailIsValid = true;
       if (typeChannel == "amendChannel") {
         let channelDetailList =
@@ -1228,7 +1261,6 @@ export default {
             _this.$message.error("渠道参数 channelKey不能为空!");
             parameterDetailIsValid = false;
           }
-          console.log(parameterDetailIsValid, "哈哈");
           if (parameterDetailIsValid) {
             checkChannelValueType = https
               .fetchGet(
@@ -1243,6 +1275,7 @@ export default {
               .then(res => {
                 if (res.data.code === "500") {
                   parameterIsValid = false;
+                  return false;
                 }
                 if (res.data == true) {
                   return true;
@@ -1251,8 +1284,7 @@ export default {
           }
         });
         Promise.all([checkChannelValueType]).then(res => {
-          console.log(res, "%%%");
-          if (res[0] == true) {
+          if (res[0] == true && parameterDetailIsValid) {
             channelDetailList.push({
               channelKey: "",
               channelValue: ""
@@ -1285,7 +1317,6 @@ export default {
                 fileKey
             )
             .then(res => {
-              console.log(res);
               if (res.data.code === "500") {
                 parameterIsValid = false;
               }
@@ -1321,7 +1352,6 @@ export default {
         v.disabled = false;
       });
       if (typeChannel == "amendChannel") {
-        console.log(this.channelStrategyParticulars.itemDetailDtoList);
         this.channelStrategyParticulars.itemDetailDtoList.push({
           channelName: "",
           channelDetails: [{ channelKey: "", channelValue: "" }],
@@ -1349,6 +1379,104 @@ export default {
     amendChannelStrategy(id) {
       this.amendChannelStrategyDrawer = true;
       this.getChannelStrategy(id);
+    },
+    //保存修改的渠道
+    saveAmendChannelStrategy(id) {
+      const _this = this,
+        baseUrl = _this.api.baseUrl;
+      let channelStrategyParticulars = _this.channelStrategyParticulars,
+        channelStrategyName = channelStrategyParticulars.channelStrategyName,
+        channelStrategyDescribe =
+          channelStrategyParticulars.channelStrategyDescribe,
+        itemDetailDtoList = channelStrategyParticulars.itemDetailDtoList,
+        reinforceInfo = channelStrategyParticulars.reinforceInfo,
+        appPath = reinforceInfo.appPath,
+        allValid = true,
+        checkChannelValueType = null;
+      itemDetailDtoList = itemDetailDtoList.filter(v => {
+        _this.$delete(v, "createTime");
+        _this.$delete(v, "updateTime");
+        return v;
+      });
+      let channelStrategyDto = {
+        id,
+        channelStrategyName,
+        channelStrategyDescribe,
+        itemDetailDtoList,
+        reinforceInfo: {
+          appName: reinforceInfo.appName,
+          appIcon: reinforceInfo.appIcon,
+          appPackage: reinforceInfo.appPackage,
+          appFileName: reinforceInfo.appFileName,
+          appPath: reinforceInfo.appPath,
+          appSize: reinforceInfo.appSize,
+          appVersion: reinforceInfo.appVersion
+        }
+      };
+      itemDetailDtoList.map((item, index) => {
+        if (item.channelName == "") {
+          _this.$message.error("渠道名称不能为空!");
+          allValid = false;
+        }
+        item.channelDetails.forEach(v => {
+          if (v.channelKey == "") {
+            _this.$message.error("渠道参数channelKey不能为空!");
+            allValid = false;
+          }
+          if (v.channelValue == "") {
+            _this.$message.error("渠道参数channelValue不能为空!");
+            allValid = false;
+          }
+          if (v.channelKey && v.channelValue) {
+            checkChannelValueType = https
+              .fetchGet(
+                baseUrl +
+                  "/api/channel/strategy/checkChannelValueType?channelKey=" +
+                  v.channelKey +
+                  "&channelValue=" +
+                  v.channelValue +
+                  "&fileKey=" +
+                  appPath
+              )
+              .then(res => {
+                if (res.data.code === "500") {
+                  return false;
+                }
+                if (res.data == true) {
+                  return true;
+                }
+              });
+          }
+        });
+      });
+      Promise.all([checkChannelValueType]).then(value => {
+        let valid = value.every(item => item);
+        if (allValid && valid) {
+          https
+            .fetchPost(
+              baseUrl + "/api/channel/strategy/saveOrUpdateChannelStrategy",
+              channelStrategyDto
+            )
+            .then(res => {
+              if (
+                res.data.code === "01" ||
+                res.data.code == "99" ||
+                res.data.code == "500"
+              ) {
+                _this.amendChannelStrategyDrawer = false;
+              }
+              if (res.data.code === "00") {
+                _this.$notify({
+                  message: "修改渠道成功",
+                  type: "success",
+                  duration: 1000
+                });
+                _this.amendChannelStrategyDrawer = false;
+                _this.reload();
+              }
+            });
+        }
+      });
     },
     //取消保存修改的渠道
     cancelAmendChannelStrategy() {
@@ -1388,12 +1516,10 @@ export default {
 }
 .channelStrategy .searchForm {
   display: flex;
+  margin-bottom: 15px;
 }
 .channelStrategy .operateBox {
   margin-left: 10px;
-}
-.channelStrategyBody {
-  margin-top: 20px;
 }
 .channelStrategy .el-drawer-header {
   width: 100%;
@@ -1450,7 +1576,7 @@ export default {
   vertical-align: middle;
 }
 .el-select-dropdown__item {
-  font-size: 12px;
+  font-size: 12px !important;
 }
 .channelStrategy .el-drawer-footer {
   width: 100%;
@@ -1510,17 +1636,17 @@ export default {
   cursor: pointer;
   color: #33333369;
   font-size: 15px;
-  border: none;
+  border: none !important;
   background: transparent !important;
 }
 .addChannelStrategyParameterButton,
 .deleteChannelStrategyParameterButton {
   width: 15px;
-  border: none;
+  border: none !important;
   background: transparent !important;
 }
 .addChannelStrategy {
-  margin-top: 15px;
+  margin-top: 15px !important;
 }
 .el-drawer {
   box-sizing: border-box !important;
