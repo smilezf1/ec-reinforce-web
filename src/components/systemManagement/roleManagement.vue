@@ -48,6 +48,7 @@
           :with-header="false"
           :wrapperClosable="false"
           :close-on-press-escape="false"
+          size="40%"
           ref="addRoleDrawer"
           @close="resetForm('addRoleForm')"
         >
@@ -73,7 +74,6 @@
             <el-button @click="cancelSaveaddRole()" plain>取消</el-button>
           </div>
         </el-drawer>
-
         <el-tooltip effect="dark" content="刷新" placement="top-start">
           <el-button
             type="primary"
@@ -137,6 +137,7 @@
                 :with-header="false"
                 :wrapperClosable="false"
                 :close-on-press-escape="false"
+                size="40%"
                 ref="editDrawer"
               >
                 <div class="el-drawer-header">
@@ -243,7 +244,8 @@
   </div>
 </template>
 <script>
-import https from "../../http.js";
+import https from "../../request/http.js";
+import api from "../../request/api";
 export default {
   name: "roleManagement",
   data() {
@@ -290,21 +292,14 @@ export default {
   methods: {
     //获取后台数据
     getData(queryInfo) {
-      let baseUrl = this.api.baseUrl,
-        _this = this;
-      https
-        .fetchPost(baseUrl + "/api/system/role/page", {
-          pn: this.curPage,
-          limit: this.limit,
-          queryInfo
-        })
-        .then(res => {
-          _this.listItem = res.data.data.items;
-          _this.dataCount = res.data.data.count;
-        })
-        .catch(error => {
-          console.log(error);
-        });
+      const _this = this;
+      let params = { pn: this.curPage, limit: this.limit, queryInfo };
+      api.systemManageService.roleManageList(params).then(res => {
+        if (res.code == "00") {
+          _this.listItem = res.data.items;
+          _this.dataCount = res.data.count;
+        }
+      });
     },
     handleChange(val) {
       this.curPage = val;
@@ -322,8 +317,7 @@ export default {
       this.getData(queryInfo);
     },
     search(ruleForm) {
-      let baseUrl = this.api.baseUrl,
-        name = ruleForm.name,
+      let name = ruleForm.name,
         status = ruleForm.status,
         _this = this;
       _this.loading = true;
@@ -342,22 +336,20 @@ export default {
       this.addRoleDrawer = true;
     },
     saveaddRole(formName, form) {
-      let baseUrl = this.api.baseUrl,
-        name = form.name;
+      const name = form.name;
       this.$refs[formName].validate(valid => {
         if (valid) {
-          https
-            .fetchPost(baseUrl + "/api/system/role/save", { name })
-            .then(res => {
-              if (res.data.code === "00") {
-                this.reload();
-                this.$notify.success({
-                  message: "新增角色成功",
-                  showClose: false,
-                  duration: 1000
-                });
-              }
-            });
+          let params = { name };
+          api.systemManageService.roleManageSave(params).then(res => {
+            if (res.code == "00") {
+              this.reload();
+              this.$notify.success({
+                message: "新增角色成功",
+                showClose: false,
+                duration: 1000
+              });
+            }
+          });
         } else {
           return false;
         }
@@ -369,13 +361,15 @@ export default {
     edit(id) {
       this.editDrawer = true;
       this.editId = id;
-      let baseUrl = this.api.baseUrl;
-      https.fetchGet(baseUrl + "/api/system/role/detail", { id }).then(res => {
-        this.editForm.name = res.data.data.name;
-        if (res.data.data.status === "1") {
-          this.editForm.status = "是";
-        } else if (res.data.data.status === "0") {
-          this.editForm.status = "否";
+      let params = { id };
+      api.systemManageService.roleManageDetail(params).then(res => {
+        if (res.code == "00") {
+          this.editForm.name = res.data.name;
+          if (res.data.status === "1") {
+            this.editForm.status = "是";
+          } else if (res.data.status === "0") {
+            this.editForm.status = "否";
+          }
         }
       });
     },
@@ -383,12 +377,11 @@ export default {
       this.reload();
     },
     saveEditForm(formName, editForm) {
-      let baseUrl = this.api.baseUrl,
-        name = editForm.name,
-        id = this.editId;
-      https
-        .fetchPost(baseUrl + "/api/system/role/save", { id, name })
-        .then(res => {
+      const name = editForm.name,
+        id = this.editId,
+        params = { id, name };
+      api.systemManageService.roleManageSaveEdit(params).then(res => {
+        if (res.code == "00") {
           this.reload();
           this.editDrawer = false;
           this.$notify.success({
@@ -396,7 +389,8 @@ export default {
             showClose: false,
             duration: 1000
           });
-        });
+        }
+      });
     },
     cancelForm() {
       this.editDrawer = false;
@@ -430,55 +424,51 @@ export default {
       this.checkedNodes = checkedKeys.checkedNodes;
     },
     setting(id) {
-      let baseUrl = this.api.baseUrl;
       this.menuDialog = true;
       this.setMenuId = id;
-      https
-        .fetchGet(baseUrl + "/api/system/menu/menuTree", { roleId: id })
-        .then(res => {
-          let data = res.data.data;
-          (data = JSON.parse(JSON.stringify(data).replace(/name/g, "label"))),
-            (this.menuTreeData = this.toTreeData(data));
-          for (var j = 0; j < this.menuTreeData.length; j++) {
-            if (this.menuTreeData[j].children) {
-              for (var k = 0; k < this.menuTreeData[j].children.length; k++) {
-                if (this.menuTreeData[j].children[k].id.startsWith("T")) {
-                  this.menuTreeData[j].children[k].id = this.menuTreeData[
-                    j
-                  ].children[k].id;
-                }
+      https.fetchGet("/api/system/menu/menuTree", { roleId: id }).then(res => {
+        let data = res.data.data;
+        (data = JSON.parse(JSON.stringify(data).replace(/name/g, "label"))),
+          (this.menuTreeData = this.toTreeData(data));
+        for (var j = 0; j < this.menuTreeData.length; j++) {
+          if (this.menuTreeData[j].children) {
+            for (var k = 0; k < this.menuTreeData[j].children.length; k++) {
+              if (this.menuTreeData[j].children[k].id.startsWith("T")) {
+                this.menuTreeData[j].children[k].id = this.menuTreeData[
+                  j
+                ].children[k].id;
               }
             }
-            if (this.menuTreeData[j].id.startsWith("M")) {
-              this.menuTreeData[j].id = this.menuTreeData[j].id;
-            }
           }
-          this.menuTreeData.forEach((v, i) => {
-            if (v.children) {
-              v.children.forEach((v, i) => {
-                if (v.checked == true) {
-                  if (v.pId.startsWith("M")) {
-                    this.setParMentList.push(v.pId);
-                    this.setParMentList = Array.from(
-                      new Set(this.setParMentList)
-                    );
-                  }
-                  this.setMenuList.push(v.id);
-                  this.setMenuList = Array.from(new Set(this.setMenuList));
-                }
-              });
-            } else {
+          if (this.menuTreeData[j].id.startsWith("M")) {
+            this.menuTreeData[j].id = this.menuTreeData[j].id;
+          }
+        }
+        this.menuTreeData.forEach((v, i) => {
+          if (v.children) {
+            v.children.forEach((v, i) => {
               if (v.checked == true) {
+                if (v.pId.startsWith("M")) {
+                  this.setParMentList.push(v.pId);
+                  this.setParMentList = Array.from(
+                    new Set(this.setParMentList)
+                  );
+                }
                 this.setMenuList.push(v.id);
                 this.setMenuList = Array.from(new Set(this.setMenuList));
               }
+            });
+          } else {
+            if (v.checked == true) {
+              this.setMenuList.push(v.id);
+              this.setMenuList = Array.from(new Set(this.setMenuList));
             }
-          });
+          }
         });
+      });
     },
     setMenuSave() {
-      let baseUrl = this.api.baseUrl,
-        id = this.setMenuId,
+      let id = this.setMenuId,
         nodes = this.checkedNodes,
         menuList = this.menuList;
       if (nodes && nodes.length != 0) {
@@ -498,7 +488,7 @@ export default {
       })
         .then(res => {
           https
-            .fetchPost(baseUrl + "/api/system/role/saveRoleItem", {
+            .fetchPost("/api/system/role/saveRoleItem", {
               btnList: [],
               itemList: menuList,
               roleId: id
@@ -520,26 +510,23 @@ export default {
     //设置菜单结束
     //停用
     blockUp(id) {
-      let baseUrl = this.api.baseUrl;
       this.$alert("确定要停用吗?", "确定停用", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       })
         .then(() => {
-          https
-            .fetchGet(baseUrl + "/api/system/role/invalid", { id })
-            .then(res => {
-              if (res.data.code === "00") {
-                this.reload();
-                this.$notify.success({
-                  message: "停用成功",
-                  type: "warning",
-                  showClose: false,
-                  duration: 1000
-                });
-              }
-            });
+          https.fetchGet("/api/system/role/invalid", { id }).then(res => {
+            if (res.data.code === "00") {
+              this.reload();
+              this.$notify.success({
+                message: "停用成功",
+                type: "warning",
+                showClose: false,
+                duration: 1000
+              });
+            }
+          });
         })
         .catch(() => {
           console.log("取消停用");
@@ -547,25 +534,22 @@ export default {
     },
     //启用
     launch(id) {
-      let baseUrl = this.api.baseUrl;
       this.$alert("确定要启用吗?", "确定启用", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       })
         .then(() => {
-          https
-            .fetchGet(baseUrl + "/api/system/role/active", { id })
-            .then(res => {
-              if (res.data.code === "00") {
-                this.reload();
-                this.$notify.success({
-                  message: "启用成功",
-                  showClose: false,
-                  duration: 1000
-                });
-              }
-            });
+          https.fetchGet("/api/system/role/active", { id }).then(res => {
+            if (res.data.code === "00") {
+              this.reload();
+              this.$notify.success({
+                message: "启用成功",
+                showClose: false,
+                duration: 1000
+              });
+            }
+          });
         })
         .catch(() => {
           console.log("取消启用");
@@ -611,7 +595,8 @@ export default {
   border-bottom: 1px solid transparent;
 }
 .el-table thead {
-  color: #515a6e;
+  color: #515a6e !important;
+  font-weight: 700;
 }
 .el-table__header-wrapper {
   background: #f8f8f9;
@@ -636,17 +621,17 @@ export default {
   font-weight: 600;
 }
 .el-drawer-footer {
+  width: 40%;
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: 0;
+  right: 0;
+  text-align: right;
+  padding: 10px 20px;
+  border-top: 1px solid #ebebeb;
 }
 .el-input {
   width: auto;
 }
-/* .el-button--primary {
-  background: #207ba6;
-  border-color: #207ba6;
-} */
 .roleManagementBase {
   margin-top: 20px;
 }

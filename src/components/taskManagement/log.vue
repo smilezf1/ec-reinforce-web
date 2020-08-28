@@ -22,7 +22,7 @@
   </div>
 </template>
 <script>
-import https from "../../http";
+import https from "../../request/http";
 export default {
   name: "Log",
   data() {
@@ -32,12 +32,11 @@ export default {
     };
   },
   created() {
-    let baseUrl = this.api.baseUrl,
-      id = parseInt(this.$route.params.id),
+    const id = parseInt(this.$route.params.id),
       _this = this;
     _this.titleItem = this.$route.query;
     https
-      .fetchGet(baseUrl + "/api/reinforce/info/findLogoByReinforceId/" + id)
+      .fetchGet("/api/reinforce/info/findLogoByReinforceId/" + id)
       .then(res => {
         _this.listItem = res.data.data;
       });

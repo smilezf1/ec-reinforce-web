@@ -4,17 +4,16 @@
       <p>当前位置:菜单管理</p>
     </div>
     <div class="operateBox">
-      <!-- <el-tooltip effect="dark" content="新增目录" placement="top-start"> -->
       <el-button type="primary" size="small" @click="addCatalogue()"
         >新增目录</el-button
       >
-      <!--  </el-tooltip> -->
       <el-drawer
         title="新增目录"
         :visible.sync="addDrawer"
         :with-header="false"
         :wrapperClosable="false"
         :close-on-press-escape="false"
+        size="30%"
         ref="addDrawer"
         @close="resetForm('addCatalogueForm')"
       >
@@ -119,6 +118,7 @@
                 :wrapperClosable="false"
                 :close-on-press-escape="false"
                 ref="editDrawer"
+                size="30%"
               >
                 <div class="el-drawer-header">
                   <h3>编辑</h3>
@@ -174,6 +174,7 @@
                 :wrapperClosable="false"
                 :close-on-press-escape="false"
                 ref="addLinkDrawer"
+                size="30%"
               >
                 <div class="el-drawer-header">
                   <h3>新增链接</h3>
@@ -244,7 +245,7 @@
   </div>
 </template>
 <script>
-import https from "../../http.js";
+import https from "../../request/http.js";
 import Vue from "vue";
 export default {
   name: "menuManagement",
@@ -348,30 +349,26 @@ export default {
       this.addLinkDrawer = false;
     },
     edit(id) {
-      let baseUrl = this.api.baseUrl,
-        ids = id;
+      const ids = id;
       this.editDrawer = true;
-      https
-        .fetchGet(baseUrl + "/api/system/menu/detail", { id: ids })
-        .then(res => {
-          let form = this.form,
-            data = res.data.data;
-          form.name = data.name;
-          form.type = data.type;
-          form.icon = data.icon;
-          this.id = data.id;
-          if (data.type === "M") {
-            form.type = "目录";
-          }
-          if (data.type === "T") {
-            form.type = "链接";
-          }
-          form.icon = data.icon;
-        });
+      https.fetchGet("/api/system/menu/detail", { id: ids }).then(res => {
+        let form = this.form,
+          data = res.data.data;
+        form.name = data.name;
+        form.type = data.type;
+        form.icon = data.icon;
+        this.id = data.id;
+        if (data.type === "M") {
+          form.type = "目录";
+        }
+        if (data.type === "T") {
+          form.type = "链接";
+        }
+        form.icon = data.icon;
+      });
     },
     save(formName, form) {
       let id = parseInt(this.id),
-        baseUrl = this.api.baseUrl,
         name = form.name,
         icon = form.icon,
         type = null;
@@ -384,7 +381,7 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
           https
-            .fetchPost(baseUrl + "/api/system/menu/save", {
+            .fetchPost("/api/system/menu/save", {
               id,
               name,
               icon,
@@ -412,8 +409,7 @@ export default {
     },
     //保存新增的目录
     saveAddCatalogue(formName, addCatalogueForm) {
-      let baseUrl = this.api.baseUrl,
-        name = addCatalogueForm.name,
+      let name = addCatalogueForm.name,
         icon = addCatalogueForm.icon,
         type = null;
       if (addCatalogueForm.type == "目录") {
@@ -426,7 +422,7 @@ export default {
         console.log(valid);
         if (valid) {
           https
-            .fetchPost(baseUrl + "/api/system/menu/save", {
+            .fetchPost("/api/system/menu/save", {
               name,
               icon,
               type,
@@ -454,8 +450,7 @@ export default {
     },
     //保存新增的链接
     saveAddLink(formName, addLinkForm) {
-      let baseUrl = this.api.baseUrl,
-        name = addLinkForm.name,
+      let name = addLinkForm.name,
         icon = addLinkForm.icon,
         type = null,
         pId = this.linkID;
@@ -468,7 +463,7 @@ export default {
       this.$refs[formName].validate(valid => {
         if (valid) {
           https
-            .fetchPost(baseUrl + "/api/system/menu/save", {
+            .fetchPost("/api/system/menu/save", {
               pId,
               name,
               icon,
@@ -492,26 +487,23 @@ export default {
 
     //停用
     blockUp(id, type) {
-      let baseUrl = this.api.baseUrl;
       this.$alert("确定要停用吗?", "确定停用", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       })
         .then(() => {
-          https
-            .fetchGet(baseUrl + "/api/system/menu/invalid", { id })
-            .then(res => {
-              if (res.data.code === "00") {
-                this.reload();
-                this.$notify({
-                  message: "停用成功",
-                  type: "warning",
-                  showClose: false,
-                  duration: 1000
-                });
-              }
-            });
+          https.fetchGet("/api/system/menu/invalid", { id }).then(res => {
+            if (res.data.code === "00") {
+              this.reload();
+              this.$notify({
+                message: "停用成功",
+                type: "warning",
+                showClose: false,
+                duration: 1000
+              });
+            }
+          });
         })
         .catch(() => {
           console.log("取消停用");
@@ -519,25 +511,22 @@ export default {
     },
     //启用
     launch(id) {
-      let baseUrl = this.api.baseUrl;
       this.$alert("确定要启用吗?", "确定启用", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       })
         .then(() => {
-          https
-            .fetchGet(baseUrl + "/api/system/menu/active", { id })
-            .then(res => {
-              if (res.data.code === "00") {
-                this.reload();
-                this.$notify.success({
-                  message: "启用成功",
-                  showClose: false,
-                  duration: 1000
-                });
-              }
-            });
+          https.fetchGet("/api/system/menu/active", { id }).then(res => {
+            if (res.data.code === "00") {
+              this.reload();
+              this.$notify.success({
+                message: "启用成功",
+                showClose: false,
+                duration: 1000
+              });
+            }
+          });
         })
         .catch(() => {
           console.log("取消启用");
@@ -545,8 +534,7 @@ export default {
     }
   },
   created() {
-    let baseUrl = this.api.baseUrl;
-    https.fetchGet(baseUrl + "/api/system/menu/list").then(res => {
+    https.fetchGet("/api/system/menu/list").then(res => {
       this.menusTable = this.toTreeData(res.data.data);
     });
   },
@@ -573,7 +561,6 @@ export default {
 }
 .el-table thead {
   font-size: 12px !important;
-  color: #515a6e !important;
 }
 .el-table__header-wrapper {
   background: #f8f8f9;
@@ -611,9 +598,13 @@ export default {
   padding: 20px;
 }
 .el-drawer-footer {
+  width: 30%;
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: 0;
+  right: 0;
+  text-align: right;
+  padding: 10px 20px;
+  border-top: 1px solid #ebebeb;
 }
 .operateBox {
   margin-bottom: 15px;

@@ -48,7 +48,7 @@
   </div>
 </template>
 <script>
-import https from "../../http";
+import https from "../../request/http";
 export default {
   name: "reinforceItem",
   data() {
@@ -61,9 +61,8 @@ export default {
   },
   methods: {
     getData(queryInfo) {
-      let baseUrl = this.api.baseUrl;
       https
-        .fetchPost(baseUrl + "/api/reinforce/item/page", {
+        .fetchPost("/api/reinforce/item/page", {
           pn: this.curPage,
           limit: this.limit,
           queryInfo
@@ -101,6 +100,9 @@ export default {
   font-size: 12px;
   border: 1px solid #dcdee2;
   border-bottom: 1px solid transparent !important;
+}
+.el-table thead {
+  color: #515a6a;
 }
 .el-table__header-wrapper th {
   background: #f2f5f7 !important;

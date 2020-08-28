@@ -61,7 +61,7 @@
   </div>
 </template>
 <script>
-import http from "../../http.js";
+import api from "../../request/api";
 import md5 from "js-md5";
 import { mapMutations } from "vuex";
 export default {
@@ -92,7 +92,6 @@ export default {
         userName = data.userName,
         password = md5(data.password),
         verCode = data.verCode,
-        baseUrl = this.api.baseUrl,
         _this = this;
       this.$refs[formName].validate(valid => {
         if (valid) {
@@ -102,12 +101,12 @@ export default {
             verCode: verCode,
             guid: guid
           };
-          http
-            .fetchPost(baseUrl + "/api/system/login/login", params)
+          api.loginService
+            .login(params)
             .then(res => {
-              if (res.data.code === "00") {
-                const accessToken = res.data.data.accessToken,
-                  userName = res.data.data.userName;
+              if (res.code === "00") {
+                const accessToken = res.data.accessToken,
+                  userName = res.data.userName;
                 localStorage.setItem("Authorization", accessToken);
                 localStorage.setItem("userName", userName);
                 _this.$message({
@@ -122,9 +121,7 @@ export default {
                 _this.Guid = this.guid.getGuid();
               }
             })
-            .catch(error => {
-              console.log(error);
-            });
+            .catch(error => {});
         } else {
           this.$message({
             message: "必填项不能为空",

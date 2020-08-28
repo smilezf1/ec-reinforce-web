@@ -845,7 +845,7 @@
   </div>
 </template>
 <script>
-import https from "../../http";
+import https from "../../request/http";
 import { set, template, values } from "xe-utils/methods";
 export default {
   name: "channelStrategy",
@@ -890,8 +890,7 @@ export default {
   },
   inject: ["reload"],
   beforeMount() {
-    const _this = this,
-      baseUrl = this.api.baseUrl;
+    const _this = this;
     _this.getData();
   },
   methods: {
@@ -940,12 +939,12 @@ export default {
     },
     //获取表格数据
     getData(queryInfo) {
-      const baseUrl = this.api.baseUrl;
       https
-        .fetchPost(
-          baseUrl + "/api/channel/strategy/findChannelStrategyByPage",
-          { pn: this.curPage, limit: this.limit, queryInfo }
-        )
+        .fetchPost("/api/channel/strategy/findChannelStrategyByPage", {
+          pn: this.curPage,
+          limit: this.limit,
+          queryInfo
+        })
         .then(res => {
           if (res.data.code === "00") {
             let data = res.data.data;
@@ -968,13 +967,10 @@ export default {
     },
     //获取渠道策略具体的内容
     getChannelStrategy(id) {
-      const _this = this,
-        baseUrl = _this.api.baseUrl;
+      const _this = this;
       let appPath = null;
       https
-        .fetchGet(
-          baseUrl + "/api/channel/strategy/findChannelStrategyDetail/" + id
-        )
+        .fetchGet("/api/channel/strategy/findChannelStrategyDetail/" + id)
         .then(res => {
           if (res.data.code == "00") {
             let data = res.data.data,
@@ -982,9 +978,7 @@ export default {
             _this.channelStrategyParticulars = data;
             https
               .fetchGet(
-                baseUrl +
-                  "/api/channel/strategy/parseApkMateInfoByFileKey/" +
-                  appPath
+                "/api/channel/strategy/parseApkMateInfoByFileKey/" + appPath
               )
               .then(res => {
                 if (res.data.code === "00") {
@@ -1010,8 +1004,7 @@ export default {
     },
     //删除渠道策略
     deleteChannelStrategy(id, channelStrategyName) {
-      const _this = this,
-        baseUrl = _this.api.baseUrl;
+      const _this = this;
       _this
         .$confirm("确定要删除" + channelStrategyName + "渠道吗?", "提示", {
           confirmButtonText: "确定",
@@ -1021,9 +1014,7 @@ export default {
         .then(() => {
           https
             .fetchGet(
-              baseUrl +
-                "/api/channel/strategy/deleteChannelStrategyByStrategyId/" +
-                id
+              "/api/channel/strategy/deleteChannelStrategyByStrategyId/" + id
             )
             .then(res => {
               if (res.data.code == "00") {
@@ -1054,8 +1045,7 @@ export default {
     },
     //上传渠道策略开始
     createChannelStrategyFile(file) {
-      const _this = this,
-        baseUrl = _this.api.baseUrl;
+      const _this = this;
       let params = new FormData();
       params.append("file", file.file);
       //进度条配置
@@ -1067,11 +1057,7 @@ export default {
         }
       };
       https
-        .uploadFile(
-          baseUrl + "/api/reinforce/info/uploadReinforceFile",
-          params,
-          config
-        )
+        .uploadFile("/api/reinforce/info/uploadReinforceFile", params, config)
         .then(res => {
           if (
             (res.data.code === "01" && res.data.code === "99") ||
@@ -1088,9 +1074,7 @@ export default {
               channelKeyData = [];
             https
               .fetchGet(
-                baseUrl +
-                  "/api/channel/strategy/parseApkMateInfoByFileKey/" +
-                  appPath
+                "/api/channel/strategy/parseApkMateInfoByFileKey/" + appPath
               )
               .then(res => {
                 if (res.data.code === "00") {
@@ -1107,8 +1091,7 @@ export default {
     },
     //保存创建的渠道策略
     saveChannelStrategy() {
-      const _this = this,
-        baseUrl = _this.api.baseUrl;
+      const _this = this;
       let formItem = _this.createChannelStrategyFileItem[0],
         channelStrategyName = _this.channelStrategyForm.strategyName,
         channelStrategyDescribe = _this.channelStrategyForm.strategyDescribe,
@@ -1136,8 +1119,7 @@ export default {
           if (v.channelKey && v.channelValue) {
             checkChannelValueType = https
               .fetchGet(
-                baseUrl +
-                  "/api/channel/strategy/checkChannelValueType?channelKey=" +
+                "/api/channel/strategy/checkChannelValueType?channelKey=" +
                   v.channelKey +
                   "&channelValue=" +
                   v.channelValue +
@@ -1161,7 +1143,7 @@ export default {
         return result;
       });
       let checkChannelStrategyName = https
-        .fetchGet(baseUrl + "/api/channel/strategy/checkChannelStrategyName", {
+        .fetchGet("/api/channel/strategy/checkChannelStrategyName", {
           channelStrategyName
         })
         .then(res => {
@@ -1192,7 +1174,7 @@ export default {
           if (allValid && valid) {
             https
               .fetchPost(
-                baseUrl + "/api/channel/strategy/saveOrUpdateChannelStrategy",
+                "/api/channel/strategy/saveOrUpdateChannelStrategy",
                 channelStrategyDto
               )
               .then(res => {
@@ -1243,7 +1225,6 @@ export default {
     //添加渠道参数
     addChannelStrategyParameter(typeChannel, index, appPath) {
       const _this = this,
-        baseUrl = _this.api.baseUrl,
         fileKey = appPath;
       let parameterIsValid = true,
         parameterDetailIsValid = true;
@@ -1264,8 +1245,7 @@ export default {
           if (parameterDetailIsValid) {
             checkChannelValueType = https
               .fetchGet(
-                baseUrl +
-                  "/api/channel/strategy/checkChannelValueType?channelKey=" +
+                "/api/channel/strategy/checkChannelValueType?channelKey=" +
                   v.channelKey +
                   "&channelValue=" +
                   v.channelValue +
@@ -1308,8 +1288,7 @@ export default {
         if (parameterIsValid) {
           https
             .fetchGet(
-              baseUrl +
-                "/api/channel/strategy/checkChannelValueType?channelKey=" +
+              "/api/channel/strategy/checkChannelValueType?channelKey=" +
                 channelKey +
                 "&channelValue=" +
                 channelValue +
@@ -1382,8 +1361,7 @@ export default {
     },
     //保存修改的渠道
     saveAmendChannelStrategy(id) {
-      const _this = this,
-        baseUrl = _this.api.baseUrl;
+      const _this = this;
       let channelStrategyParticulars = _this.channelStrategyParticulars,
         channelStrategyName = channelStrategyParticulars.channelStrategyName,
         channelStrategyDescribe =
@@ -1430,8 +1408,7 @@ export default {
           if (v.channelKey && v.channelValue) {
             checkChannelValueType = https
               .fetchGet(
-                baseUrl +
-                  "/api/channel/strategy/checkChannelValueType?channelKey=" +
+                "/api/channel/strategy/checkChannelValueType?channelKey=" +
                   v.channelKey +
                   "&channelValue=" +
                   v.channelValue +
@@ -1454,7 +1431,7 @@ export default {
         if (allValid && valid) {
           https
             .fetchPost(
-              baseUrl + "/api/channel/strategy/saveOrUpdateChannelStrategy",
+              "/api/channel/strategy/saveOrUpdateChannelStrategy",
               channelStrategyDto
             )
             .then(res => {
@@ -1579,13 +1556,15 @@ export default {
   font-size: 12px !important;
 }
 .channelStrategy .el-drawer-footer {
-  width: 100%;
+  width: 40%;
   position: fixed;
   bottom: 0;
   background: white;
   z-index: 9;
   padding: 10px 20px;
   border-top: 1px solid #ebebeb;
+  right: 0;
+  text-align: right;
 }
 .editIcon,
 .detailIcon,
@@ -1650,7 +1629,7 @@ export default {
 }
 .el-drawer {
   box-sizing: border-box !important;
-  overflow-y: auto;
+  overflow-y: auto !important;
 }
 .el-form-item__content {
   font-size: 12px;

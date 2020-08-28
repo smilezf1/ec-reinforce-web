@@ -16,7 +16,7 @@
   </div>
 </template>
 <script>
-import http from "../../http.js";
+import http from "../../request/http.js";
 export default {
   name: "Header",
   data() {
@@ -33,7 +33,6 @@ export default {
   methods: {
     //用户名下拉菜单选择事件
     handleCommand(command) {
-      let baseUrl = this.api.baseUrl;
       if (command == "loginout") {
         localStorage.removeItem("userName");
         this.$confirm("确定要退出吗?", "退出提示", {
@@ -42,7 +41,7 @@ export default {
           type: "warning"
         })
           .then(() => {
-            http.fetchGet(baseUrl + "/api/system/login/logout").then(res => {
+            http.fetchGet("/api/system/login/logout").then(res => {
               if (res.data.code === "00") {
                 this.$router.push({ path: "/" });
               }

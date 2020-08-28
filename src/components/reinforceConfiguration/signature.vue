@@ -178,13 +178,15 @@
             </div>
           </div>
           <div class="el-drawer-footer">
-            <el-button
-              type="primary"
-              @click="saveSignature()"
-              :disabled="!saveSignatureBox"
-              >保存</el-button
-            >
-            <el-button @click="cancelSignature()" plain>取消</el-button>
+            <div class="buttonBox" style="display:inline-block">
+              <el-button
+                type="primary"
+                @click="saveSignature()"
+                :disabled="!saveSignatureBox"
+                >保存</el-button
+              >
+              <el-button @click="cancelSignature()" plain>取消</el-button>
+            </div>
           </div>
         </el-drawer>
       </div>
@@ -245,7 +247,7 @@
   </div>
 </template>
 <script>
-import https from "../../http";
+import https from "../../request/http";
 export default {
   name: "signature",
   data() {
@@ -286,9 +288,8 @@ export default {
   methods: {
     //获取后台数据
     getData(queryInfo) {
-      let baseUrl = this.api.baseUrl;
       https
-        .fetchPost(baseUrl + "/api/reinforce/sign/page", {
+        .fetchPost("/api/reinforce/sign/page", {
           pn: this.curPage,
           limit: this.limit,
           queryInfo
@@ -315,8 +316,7 @@ export default {
     },
     //查询签名
     search() {
-      let baseUrl = this.api.baseUrl,
-        signName = this.ruleForm.signatureName,
+      let signName = this.ruleForm.signatureName,
         queryInfo = { signName },
         _this = this;
       _this.loading = true;
@@ -332,7 +332,6 @@ export default {
     //上传签名开始
     uploadSignatureFile(file) {
       let params = new FormData(),
-        baseUrl = this.api.baseUrl,
         _this = this;
       params.append("file", file.file);
       //进度条配置
@@ -345,7 +344,7 @@ export default {
       };
       https
         .uploadFile(
-          baseUrl + "/api/reinforce/sign/uploadReinforceSignFile",
+          "/api/reinforce/sign/uploadReinforceSignFile",
           params,
           config
         )
@@ -378,8 +377,7 @@ export default {
     },
     //删除签名
     deleteSignature(id, name) {
-      let _this = this,
-        baseUrl = _this.api.baseUrl;
+      const _this = this;
       _this
         .$confirm("确定要删除" + name + "签名吗?", "提示", {
           confirmButtonText: "确定",
@@ -388,9 +386,7 @@ export default {
         })
         .then(() => {
           https
-            .fetchGet(
-              baseUrl + "/api/reinforce/sign/deleteReinforceSignById/" + id
-            )
+            .fetchGet("/api/reinforce/sign/deleteReinforceSignById/" + id)
             .then(res => {
               if (res.data.code == "00") {
                 _this.$message({
@@ -407,10 +403,9 @@ export default {
     //上传签名结束
     //获取签名别名
     getSignatureAlias(signaturePwd, signatureAddress, signatureIndex) {
-      let baseUrl = this.api.baseUrl,
-        _this = this;
+      const _this = this;
       https
-        .fetchPost(baseUrl + "/api/reinforce/sign/findSignAliasNameList", {
+        .fetchPost("/api/reinforce/sign/findSignAliasNameList", {
           signPwd: signaturePwd,
           signFilePath: signatureAddress
         })
@@ -452,11 +447,10 @@ export default {
     //检查签名名称是否重复
     checkSignName() {
       let _this = this,
-        signName = _this.signatureItemForm[0]["signatureName"],
-        baseUrl = _this.api.baseUrl;
+        signName = _this.signatureItemForm[0]["signatureName"];
       if (signName) {
         https
-          .fetchGet(baseUrl + "/api/reinforce/sign/checkSignName", {
+          .fetchGet("/api/reinforce/sign/checkSignName", {
             signName
           })
           .then(res => {
@@ -477,10 +471,9 @@ export default {
         signPwd = data.signaturePwd,
         signAliasName = data.signatureAliasNameValue,
         signAliasPwd = data.signatureAliasPwd,
-        signFilePath = data.signatureAddress,
-        baseUrl = _this.api.baseUrl;
+        signFilePath = data.signatureAddress;
       https
-        .fetchPost(baseUrl + "/api/reinforce/sign/addReinforceSign", {
+        .fetchPost("/api/reinforce/sign/addReinforceSign", {
           signName,
           signPwd,
           signAliasName,
@@ -553,7 +546,7 @@ export default {
   margin-left: 20px;
 }
 .signature .el-drawer {
-  overflow-y: auto;
+  overflow-y: auto !important;
 }
 .signature .el-drawer-header {
   width: 100%;
@@ -625,13 +618,15 @@ export default {
   margin-right: 5px;
 }
 .signature .el-drawer-footer {
-  width: 100%;
+  width: 40%;
   position: fixed;
   bottom: 0px;
   background: white;
   z-index: 9;
   padding: 10px 20px;
   border-top: 1px solid #ebebeb;
+  right: 0;
+  text-align: right;
 }
 .signatureBase {
   margin-top: 10px;

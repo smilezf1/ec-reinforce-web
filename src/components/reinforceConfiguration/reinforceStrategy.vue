@@ -1031,7 +1031,7 @@
   </div>
 </template>
 <script>
-import https from "../../http";
+import https from "../../request/http";
 export default {
   name: "reinforceStrategy",
   data() {
@@ -1093,11 +1093,10 @@ export default {
   },
   inject: ["reload"],
   beforeMount() {
-    let _this = this,
-      baseUrl = _this.api.baseUrl;
+    let _this = this;
     _this.getData();
     https
-      .fetchPost(baseUrl + "/api/reinforce/item/findReinforceItemTree", {
+      .fetchPost("/api/reinforce/item/findReinforceItemTree", {
         reinforceItem: {}
       })
       .then(res => {
@@ -1109,9 +1108,8 @@ export default {
   methods: {
     //获取列表数据
     getData(queryInfo) {
-      let baseUrl = this.api.baseUrl;
       https
-        .fetchPost(baseUrl + "/api/reinforce/strategy/page", {
+        .fetchPost("/api/reinforce/strategy/page", {
           pn: this.curPage,
           limit: this.limit,
           queryInfo
@@ -1156,8 +1154,7 @@ export default {
     //上传策略开始
     createStrategyFile(file) {
       let _this = this,
-        params = new FormData(),
-        baseUrl = _this.api.baseUrl;
+        params = new FormData();
       params.append("file", file.file);
       //进度条配置
       let config = {
@@ -1168,11 +1165,7 @@ export default {
         }
       };
       https
-        .uploadFile(
-          baseUrl + "/api/reinforce/info/uploadReinforceFile",
-          params,
-          config
-        )
+        .uploadFile("/api/reinforce/info/uploadReinforceFile", params, config)
         .then(res => {
           if (
             res.data.code === "01" ||
@@ -1191,9 +1184,7 @@ export default {
             let dataItem = { data, keyTreeData };
             //得到签名MD5,SO,h5
             https
-              .fetchGet(
-                baseUrl + "/api/reinforce/info/parseApkInfoByFileKey/" + keyData
-              )
+              .fetchGet("/api/reinforce/info/parseApkInfoByFileKey/" + keyData)
               .then(res => {
                 if (res.data.code == "00") {
                   let data = res.data.data;
@@ -1320,7 +1311,6 @@ export default {
     //保存创建的策略
     saveStrategy() {
       let _this = this,
-        baseUrl = _this.api.baseUrl,
         taskList = _this.strategyItemForm,
         allValid = true;
       _this.$refs["strategyItemForm"][0].validate(valid => {
@@ -1358,7 +1348,7 @@ export default {
       if (taskList.strategyName) {
         let strategyName = taskList.strategyName;
         https
-          .fetchGet(baseUrl + "/api/reinforce/strategy/checkStrategyName", {
+          .fetchGet("/api/reinforce/strategy/checkStrategyName", {
             strategyName
           })
           .then(res => {
@@ -1399,7 +1389,7 @@ export default {
                 };
                 https
                   .fetchPost(
-                    baseUrl + "/api/reinforce/strategy/saveOrUpdateStrategy",
+                    "/api/reinforce/strategy/saveOrUpdateStrategy",
                     strategyItemDto
                   )
                   .then(res => {
@@ -1454,10 +1444,9 @@ export default {
     },
     //获取策略具体内容
     getstrategy(id) {
-      let _this = this,
-        baseUrl = _this.api.baseUrl;
+      let _this = this;
       https
-        .fetchGet(baseUrl + "/api/reinforce/strategy/getStrategyDetail", {
+        .fetchGet("/api/reinforce/strategy/getStrategyDetail", {
           id
         })
         .then(res => {
@@ -1468,9 +1457,7 @@ export default {
             _this.strategyItemForm.signMd5Items = [{ value: "" }];
             _this.disabledMd5ArrayList = [];
             https
-              .fetchGet(
-                baseUrl + "/api/reinforce/info/parseApkInfoByFileKey/" + keyData
-              )
+              .fetchGet("/api/reinforce/info/parseApkInfoByFileKey/" + keyData)
               .then(res => {
                 if (res.data.code === "00") {
                   let keyData = res.data.data;
@@ -1558,14 +1545,12 @@ export default {
     amendStrategy(id) {
       this.amendStrategyDrawer = true;
       let _this = this,
-        baseUrl = _this.api.baseUrl,
         strategyItemForm = _this.strategyItemForm;
       _this.getstrategy(id);
     },
     //保存修改的策略
     saveAmendStrategy(id) {
       let _this = this,
-        baseUrl = _this.api.baseUrl,
         strategyDetailItem = _this.strategyDetailItem["reinforceInfo"],
         strategyItemForm = _this.strategyItemForm,
         choiceItem = _this.choiceArray.concat(_this.tamperArray),
@@ -1631,7 +1616,7 @@ export default {
       if (allValid) {
         https
           .fetchPost(
-            baseUrl + "/api/reinforce/strategy/saveOrUpdateStrategy",
+            "/api/reinforce/strategy/saveOrUpdateStrategy",
             strategyItemDto
           )
           .then(res => {
@@ -1649,8 +1634,7 @@ export default {
     },
     //策略详细
     strategyDetail(id) {
-      let _this = this,
-        baseUrl = _this.api.baseUrl;
+      let _this = this;
       _this.strategyDetailDrawer = true;
       _this.getstrategy(id);
     },
@@ -1660,8 +1644,7 @@ export default {
     },
     //删除策略
     deleteStrategy(id, name) {
-      let _this = this,
-        baseUrl = _this.api.baseUrl;
+      let _this = this;
       _this
         .$confirm("确定删除" + name + "策略吗?", "提示", {
           confirmButtonTex: "确定",
@@ -1671,9 +1654,7 @@ export default {
         .then(() => {
           https
             .fetchGet(
-              baseUrl +
-                "/api/reinforce/strategy/deleteReinforceStrategyById/" +
-                id
+              "/api/reinforce/strategy/deleteReinforceStrategyById/" + id
             )
             .then(res => {
               if (res.data.code == "00") {
@@ -1748,7 +1729,10 @@ export default {
 .reinforceStrategy .el-drawer-content {
   margin-top: 60px;
   position: relative;
-  padding: 0px 20px 40px 20px;
+  padding: 0 20px;
+}
+.reinforceStrategy .el-drawer-content .upload {
+  padding: 0 20px;
 }
 .editIcon,
 .floderIcon,
@@ -1782,13 +1766,15 @@ export default {
   margin: 10px 0;
 }
 .reinforceStrategy .el-drawer-footer {
-  width: 100%;
+  width: 40%;
   position: fixed;
   bottom: 0px;
   background: white;
   z-index: 9;
-  padding: 10px 20px;
+  padding: 10px 0px;
   border-top: 1px solid #ebebeb;
+  right: 0;
+  text-align: right;
 }
 .strategyItemForm .strategyItemTitle,
 .strategyDetailForm .strategyItemTitle,

@@ -42,7 +42,7 @@
   </div>
 </template>
 <script>
-import https from "../../http.js";
+import api from "../../request/api.js";
 export default {
   name: "recommend",
   data() {
@@ -51,10 +51,9 @@ export default {
     };
   },
   mounted() {
-    let baseUrl = this.api.baseUrl,
-      _this = this;
-    https.fetchGet(baseUrl + "/api/system/about/findAbout").then(res => {
-      _this.listItem = res.data.data;
+    const _this = this;
+    api.systemService.aboutSystem().then(res => {
+      _this.listItem = res.data;
     });
   }
 };

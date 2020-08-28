@@ -88,32 +88,27 @@
   </div>
 </template>
 <script>
-import https from "../../http.js";
+import api from "../../request/api";
 export default {
   name: "dashboard",
   data() {
     return {
-      curPage: 1, //当前页
-      limit: 10, //每页显示的条目个数
-      dataCount: 0, //总数目
-      listItem: [] //调用接口获取的数据
+      curPage: 1,
+      limit: 10,
+      dataCount: 0,
+      listItem: []
     };
   },
   methods: {
     //获取后台数据
     getData() {
-      let baseUrl = this.api.baseUrl;
-      https
-        .fetchPost(baseUrl + "/api/reinforce/info/page", {
-          pn: this.curPage,
-          limit: this.limit
-        })
-        .then(res => {
-          if (res.data.code === "00") {
-            this.listItem = res.data.data.items;
-            this.dataCount = res.data.data.count;
-          }
-        });
+      let params = { pn: this.curPage, limit: this.limit };
+      api.reinforceService.reinforceList(params).then(res => {
+        if (res.code == "00") {
+          this.listItem = res.data.items;
+          this.dataCount = res.data.count;
+        }
+      });
     },
     //显示的页面条数
     handleSizeChange(val) {

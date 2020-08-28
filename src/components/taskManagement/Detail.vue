@@ -226,7 +226,7 @@
   </div>
 </template>
 <script>
-import https from "../../http.js";
+import https from "../../request/http.js";
 export default {
   name: "Detail",
   data() {
@@ -247,10 +247,9 @@ export default {
     }
   },
   mounted() {
-    let baseUrl = this.api.baseUrl,
-      id = parseInt(this.$route.params.id);
+    const id = parseInt(this.$route.params.id);
     https
-      .fetchGet(baseUrl + "/api/reinforce/info/findReinforceDetailById", {
+      .fetchGet("/api/reinforce/info/findReinforceDetailById", {
         reinforceTaskId: id
       })
       .then(res => {

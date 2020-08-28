@@ -35,7 +35,7 @@
 </template>
 <script>
 import bus from "../common/bus";
-import https from "../../http.js";
+import https from "../../request/http.js";
 export default {
   name: "Sidebar",
   data() {
@@ -51,9 +51,8 @@ export default {
     }
   },
   created() {
-    let baseUrl = this.api.baseUrl,
-      _this = this;
-    https.fetchGet(baseUrl + "/api/system/user/userMenuTree").then(res => {
+    const _this = this;
+    https.fetchGet("/api/system/user/userMenuTree").then(res => {
       if (res) {
         if (res.data.code === "00") {
           _this.sidebarList = this.toTreeData(res.data.data);

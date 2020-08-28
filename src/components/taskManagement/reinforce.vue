@@ -186,7 +186,34 @@
                             label-width="22%"
                           >
                             <template v-if="checkboxItem.children">
-                              <el-checkbox-group
+                              <el-radio-group
+                                v-if="
+                                  checkboxItem.reinforceItemName == '防篡改'
+                                "
+                                v-model="addRoleFormArray[index].tamperArray"
+                              >
+                                <el-radio
+                                  v-for="subItem in checkboxItem.children"
+                                  :key="subItem.id"
+                                  :label="subItem.id"
+                                  :disabled="
+                                    subItem.isCancel == 2 ||
+                                      addRoleFormArray[index].strategyType == 2
+                                  "
+                                  @change="
+                                    checked =>
+                                      handleCheckedChange(
+                                        checked,
+                                        index,
+                                        'falsify',
+                                        '',
+                                        checkboxItem.id
+                                      )
+                                  "
+                                  >{{ subItem.reinforceItemName }}</el-radio
+                                >
+                              </el-radio-group>
+                              <!-- <el-checkbox-group
                                 v-if="
                                   checkboxItem.reinforceItemName == '防篡改'
                                 "
@@ -215,7 +242,7 @@
                                   "
                                   >{{ subItem.reinforceItemName }}
                                 </el-checkbox>
-                              </el-checkbox-group>
+                              </el-checkbox-group> -->
                               <el-checkbox-group
                                 v-else
                                 v-model="addRoleFormArray[index].choiceArray"
@@ -367,7 +394,8 @@
                                     @click="
                                       addSignature(
                                         index,
-                                        item.keyTreeData[0].signMd5Value
+                                        addRoleFormArray[index].signMd5Items[0]
+                                          .value
                                       )
                                     "
                                     >添加</el-button
@@ -495,7 +523,8 @@
                                 @change="
                                   channelPackChange(
                                     addRoleFormArray[index].radio1,
-                                    item.data.appPackage
+                                    item.data.appPackage,
+                                    index
                                   )
                                 "
                               ></el-radio>
@@ -504,7 +533,8 @@
                                 @change="
                                   channelPackChange(
                                     addRoleFormArray[index].radio1,
-                                    item.data.appPackage
+                                    item.data.appPackage,
+                                    index
                                   )
                                 "
                               ></el-radio>
@@ -554,7 +584,8 @@
                                 label="是"
                                 @change="
                                   signatureChange(
-                                    addRoleFormArray[index].radio2
+                                    addRoleFormArray[index].radio2,
+                                    index
                                   )
                                 "
                                 >是</el-radio
@@ -563,7 +594,8 @@
                                 label="否"
                                 @change="
                                   signatureChange(
-                                    addRoleFormArray[index].radio2
+                                    addRoleFormArray[index].radio2,
+                                    index
                                   )
                                 "
                                 >否</el-radio
@@ -787,7 +819,7 @@
   </div>
 </template>
 <script>
-import https from "../../http.js";
+import https from "../../request/http";
 export default {
   name: "reinfore",
   data() {
@@ -875,6 +907,7 @@ export default {
             this.addRoleFormArray[index].choiceArray.push(id);
           }
         } else {
+          console.log(this.addRoleFormArray[index].choiceArray, "choiceArray");
           this.addRoleFormArray[index].choiceArray = this.addRoleFormArray[
             index
           ].choiceArray.filter(v => v !== 3);
@@ -915,9 +948,8 @@ export default {
     },
     //获取后台数据
     getData(queryInfo) {
-      let baseUrl = this.api.baseUrl;
       https
-        .fetchPost(baseUrl + "/api/reinforce/info/page", {
+        .fetchPost("/api/reinforce/info/page", {
           pn: this.curPage,
           limit: this.limit,
           queryInfo
@@ -953,8 +985,7 @@ export default {
     },
     //查询加固服务
     search(form) {
-      let baseUrl = this.api.baseUrl,
-        appName = form.appName,
+      const appName = form.appName,
         appVersion = form.appVersion,
         queryInfo = { appName, appVersion },
         _this = this;
@@ -971,7 +1002,6 @@ export default {
     //保存加固任务
     saveReinforceTask(formName, form) {
       let _this = this,
-        baseUrl = _this.api.baseUrl,
         taskList = _this.addRoleFormArray,
         allValid = true;
       taskList.forEach((v, i) => {
@@ -1018,6 +1048,7 @@ export default {
           formItem.signMd5Items.forEach((v, i) => {
             signMd5Items.push(v.value);
           });
+          console.log(formItem.choiceArray, formItem.tamperArray, "哈哈");
           let signMd5ItemsData = signMd5Items.filter(v => v);
           formItem.flatSoArray = formItem.flatSoArray.filter(v => v);
           formItem.flatH5Array = formItem.flatH5Array.filter(v => v);
@@ -1049,7 +1080,7 @@ export default {
         });
         https
           .fetchPost(
-            baseUrl + "/api/reinforce/info/saveReinforceInfoOrUpdate",
+            "/api/reinforce/info/saveReinforceInfoOrUpdate",
             reinforceInfoDto
           )
           .then(res => {
@@ -1094,9 +1125,8 @@ export default {
     },
     //加固
     reinforce(id) {
-      let baseUrl = this.api.baseUrl;
       https
-        .fetchGet(baseUrl + "/api/reinforce/info/startReinforce", {
+        .fetchGet("/api/reinforce/info/startReinforce", {
           reinforceInfoId: id
         })
         .then(res => {
@@ -1110,7 +1140,6 @@ export default {
     //上传-----开始
     addFileToFormData(file) {
       let params = new FormData(),
-        baseUrl = this.api.baseUrl,
         _this = this;
       params.append("file", file.file);
       //进度条配置
@@ -1122,11 +1151,7 @@ export default {
         }
       };
       https
-        .uploadFile(
-          baseUrl + "/api/reinforce/info/uploadReinforceFile",
-          params,
-          config
-        )
+        .uploadFile("/api/reinforce/info/uploadReinforceFile", params, config)
         .then(res => {
           if (res) {
             if (
@@ -1172,7 +1197,7 @@ export default {
                   addSignatureClick: false,
                   flatSoArray: [],
                   flatH5Array: [],
-                  tamperArray: [],
+                  tamperArray: "",
                   choiceArray: [],
                   showReinforceItem: false,
                   strategyType: 1,
@@ -1180,9 +1205,7 @@ export default {
                 });
                 https
                   .fetchGet(
-                    baseUrl +
-                      "/api/reinforce/info/parseApkInfoByFileKey/" +
-                      keyData
+                    "/api/reinforce/info/parseApkInfoByFileKey/" + keyData
                   )
                   .then(res => {
                     if (res.data.code == "00") {
@@ -1204,8 +1227,7 @@ export default {
                   });
                 https
                   .fetchGet(
-                    baseUrl +
-                      "/api/reinforce/strategy/findStrategyByPackageName",
+                    "/api/reinforce/strategy/findStrategyByPackageName",
                     { packageName: packageData }
                   )
                   .then(res => {
@@ -1221,6 +1243,45 @@ export default {
                 this.uploadShow = false;
               }
               _this.$refs.upload.clearFiles();
+              //查询加固策略列表
+              https
+                .fetchPost("/api/reinforce/strategy/page", {
+                  pn: 1,
+                  limit: 20
+                })
+                .then(res => {
+                  if (res.data.code == "00") {
+                    let data = res.data.data.items;
+                    data = JSON.parse(
+                      JSON.stringify(data).replace(
+                        /reinforce_strategy_name/g,
+                        "label"
+                      )
+                    );
+                    this.strategyOptions = data;
+                  }
+                });
+              //查询签名列表 签名策略列表
+              https
+                .fetchPost("/api/reinforce/sign/page", { pn: 1, limit: 20 })
+                .then(res => {});
+              //查询加固项tree
+              https
+                .fetchPost("/api/reinforce/item/findReinforceItemTree", {
+                  reinforceItem: {}
+                })
+                .then(res => {
+                  if (res.data.code == "00") {
+                    this.reinforceItemData = res.data.data;
+                    this.reinforceItemData.forEach((v, i) => {
+                      if (v.children) {
+                        this.checkedItem.push(v);
+                      } else {
+                        this.radioItem.push(v);
+                      }
+                    });
+                  }
+                });
             }
           } else {
             _this.$refs.upload.clearFiles();
@@ -1241,10 +1302,9 @@ export default {
     //下载原包
     downloadOriginalPackage(data) {
       let appkey = data.appPath,
-        baseUrl = this.api.baseUrl,
         Authorization = localStorage.getItem("Authorization"),
         downloadUrl =
-          baseUrl +
+          this.api.baseUrl +
           "/api/reinforce/info/download/" +
           appkey +
           "?Authorization=" +
@@ -1253,10 +1313,9 @@ export default {
     },
     //下载加固包
     downloadReinforcePackage(id) {
-      let baseUrl = this.api.baseUrl,
-        Authorization = localStorage.getItem("Authorization");
+      let Authorization = localStorage.getItem("Authorization");
       let downloadUrl =
-        baseUrl +
+        this.api.baseUrl +
         "/api/reinforce/info/downloadPackage/?reinforceTaskId=" +
         id +
         "&type=1&Authorization=" +
@@ -1265,8 +1324,7 @@ export default {
     },
     //删除
     deletePackage(id) {
-      let baseUrl = this.api.baseUrl,
-        _this = this;
+      const _this = this;
       this.$confirm("确定要删除吗?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -1274,9 +1332,7 @@ export default {
       })
         .then(res => {
           https
-            .fetchGet(
-              baseUrl + "/api/reinforce/info/deleteReinforceInfoById/" + id
-            )
+            .fetchGet("/api/reinforce/info/deleteReinforceInfoById/" + id)
             .then(res => {
               if (res.data.code == "00") {
                 _this.$message({ type: "success", message: "删除成功" });
@@ -1322,10 +1378,9 @@ export default {
         return val["reinforce_describe"] == item;
       });
       this.strategyItemDto = data; */
-      let _this = this,
-        baseUrl = _this.api.baseUrl;
+      const _this = this;
       https
-        .fetchGet(baseUrl + "/api/reinforce/strategy/getStrategyDetail", {
+        .fetchGet("/api/reinforce/strategy/getStrategyDetail", {
           id
         })
         .then(res => {
@@ -1372,13 +1427,13 @@ export default {
               });
             });
             let choiceArray = [],
-              tamperArray = [],
+              tamperArray = "",
               result = _this.reinforceItemData.map(item => {
                 if (item.children) {
                   if (item.reinforceItemName == "防篡改") {
                     item.children.forEach(v => {
                       if (v.checked == true) {
-                        tamperArray.push(v.id);
+                        tamperArray = v.id;
                       }
                     });
                   } else {
@@ -1410,44 +1465,37 @@ export default {
         });
     },
     //是否多渠道打包
-    channelPackChange(item, packageName) {
-      let baseUrl = this.api.baseUrl;
+    channelPackChange(item, packageName, index) {
       if (item == "是") {
-        console.log(packageName);
         https
-          .fetchGet(
-            baseUrl + "/api/channel/strategy/findChannelStrategyByPackageName",
-            { packageName }
-          )
+          .fetchGet("/api/channel/strategy/findChannelStrategyByPackageName", {
+            packageName
+          })
           .then(res => {
             if (res.data.code == "00") {
               this.channelPackList = res.data.data;
-              console.log(res.data.data);
             }
           });
-        /*   https
-          .fetchPost(
-            baseUrl + "/api/channel/strategy/findChannelStrategyByPage",
-            { limit: 20, pn: 1 }
-          )
-          .then(res => {
-            console.log(res.data.data.items);
-            this.channelPackList = res.data.data.items;
-          }); */
+      }
+      if (item == "否") {
+        this.addRoleFormArray[index].curPrinter4 = "";
       }
     },
     //是否签名
-    signatureChange(item) {
-      let baseUrl = this.api.baseUrl;
+    signatureChange(item, index) {
       if (item == "是") {
         https
-          .fetchPost(baseUrl + "/api/reinforce/sign/page", {
+          .fetchPost("/api/reinforce/sign/page", {
             limit: 20,
             pn: 1
           })
           .then(res => {
             this.signatureList = res.data.data.items;
           });
+      }
+      if (item == "否") {
+        this.addRoleFormArray[index].curPrinter5 = "";
+        this.addRoleFormArray[index].curPrinter6 = "";
       }
     }
   },
@@ -1462,54 +1510,7 @@ export default {
     }
     next();
   },
-  mounted() {
-    let baseUrl = this.api.baseUrl;
-    //查询策略列表
-    https
-      .fetchPost(baseUrl + "/api/reinforce/strategy/page", {
-        pn: 1,
-        limit: 20
-      })
-      .then(res => {
-        if (res.data.code == "00") {
-          let data = res.data.data.items;
-          data = JSON.parse(
-            JSON.stringify(data).replace(/reinforce_strategy_name/g, "label")
-          );
-          this.strategyOptions = data;
-        }
-      });
-    //查询渠道策略分页列表 是否多渠道打包
-    /*  https
-      .fetchPost(baseUrl + "/api/channel/strategy/findChannelStrategyByPage", {
-        pn: 1,
-        limit: 20
-      })
-      .then(res => {
-         console.log(res.data.data.items, "-----");
-      }); */
-    //查询签名列表 签名策略列表
-    https
-      .fetchPost(baseUrl + "/api/reinforce/sign/page", { pn: 1, limit: 20 })
-      .then(res => {});
-    //查询加固项tree
-    https
-      .fetchPost(baseUrl + "/api/reinforce/item/findReinforceItemTree", {
-        reinforceItem: {}
-      })
-      .then(res => {
-        if (res.data.code == "00") {
-          this.reinforceItemData = res.data.data;
-          this.reinforceItemData.forEach((v, i) => {
-            if (v.children) {
-              this.checkedItem.push(v);
-            } else {
-              this.radioItem.push(v);
-            }
-          });
-        }
-      });
-  }
+  mounted() {}
 };
 </script>
 <style>
@@ -1546,7 +1547,7 @@ export default {
 }
 .el-select-dropdown {
   height: 200%;
-  overflow-y:auto;
+  overflow-y: auto;
 }
 .reinforeBody img {
   width: 33px;
@@ -1734,12 +1735,14 @@ export default {
   font-weight: 600;
 }
 .reinfore .el-drawer-footer {
-  width: 100%;
-  padding: 20px;
+  width: 40%;
+  padding: 10px;
   border-top: 1px solid #ebebeb;
   position: fixed;
   bottom: 0;
   z-index: 99;
   background: white;
+  right: 0;
+  text-align: right;
 }
 </style>

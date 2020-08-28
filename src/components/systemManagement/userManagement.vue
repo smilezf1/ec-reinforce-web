@@ -67,6 +67,7 @@
           :close-on-press-escape="false"
           ref="addUserDrawer"
           @close="resetForm('addUserForm')"
+          size="30%"
         >
           <div class="el-drawer-header">
             <h3>新增用户</h3>
@@ -250,6 +251,7 @@
                 :wrapperClosable="false"
                 :close-on-press-escape="false"
                 ref="editDrawer"
+                size="30%"
               >
                 <div class="el-drawer-header">
                   <h3>编辑</h3>
@@ -266,6 +268,7 @@
                       <el-input
                         v-model="editForm.trueName"
                         autocomplete="off"
+                        size="small"
                       ></el-input>
                     </el-form-item>
                     <el-form-item prop="userName">
@@ -273,6 +276,7 @@
                       <el-input
                         v-model="editForm.userName"
                         :disabled="true"
+                        size="small"
                       ></el-input>
                     </el-form-item>
                     <el-form-item prop="sex">
@@ -291,6 +295,7 @@
                     <el-form-item prop="mobile">
                       <label slot="label">手&nbsp;机&nbsp;号:&nbsp;</label>
                       <el-input
+                        size="small"
                         v-model="editForm.mobile"
                         autocomplete="off"
                       ></el-input>
@@ -299,6 +304,7 @@
                       <el-input
                         v-model="editForm.email"
                         autocomplete="off"
+                        size="small"
                       ></el-input>
                     </el-form-item>
                     <el-form-item label="是否有效:" prop="status">
@@ -343,6 +349,7 @@
                 :wrapperClosable="false"
                 :close-on-press-escape="false"
                 ref="resetPasswordDrawer"
+                size="30%"
               >
                 <div class="el-drawer-header">
                   <h3>重置密码</h3>
@@ -355,6 +362,7 @@
                   >
                     <el-form-item label="用户密码" prop="pass">
                       <el-input
+                        size="small"
                         show-password
                         v-model="resetPasswordForm.pass"
                         auto-complete="off"
@@ -362,6 +370,7 @@
                     </el-form-item>
                     <el-form-item label="确认密码" prop="checkPass">
                       <el-input
+                        size="small"
                         show-password
                         v-model="resetPasswordForm.checkPass"
                         auto-complete="off"
@@ -457,7 +466,7 @@
   </div>
 </template>
 <script>
-import https from "../../http.js";
+import api from "../../request/api";
 import md5 from "js-md5";
 export default {
   name: "userManagement",
@@ -609,17 +618,13 @@ export default {
   methods: {
     //获取后台数据
     getData(queryInfo) {
-      let baseUrl = this.api.baseUrl;
-      https
-        .fetchPost(baseUrl + "/api/system/user/page", {
-          pn: this.curPage,
-          limit: this.limit,
-          queryInfo
-        })
-        .then(res => {
-          this.listItem = res.data.data.items;
-          this.dataCount = res.data.data.count;
-        });
+      let params = { pn: this.curPage, limit: this.limit, queryInfo };
+      api.systemManageService.userManageList(params).then(res => {
+        if (res.code == "00") {
+          this.listItem = res.data.items;
+          this.dataCount = res.data.count;
+        }
+      });
     },
     handleChange(val) {
       this.curPage = val;
@@ -674,9 +679,9 @@ export default {
     edit(id) {
       this.editDrawer = true;
       this.editId = id;
-      let baseUrl = this.api.baseUrl;
-      https.fetchGet(baseUrl + "/api/system/user/detail", { id }).then(res => {
-        let data = res.data.data,
+      let params = { id };
+      api.systemManageService.userManageDetail(params).then(res => {
+        let data = res.data,
           editForm = this.editForm;
         editForm.trueName = data.trueName;
         editForm.userName = data.userName;
@@ -699,8 +704,7 @@ export default {
       this.editDrawer = false;
     },
     editFormSave(formName, form) {
-      let baseUrl = this.api.baseUrl,
-        id = this.editId,
+      let id = this.editId,
         trueName = form.trueName,
         userName = form.userName,
         email = form.email,
@@ -719,27 +723,18 @@ export default {
       }
       this.$refs[formName].validate(valid => {
         if (valid) {
-          https
-            .fetchPost(baseUrl + "/api/system/user/save", {
-              id,
-              trueName,
-              userName,
-              email,
-              mobile,
-              status,
-              sex
-            })
-            .then(res => {
-              if (res.data.code == "00") {
-                this.editDrawer = false;
-                this.reload();
-                this.$notify.success({
-                  message: "编辑成功",
-                  showClose: false,
-                  duration: 1000
-                });
-              }
-            });
+          let params = { id, trueName, userName, email, mobile, status, sex };
+          api.systemManageService.userManageSave(params).then(res => {
+            if (res.code == "00") {
+              this.editDrawer = false;
+              this.reload();
+              this.$notify.success({
+                message: "编辑成功",
+                showClose: false,
+                duration: 1000
+              });
+            }
+          });
         } else {
           return false;
         }
@@ -754,28 +749,21 @@ export default {
       this.resetPasswordDrawer = false;
     },
     saveresetPassword(formName, form) {
-      let baseUrl = this.api.baseUrl,
-        id = this.resetPasswordId,
+      let id = this.resetPasswordId,
         password = md5(form.pass),
-        checkPass = md5(form.checkPass);
+        checkPass = md5(form.checkPass),
+        params = { id, password, checkPass };
       this.$refs[formName].validate(valid => {
         if (valid) {
-          https
-            .fetchPost(baseUrl + "/api/system/user/resetPwd", {
-              id,
-              password,
-              checkPass
-            })
-            .then(res => {
-              if (res.data.code == "00") {
-                this.$notify.success({
-                  message: "重置密码成功",
-                  showClose: false,
-                  duration: 1000
-                });
-              }
-            });
-
+          api.systemManageService.userManageResetPwd(params).then(res => {
+            if (res.code == "00") {
+              this.$notify.success({
+                message: "重置密码成功",
+                showClose: false,
+                duration: 1000
+              });
+            }
+          });
           this.resetPasswordDrawer = false;
         } else {
           return false;
@@ -785,8 +773,7 @@ export default {
     //保存新增的用户
     // status 1:有效 0:无效  sex 1:男 0:女
     saveaddUserForm(formName, form) {
-      let baseUrl = this.api.baseUrl,
-        trueName = form.trueName,
+      let trueName = form.trueName,
         userName = form.userName,
         password = md5(form.pass),
         mobile = form.mobile,
@@ -795,27 +782,26 @@ export default {
         status = form.status;
       this.$refs[formName].validate(valid => {
         if (valid) {
-          https
-            .fetchPost(baseUrl + "/api/system/user/save", {
-              trueName,
-              userName,
-              password,
-              mobile,
-              email,
-              sex,
-              status
-            })
-            .then(res => {
-              if (res.data.code === "00") {
-                this.addUserDrawer = false;
-                this.reload();
-                this.$notify.success({
-                  message: "新增用户成功",
-                  showClose: false,
-                  duration: 1000
-                });
-              }
-            });
+          let params = {
+            trueName,
+            userName,
+            password,
+            mobile,
+            email,
+            sex,
+            status
+          };
+          api.systemManageService.userManageSaveAdd(params).then(res => {
+            if (res.code == "00") {
+              this.addUserDrawer = false;
+              this.reload();
+              this.$notify.success({
+                message: "新增用户成功",
+                showClose: false,
+                duration: 1000
+              });
+            }
+          });
         } else {
           return false;
         }
@@ -824,25 +810,22 @@ export default {
     //设置角色开始
     setRole(id) {
       this.setRoleId = id;
-      let baseUrl = this.api.baseUrl;
       this.dialogVisible = true;
-      https
-        .fetchGet(baseUrl + "/api/system/role/roleTree", { id })
-        .then(res => {
-          let data = res.data.data;
-          data = JSON.parse(JSON.stringify(data).replace(/name/g, "label"));
-          this.roleTreeData = data;
-          this.roleTreeData.forEach((v, i) => {
-            if (v.checked == true) {
-              this.setRoleList.push(v.id);
-              this.setRoleList = Array.from(new Set(this.setRoleList));
-            }
-          });
+      let params = { id };
+      api.systemManageService.userManageSetRole(params).then(res => {
+        let data = res.data;
+        data = JSON.parse(JSON.stringify(data).replace(/name/g, "label"));
+        this.roleTreeData = data;
+        this.roleTreeData.forEach((v, i) => {
+          if (v.checked == true) {
+            this.setRoleList.push(v.id);
+            this.setRoleList = Array.from(new Set(this.setRoleList));
+          }
         });
+      });
     },
     setRoleSave() {
-      let baseUrl = this.api.baseUrl,
-        id = this.setRoleId,
+      let id = this.setRoleId,
         nodes = this.checkedNodes,
         roleList = this.roleList;
       if (nodes && nodes.length != 0) {
@@ -859,72 +842,64 @@ export default {
         type: "warning"
       })
         .then(res => {
-          https
-            .fetchPost(baseUrl + "/api/system/user/saveUserRole", {
-              roleList,
-              userId: id
-            })
-            .then(res => {
-              if (res.data.code == "00") {
-                this.$notify({
-                  message: "更新成功",
-                  type: "success",
-                  duration: 1000
-                });
-                this.reload();
-                this.dialogVisible = false;
-              }
-            });
+          let params = { roleList, userId: id };
+          api.systemManageService.userManageSaveUserRole(params).then(res => {
+            if (res.code == "00") {
+              this.$notify({
+                message: "更新成功",
+                type: "success",
+                duration: 1000
+              });
+              this.reload();
+              this.dialogVisible = false;
+            }
+          });
         })
         .catch(() => {});
     },
     //设置角色结束
     //启用
     launch(id) {
-      let baseUrl = this.api.baseUrl;
       this.$alert("确定要启用吗?", "确定启用", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       })
         .then(() => {
-          https
-            .fetchGet(baseUrl + "/api/system/user/active", { id })
-            .then(res => {
-              if (res.data.code === "00") {
-                this.reload();
-                this.$notify.success({
-                  message: "启用成功",
-                  showClose: false,
-                  duration: 1000
-                });
-              }
-            });
+          let params = { id };
+          api.systemManageService.userManageActive(params).then(res => {
+            if (res.code === "00") {
+              this.reload();
+              this.$notify.success({
+                message: "启用成功",
+                showClose: false,
+                duration: 1000
+              });
+            }
+          });
         })
         .catch(() => {});
     },
     //停用
     blockUp(id) {
-      let baseUrl = this.api.baseUrl;
       this.$alert("确定要停用吗?", "确定停用", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       })
         .then(() => {
-          https
-            .fetchGet(baseUrl + "/api/system/user/invalid", { id })
-            .then(res => {
-              if (res.data.code === "00") {
-                this.reload();
-                this.$notify({
-                  message: "停用成功",
-                  type: "warning",
-                  showClose: false,
-                  duration: 1000
-                });
-              }
-            });
+          let params = { id };
+          api.systemManageService.userManageInvalid(params).then(res => {
+            if (res.code === "00") {
+              this.reload();
+              this.$notify({
+                message: "停用成功",
+                type: "warning",
+                showClose: false,
+                duration: 1000
+              });
+            }
+          });
         })
         .catch(() => {});
     }
@@ -934,7 +909,7 @@ export default {
   }
 };
 </script>
-<style scoped>
+<style scope>
 .userManagementHeader {
   height: 50px;
   line-height: 50px;
@@ -986,21 +961,25 @@ export default {
   width: 80%;
 }
 .el-drawer-footer {
+  width: 30%;
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-}
-th {
-  font-weight: normal;
+  bottom: 0;
+  right: 0;
+  text-align: right;
+  padding: 10px 20px;
+  border-top: 1px solid #ebebeb;
 }
 .el-table {
   font-size: 12px;
   border: 1px solid #dcdee2;
   border-bottom: 1px solid transparent;
 }
+.el-table th {
+  color: #515a6e !important;
+  font-weight: 700;
+}
 .el-table thead {
-  color: #515a6e;
-  font-size: 12px;
+  font-size: 12px !important;
 }
 .el-table__header-wrapper th {
   background: #f2f5f7 !important;
