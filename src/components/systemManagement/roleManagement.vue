@@ -244,7 +244,6 @@
   </div>
 </template>
 <script>
-import https from "../../request/http.js";
 import api from "../../request/api";
 export default {
   name: "roleManagement",
@@ -426,8 +425,9 @@ export default {
     setting(id) {
       this.menuDialog = true;
       this.setMenuId = id;
-      https.fetchGet("/api/system/menu/menuTree", { roleId: id }).then(res => {
-        let data = res.data.data;
+      const params = { roleId: id };
+      api.systemManageService.roleManageSettingMenu(params).then(res => {
+        let data = res.data;
         (data = JSON.parse(JSON.stringify(data).replace(/name/g, "label"))),
           (this.menuTreeData = this.toTreeData(data));
         for (var j = 0; j < this.menuTreeData.length; j++) {
@@ -487,14 +487,11 @@ export default {
         type: "warning"
       })
         .then(res => {
-          https
-            .fetchPost("/api/system/role/saveRoleItem", {
-              btnList: [],
-              itemList: menuList,
-              roleId: id
-            })
+          const params = { btnList: [], itemList: menuList, roleId: id };
+          api.systemManageService
+            .roleManageSettingMenuSave(params)
             .then(res => {
-              if (res.data.code == "00") {
+              if (res.code == "00") {
                 this.$notify({
                   message: "更新成功",
                   type: "success",
@@ -516,8 +513,9 @@ export default {
         type: "warning"
       })
         .then(() => {
-          https.fetchGet("/api/system/role/invalid", { id }).then(res => {
-            if (res.data.code === "00") {
+          const params = { id };
+          api.systemManageService.roleManageBlockUp(params).then(res => {
+            if (res.code === "00") {
               this.reload();
               this.$notify.success({
                 message: "停用成功",
@@ -528,9 +526,7 @@ export default {
             }
           });
         })
-        .catch(() => {
-          console.log("取消停用");
-        });
+        .catch(() => {});
     },
     //启用
     launch(id) {
@@ -540,8 +536,9 @@ export default {
         type: "warning"
       })
         .then(() => {
-          https.fetchGet("/api/system/role/active", { id }).then(res => {
-            if (res.data.code === "00") {
+          const params = { id };
+          api.systemManageService.roleManageLaunch(params).then(res => {
+            if (res.code === "00") {
               this.reload();
               this.$notify.success({
                 message: "启用成功",
@@ -551,9 +548,7 @@ export default {
             }
           });
         })
-        .catch(() => {
-          console.log("取消启用");
-        });
+        .catch(() => {});
     }
   },
   mounted() {

@@ -48,7 +48,7 @@
   </div>
 </template>
 <script>
-import https from "../../request/http";
+import api from "../../request/api";
 export default {
   name: "reinforceItem",
   data() {
@@ -61,23 +61,18 @@ export default {
   },
   methods: {
     getData(queryInfo) {
-      https
-        .fetchPost("/api/reinforce/item/page", {
-          pn: this.curPage,
-          limit: this.limit,
-          queryInfo
-        })
-        .then(res => {
-          if (res.data.code === "00") {
-            let data = res.data.data;
-            this.listItem = data.items;
-            this.dataCount = data.count;
-          }
-        });
+      const params = { pn: this.curPage, limit: this.limit, queryInfo };
+      api.reinforceService.getReinforceItem(params).then(res => {
+        if (res.code == "00") {
+          const data = res.data;
+          this.listItem = data.items;
+          this.dataCount = data.count;
+        }
+      });
     },
     //显示页面的条数
     handleSizeChange(val) {
-      this.listItem = val;
+      this.limit = val;
       this.getData();
     },
     handleCurrentChange(val) {

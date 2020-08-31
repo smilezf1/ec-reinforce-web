@@ -99,7 +99,7 @@
           </div>
         </el-collapse-item> -->
 
-        <el-collapse-item title="3.策略信息" name="3">
+        <el-collapse-item title="2.策略信息" name="2">
           <div v-for="item in strategyItem" :key="item.id">
             <el-row>
               <el-col :span="12"
@@ -123,7 +123,7 @@
             <el-row>
               <el-col :span="24">
                 <el-collapse>
-                  <el-collapse-item title="加固项">
+                  <el-collapse-item title="2-1.加固项">
                     <div v-for="item in reinforceListItem" :key="item.id">
                       <el-row>
                         <el-col :span="24">
@@ -150,8 +150,8 @@
             </el-row>
           </div>
         </el-collapse-item>
-        <!--
-        <el-collapse-item title="4.多渠道策略信息" name="4">
+
+        <el-collapse-item title="3.多渠道策略信息" name="3">
           <div v-for="item in multipleChannel" :key="item.id">
             <el-row>
               <el-col :span="12"
@@ -174,8 +174,7 @@
             </el-row>
             <el-row>
               <el-col :span="24">
-                 多渠道策略列表:{{ item.itemDetailDtoList }} 
-                <el-collapse-item title="4-1.多渠道策略列表">
+                <el-collapse-item title="3-1.多渠道策略列表">
                   <div
                     v-for="subItem in item.itemDetailDtoList"
                     :key="subItem.id"
@@ -219,14 +218,13 @@
               </el-col>
             </el-row>
           </div>
-        </el-collapse-item> 
-        -->
+        </el-collapse-item>
       </el-collapse>
     </div>
   </div>
 </template>
 <script>
-import https from "../../request/http.js";
+import api from "../../request/api";
 export default {
   name: "Detail",
   data() {
@@ -247,35 +245,31 @@ export default {
     }
   },
   mounted() {
-    const id = parseInt(this.$route.params.id);
-    https
-      .fetchGet("/api/reinforce/info/findReinforceDetailById", {
-        reinforceTaskId: id
-      })
-      .then(res => {
-        if (res.data.code === "00") {
-          let data = res.data.data;
-          if (data.reinforceInfo) {
-            this.listItem.push(data.reinforceInfo);
-          }
-          if (data)
-            if (data.reinforceSign) {
-              this.signatureItem.push(data.reinforceSign);
-            }
-          if (data.reinforceStrategyDetail) {
-            this.strategyItem.push(data.reinforceStrategyDetail);
-          }
-          if (data.channelStrategyDto) {
-            this.multipleChannel.push(data.channelStrategyDto);
-          }
-          if (data.reinforceStrategyDetail) {
-            this.reinforceListItem =
-              data.reinforceStrategyDetail.reinforceItemList;
-            this.h5ItemList = data.reinforceStrategyDetail.h5ItemList;
-            this.soItemList = data.reinforceStrategyDetail.soItemList;
-          }
+    const id = parseInt(this.$route.params.id),
+      params = { reinforceTaskId: id };
+    api.reinforceService.getReinforceDetail(params).then(res => {
+      const data = res.data;
+      if (res.code == "00") {
+        if (data.reinforceInfo) {
+          this.listItem.push(data.reinforceInfo);
         }
-      });
+        if (data.reinforceSign) {
+          this.signatureItem.push(data.reinforceSign);
+        }
+        if (data.reinforceStrategyDetail) {
+          this.strategyItem.push(data.reinforceStrategyDetail);
+        }
+        if (data.channelStrategyDto) {
+          this.multipleChannel.push(data.channelStrategyDto);
+        }
+        if (data.reinforceStrategyDetail) {
+          this.reinforceListItem =
+            data.reinforceStrategyDetail.reinforceItemList;
+          this.h5ItemList = data.reinforceStrategyDetail.h5ItemList;
+          this.soItemList = data.reinforceStrategyDetail.soItemList;
+        }
+      }
+    });
   }
 };
 </script>
@@ -300,22 +294,22 @@ export default {
 }
 .el-collapse-item__content {
   padding-left: 10px;
+  color: #515a6e !important;
 }
 .el-collapse-item {
   font-size: 16px !important;
 }
 .detailBody .el-collapse img {
   width: 50px;
-  border: 1px solid #eaeaea;
   border-radius: 3px;
   vertical-align: middle;
   margin-left: 15px;
 }
 .detailBody .el-row {
-  border-bottom: 1px solid #ebeef5;
   display: flex;
   align-items: center;
   padding: 20px 0;
+  border-bottom: 1px solid #ebeef5;
 }
 .detailBody .el-input__inner {
   border: none;

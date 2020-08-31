@@ -222,7 +222,7 @@
               >
                 <i
                   class="el-icon-circle-close closeIcon"
-                  @click="blockUp(scope.row.id, scope.row.type)"
+                  @click="blockUp(scope.row.id)"
                 ></i>
               </el-tooltip>
               <el-tooltip
@@ -245,7 +245,7 @@
   </div>
 </template>
 <script>
-import https from "../../request/http.js";
+import api from "../../request/api";
 import Vue from "vue";
 export default {
   name: "menuManagement",
@@ -349,22 +349,24 @@ export default {
       this.addLinkDrawer = false;
     },
     edit(id) {
-      const ids = id;
+      const params = { id };
       this.editDrawer = true;
-      https.fetchGet("/api/system/menu/detail", { id: ids }).then(res => {
-        let form = this.form,
-          data = res.data.data;
-        form.name = data.name;
-        form.type = data.type;
-        form.icon = data.icon;
-        this.id = data.id;
-        if (data.type === "M") {
-          form.type = "目录";
+      api.systemManageService.menuManageEdit(params).then(res => {
+        if (res.code == "00") {
+          const form = this.form,
+            data = res.data;
+          form.name = data.name;
+          form.type = data.type;
+          form.icon = data.icon;
+          this.id = data.id;
+          if (data.type === "M") {
+            form.type = "目录";
+          }
+          if (data.type === "T") {
+            form.type = "链接";
+          }
+          form.icon = data.icon;
         }
-        if (data.type === "T") {
-          form.type = "链接";
-        }
-        form.icon = data.icon;
       });
     },
     save(formName, form) {
@@ -380,25 +382,18 @@ export default {
       }
       this.$refs[formName].validate(valid => {
         if (valid) {
-          https
-            .fetchPost("/api/system/menu/save", {
-              id,
-              name,
-              icon,
-              type
-            })
-            .then(res => {
-              if (res.data.code === "00") {
-                this.reload();
-                this.$notify.success({
-                  message: "保存成功",
-                  showClose: false,
-                  duration: 1000
-                });
-              }
-            });
+          let params = { id, name, icon, type };
+          api.systemManageService.menuManageEditSave(params).then(res => {
+            if (res.code == "00") {
+              this.reload();
+              this.$notify.success({
+                message: "保存成功",
+                showClose: false,
+                duration: 1000
+              });
+            }
+          });
         } else {
-          console.log("222");
           return false;
         }
       });
@@ -419,17 +414,12 @@ export default {
         type = " T";
       }
       this.$refs[formName].validate(valid => {
-        console.log(valid);
         if (valid) {
-          https
-            .fetchPost("/api/system/menu/save", {
-              name,
-              icon,
-              type,
-              pId: ""
-            })
+          const params = { name, icon, type, pId: "" };
+          api.systemManageService
+            .menuManageSaveAddCatalogue(params)
             .then(res => {
-              if (res.data.code === "00") {
+              if (res.code == "00") {
                 this.reload();
                 this.$notify.success({
                   message: "新增成功",
@@ -450,10 +440,10 @@ export default {
     },
     //保存新增的链接
     saveAddLink(formName, addLinkForm) {
-      let name = addLinkForm.name,
+      const name = addLinkForm.name,
         icon = addLinkForm.icon,
-        type = null,
         pId = this.linkID;
+      let type = null;
       if (addLinkForm.type == "目录") {
         type = "M";
       }
@@ -462,23 +452,17 @@ export default {
       }
       this.$refs[formName].validate(valid => {
         if (valid) {
-          https
-            .fetchPost("/api/system/menu/save", {
-              pId,
-              name,
-              icon,
-              type
-            })
-            .then(res => {
-              if (res.data.code === "00") {
-                this.reload();
-                this.$notify.success({
-                  message: "新增成功",
-                  showClose: false,
-                  duration: 1000
-                });
-              }
-            });
+          const params = { pId, name, icon, type };
+          api.systemManageService.menuManageSaveAddLink(params).then(res => {
+            if (res.code == "00") {
+              this.reload();
+              this.$notify.success({
+                message: "新增成功",
+                showClose: false,
+                duration: 1000
+              });
+            }
+          });
         } else {
           return false;
         }
@@ -486,15 +470,18 @@ export default {
     },
 
     //停用
-    blockUp(id, type) {
+    blockUp(id) {
       this.$alert("确定要停用吗?", "确定停用", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       })
         .then(() => {
-          https.fetchGet("/api/system/menu/invalid", { id }).then(res => {
-            if (res.data.code === "00") {
+          const params = { id };
+          console.log("停用");
+          api.systemManageService.menuManageBlockUp(params).then(res => {
+            console.log(res);
+            if (res.code == "00") {
               this.reload();
               this.$notify({
                 message: "停用成功",
@@ -517,8 +504,9 @@ export default {
         type: "warning"
       })
         .then(() => {
-          https.fetchGet("/api/system/menu/active", { id }).then(res => {
-            if (res.data.code === "00") {
+          const params = { id };
+          api.systemManageService.menuManageLaunch(params).then(res => {
+            if (res.code == "00") {
               this.reload();
               this.$notify.success({
                 message: "启用成功",
@@ -534,8 +522,10 @@ export default {
     }
   },
   created() {
-    https.fetchGet("/api/system/menu/list").then(res => {
-      this.menusTable = this.toTreeData(res.data.data);
+    api.systemManageService.menuManageList().then(res => {
+      if (res.code == "00") {
+        this.menusTable = this.toTreeData(res.data);
+      }
     });
   },
   mounted() {}
@@ -545,7 +535,7 @@ export default {
 .menuManagementHeader {
   line-height: 50px;
   line-height: 50px;
-  font-size: 12px;
+  font-size: 14px;
 }
 .typeM {
   margin-left: 5px;

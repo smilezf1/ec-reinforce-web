@@ -1031,7 +1031,7 @@
   </div>
 </template>
 <script>
-import https from "../../request/http";
+import api from "../../request/api";
 export default {
   name: "reinforceStrategy",
   data() {
@@ -1093,34 +1093,27 @@ export default {
   },
   inject: ["reload"],
   beforeMount() {
-    let _this = this;
+    const _this = this;
     _this.getData();
-    https
-      .fetchPost("/api/reinforce/item/findReinforceItemTree", {
-        reinforceItem: {}
-      })
+    api.reinforceService
+      .getReinforceItemTree({ reinforceItem: {} })
       .then(res => {
-        if (res.data.code === "00") {
-          _this.strategyItemData = res.data.data;
+        if (res.code == "00") {
+          _this.strategyItemData = res.data;
         }
       });
   },
   methods: {
     //获取列表数据
     getData(queryInfo) {
-      https
-        .fetchPost("/api/reinforce/strategy/page", {
-          pn: this.curPage,
-          limit: this.limit,
-          queryInfo
-        })
-        .then(res => {
-          if (res.data.code === "00") {
-            let data = res.data.data;
-            this.listItem = data.items;
-            this.dataCount = data.count;
-          }
-        });
+      const params = { pn: this.curPage, limit: this.limit, queryInfo };
+      api.signatureService.getSignatureList(params).then(res => {
+        if (res.code == "00") {
+          const data = res.data;
+          this.listItem = data.items;
+          this.dataCount = data.count;
+        }
+      });
     },
     //限制文件上传的个数
     handleExceed(files, fileList) {
@@ -1164,42 +1157,34 @@ export default {
           file.onProgress({ percent: progressEvent });
         }
       };
-      https
-        .uploadFile("/api/reinforce/info/uploadReinforceFile", params, config)
-        .then(res => {
-          if (
-            res.data.code === "01" ||
-            res.data.code === "99" ||
-            res.data.code === "500"
-          ) {
-            _this.createStrategyDrawer = false;
-            _this.$refs.createStrategyUpload.clearFiles();
-          }
-          if (res.data.code === "00") {
-            _this.createStrategyUploadShow = false;
-            _this.saveStrategyBox = true;
-            let data = res.data.data,
-              keyData = data.appPath,
-              keyTreeData = [];
-            let dataItem = { data, keyTreeData };
-            //得到签名MD5,SO,h5
-            https
-              .fetchGet("/api/reinforce/info/parseApkInfoByFileKey/" + keyData)
-              .then(res => {
-                if (res.data.code == "00") {
-                  let data = res.data.data;
-                  if (data.soItems.length == 0) {
-                    _this.soDisabled = true;
-                  }
-                  if (data.h5Items.length == 0) {
-                    _this.h5Disabled = true;
-                  }
-                  keyTreeData.push(data);
-                }
-              });
-            _this.createStrategyFileItem.push(dataItem);
-          }
-        });
+      api.uploadService.uploadFile(params, config).then(res => {
+        if (res.code === "01" || res.code === "99" || res.code === "500") {
+          _this.createStrategyDrawer = false;
+          _this.$refs.createStrategyUpload.clearFiles();
+        }
+        if (res.code === "00") {
+          _this.createStrategyUploadShow = false;
+          _this.saveStrategyBox = true;
+          let data = res.data,
+            keyData = data.appPath,
+            keyTreeData = [];
+          let dataItem = { data, keyTreeData };
+          //得到签名MD5,SO,h5
+          api.reinforceService.getParseApkInfoByFileKey(keyData).then(res => {
+            if (res.code == "00") {
+              const data = res.data;
+              if (data.soItems.length == 0) {
+                _this.soDisabled = true;
+              }
+              if (data.h5Items.length == 0) {
+                _this.h5Disabled = true;
+              }
+              keyTreeData.push(data);
+            }
+          });
+          _this.createStrategyFileItem.push(dataItem);
+        }
+      });
     },
     //上传策略结束
     //勾选启用
@@ -1346,69 +1331,60 @@ export default {
         }
       }
       if (taskList.strategyName) {
-        let strategyName = taskList.strategyName;
-        https
-          .fetchGet("/api/reinforce/strategy/checkStrategyName", {
-            strategyName
-          })
-          .then(res => {
-            if (res.data) {
-              //必填项都已经填写 请求异步 需写在这里
-              if (allValid) {
-                let _this = this,
-                  strategyItemForm = _this.strategyItemForm,
-                  createStrategyFileItem = _this.createStrategyFileItem[0].data,
-                  signMd5ItemsData = [],
-                  signMd5Items = strategyItemForm.signMd5Items;
-                signMd5Items = signMd5Items.filter(v => v.value);
-                signMd5Items.forEach((v, i) => {
-                  signMd5ItemsData.push(v.value);
+        const strategyName = taskList.strategyName;
+        api.reinforceService.checkStrategyName({ strategyName }).then(res => {
+          if (res) {
+            //必填项都已经填写 请求异步 需写在这里
+            if (allValid) {
+              let _this = this,
+                strategyItemForm = _this.strategyItemForm,
+                createStrategyFileItem = _this.createStrategyFileItem[0].data,
+                signMd5ItemsData = [],
+                signMd5Items = strategyItemForm.signMd5Items;
+              signMd5Items = signMd5Items.filter(v => v.value);
+              signMd5Items.forEach((v, i) => {
+                signMd5ItemsData.push(v.value);
+              });
+              strategyItemForm.choiceItem = strategyItemForm.choiceItem
+                .concat(strategyItemForm.tamperChoiceItem, 22)
+                .filter(v => {
+                  return v != "";
                 });
-                strategyItemForm.choiceItem = strategyItemForm.choiceItem
-                  .concat(strategyItemForm.tamperChoiceItem, 22)
-                  .filter(v => {
-                    return v != "";
+              new Set(strategyItemForm.choiceItem);
+              let reinforceInfo = {
+                appName: createStrategyFileItem.appName,
+                appIcon: createStrategyFileItem.appIcon,
+                appPackage: createStrategyFileItem.appPackage,
+                appFileName: createStrategyFileItem.appFileName,
+                appPath: createStrategyFileItem.appPath,
+                appSize: createStrategyFileItem.appSize,
+                appVersion: createStrategyFileItem.appVersion
+              };
+              let strategyItemDto = {
+                reinforceStrategyName: strategyItemForm.strategyName,
+                reinforceItemList: strategyItemForm.choiceItem,
+                h5ItemList: strategyItemForm.h5ItemList,
+                soItemList: strategyItemForm.soItemList,
+                signMd5Items: signMd5ItemsData,
+                reinforceInfo
+              };
+              api.reinforceService.saveStrategy(strategyItemDto).then(res => {
+                if (res.code == "00") {
+                  _this.createStrategyDrawer = false;
+                  _this.$notify({
+                    message: "新增策略成功!",
+                    type: "success",
+                    duration: 1000
                   });
-                new Set(strategyItemForm.choiceItem);
-                let reinforceInfo = {
-                  appName: createStrategyFileItem.appName,
-                  appIcon: createStrategyFileItem.appIcon,
-                  appPackage: createStrategyFileItem.appPackage,
-                  appFileName: createStrategyFileItem.appFileName,
-                  appPath: createStrategyFileItem.appPath,
-                  appSize: createStrategyFileItem.appSize,
-                  appVersion: createStrategyFileItem.appVersion
-                };
-                let strategyItemDto = {
-                  reinforceStrategyName: strategyItemForm.strategyName,
-                  reinforceItemList: strategyItemForm.choiceItem,
-                  h5ItemList: strategyItemForm.h5ItemList,
-                  soItemList: strategyItemForm.soItemList,
-                  signMd5Items: signMd5ItemsData,
-                  reinforceInfo
-                };
-                https
-                  .fetchPost(
-                    "/api/reinforce/strategy/saveOrUpdateStrategy",
-                    strategyItemDto
-                  )
-                  .then(res => {
-                    if (res.data.code == "00") {
-                      _this.createStrategyDrawer = false;
-                      _this.$notify({
-                        message: "新增策略成功!",
-                        type: "success",
-                        duration: 1000
-                      });
-                      _this.reload();
-                    }
-                  });
-              }
-            } else {
-              allValid = false;
-              _this.$message.error("策略名称已存在!");
+                  _this.reload();
+                }
+              });
             }
-          });
+          } else {
+            allValid = false;
+            _this.$message.error("策略名称已存在!");
+          }
+        });
       }
     },
     //取消修改策略
@@ -1444,102 +1420,90 @@ export default {
     },
     //获取策略具体内容
     getstrategy(id) {
-      let _this = this;
-      https
-        .fetchGet("/api/reinforce/strategy/getStrategyDetail", {
-          id
-        })
-        .then(res => {
-          if (res.data.code === "00") {
-            let data = res.data.data;
-            let keyData = data.reinforceInfo.appPath;
-            //防止每次点击详情都push
-            _this.strategyItemForm.signMd5Items = [{ value: "" }];
-            _this.disabledMd5ArrayList = [];
-            https
-              .fetchGet("/api/reinforce/info/parseApkInfoByFileKey/" + keyData)
-              .then(res => {
-                if (res.data.code === "00") {
-                  let keyData = res.data.data;
-                  _this.soArrayList = keyData.soItems;
-                  _this.h5ArrayList = keyData.h5Items;
-                  _this.md5ArrayList = keyData.signMd5Value;
-                  _this.amendOriginalTree(_this.soArrayList);
-                  _this.amendOriginalTree(_this.h5ArrayList);
-                  if (keyData.soItems.length == 0) {
-                    _this.amendSoDisabled = true;
-                  }
-                  if (keyData.h5Items.length == 0) {
-                    _this.amendH5Disabled = true;
-                  } else {
-                    _this.amendH5Disabled = false;
-                  }
-                  _this.strategyDetailItem = data;
-                  _this.disabledSoArrayList = data.soItemList;
-                  _this.disabledH5ArrayList = data.h5ItemList;
-                  data.md5ItemList.forEach(v => {
-                    _this.disabledMd5ArrayList.push({ value: v });
-                  });
-                  _this.traverseTree(
-                    _this.disabledSoArrayList,
-                    _this.flatSoArray
-                  );
-                  _this.traverseTree(
-                    _this.disabledH5ArrayList,
-                    _this.flatH5Array
-                  );
-                  _this.strategyItemForm.soItemList = _this.flatSoArray;
-                  _this.strategyItemForm.h5ItemList = _this.flatH5Array;
-                  data.md5ItemList.forEach(v => {
-                    _this.strategyItemForm.signMd5Items.push({ value: v });
-                  });
-                }
+      const _this = this;
+      api.reinforceService.getStrategyDetail({ id }).then(res => {
+        if (res.code == "00") {
+          let data = res.data,
+            keyData = data.reinforceInfo.appPath;
+          //防止每次点击详情都push
+          _this.strategyItemForm.signMd5Items = [{ value: "" }];
+          _this.disabledMd5ArrayList = [];
+          api.reinforceService.getParseApkInfoByFileKey(keyData).then(res => {
+            if (res.code == "00") {
+              let keyData = res.data;
+              _this.soArrayList = keyData.soItems;
+              _this.h5ArrayList = keyData.h5Items;
+              _this.md5ArrayList = keyData.signMd5Value;
+              _this.amendOriginalTree(_this.soArrayList);
+              _this.amendOriginalTree(_this.h5ArrayList);
+              if (keyData.soItems.length == 0) {
+                _this.amendSoDisabled = true;
+              }
+              if (keyData.h5Items.length == 0) {
+                _this.amendH5Disabled = true;
+              } else {
+                _this.amendH5Disabled = false;
+              }
+              _this.strategyDetailItem = data;
+              _this.disabledSoArrayList = data.soItemList;
+              _this.disabledH5ArrayList = data.h5ItemList;
+              data.md5ItemList.forEach(v => {
+                _this.disabledMd5ArrayList.push({ value: v });
               });
-            let selectedList = data.reinforceItemList;
-            _this.strategyItemData.forEach(obj => {
-              obj["checked"] = false;
-              if (obj.children) {
-                obj.children.forEach(v => {
-                  v["checked"] = false;
-                  selectedList.some(obj1 => {
-                    if (obj1.id == v.id) {
-                      v["checked"] = true;
+              _this.traverseTree(_this.disabledSoArrayList, _this.flatSoArray);
+              _this.traverseTree(_this.disabledH5ArrayList, _this.flatH5Array);
+              _this.strategyItemForm.soItemList = _this.flatSoArray;
+              _this.strategyItemForm.h5ItemList = _this.flatH5Array;
+              data.md5ItemList.forEach(v => {
+                _this.strategyItemForm.signMd5Items.push({ value: v });
+              });
+            }
+          });
+          let selectedList = data.reinforceItemList;
+          _this.strategyItemData.forEach(obj => {
+            obj["checked"] = false;
+            if (obj.children) {
+              obj.children.forEach(v => {
+                v["checked"] = false;
+                selectedList.some(obj1 => {
+                  if (obj1.id == v.id) {
+                    v["checked"] = true;
+                  }
+                });
+              });
+            }
+            selectedList.some(obj1 => {
+              if (obj1.id == obj.id) {
+                obj["checked"] = true;
+              }
+            });
+          });
+          let choiceArray = [],
+            tamperArray = [],
+            result = _this.strategyItemData.map(item => {
+              if (item.children) {
+                if (item.reinforceItemName == "防篡改") {
+                  item.children.forEach(v => {
+                    if (v.checked == true) {
+                      tamperArray.push(v.id);
                     }
                   });
-                });
+                } else {
+                  item.children.forEach(v => {
+                    if (v.checked == true) {
+                      choiceArray.push(v.id);
+                    }
+                  });
+                }
               }
-              selectedList.some(obj1 => {
-                if (obj1.id == obj.id) {
-                  obj["checked"] = true;
-                }
-              });
+              if (item.checked == true) {
+                return item.id;
+              }
             });
-            let choiceArray = [],
-              tamperArray = [],
-              result = _this.strategyItemData.map(item => {
-                if (item.children) {
-                  if (item.reinforceItemName == "防篡改") {
-                    item.children.forEach(v => {
-                      if (v.checked == true) {
-                        tamperArray.push(v.id);
-                      }
-                    });
-                  } else {
-                    item.children.forEach(v => {
-                      if (v.checked == true) {
-                        choiceArray.push(v.id);
-                      }
-                    });
-                  }
-                }
-                if (item.checked == true) {
-                  return item.id;
-                }
-              });
-            _this.choiceArray = result.concat(choiceArray);
-            _this.tamperArray = tamperArray;
-          }
-        });
+          _this.choiceArray = result.concat(choiceArray);
+          _this.tamperArray = tamperArray;
+        }
+      });
     },
     //修改策略
     amendStrategy(id) {
@@ -1614,22 +1578,17 @@ export default {
         h5ItemList: strategyItemForm.h5ItemList
       };
       if (allValid) {
-        https
-          .fetchPost(
-            "/api/reinforce/strategy/saveOrUpdateStrategy",
-            strategyItemDto
-          )
-          .then(res => {
-            if (res.data.code == "00") {
-              _this.$notify({
-                message: "修改策略成功",
-                type: "success",
-                duration: 1000
-              });
-              this.amendStrategyDrawer = false;
-              _this.reload();
-            }
-          });
+        api.reinforceService.saveStrategy(strategyItemDto).then(res => {
+          if (res.code == "00") {
+            _this.$notify({
+              message: "修改策略成功",
+              type: "success",
+              duration: 1000
+            });
+            this.amendStrategyDrawer = false;
+            _this.reload();
+          }
+        });
       }
     },
     //策略详细
@@ -1652,20 +1611,16 @@ export default {
           type: "warning"
         })
         .then(() => {
-          https
-            .fetchGet(
-              "/api/reinforce/strategy/deleteReinforceStrategyById/" + id
-            )
-            .then(res => {
-              if (res.data.code == "00") {
-                _this.$message({
-                  message: "删除成功!",
-                  type: "success",
-                  duration: 1000
-                });
-                _this.reload();
-              }
-            });
+          api.reinforceService.deleteStrategy(id).then(res => {
+            if (res.code == "00") {
+              _this.$message({
+                message: "删除成功!",
+                type: "success",
+                duration: 1000
+              });
+              _this.reload();
+            }
+          });
         })
         .catch(() => {});
     }

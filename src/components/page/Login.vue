@@ -101,7 +101,7 @@ export default {
             verCode: verCode,
             guid: guid
           };
-          api.loginService
+          api.userService
             .login(params)
             .then(res => {
               if (res.code === "00") {

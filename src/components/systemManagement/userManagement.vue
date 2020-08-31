@@ -924,12 +924,11 @@ export default {
 .el-input {
   width: auto;
 }
-.searchBox {
+.userManagement .searchBox {
   margin-bottom: 15px;
   display: inline-block;
 }
-.operateBox {
-  margin-left: 20px;
+.userManagement .operateBox {
   display: inline-block;
   box-sizing: border-box;
   margin-bottom: 15px;

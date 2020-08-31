@@ -247,7 +247,7 @@
   </div>
 </template>
 <script>
-import https from "../../request/http";
+import api from "../../request/api";
 export default {
   name: "signature",
   data() {
@@ -288,19 +288,14 @@ export default {
   methods: {
     //获取后台数据
     getData(queryInfo) {
-      https
-        .fetchPost("/api/reinforce/sign/page", {
-          pn: this.curPage,
-          limit: this.limit,
-          queryInfo
-        })
-        .then(res => {
-          if (res.data.code == "00") {
-            let data = res.data.data;
-            this.listItem = data.items;
-            this.dataCount = data.count;
-          }
-        });
+      const params = { pn: this.curPage, limit: this.limit, queryInfo };
+      api.reinforceService.getSignatureList(params).then(res => {
+        if (res.code == "00") {
+          let data = res.data;
+          this.listItem = data.items;
+          this.dataCount = data.count;
+        }
+      });
     },
     //显示页面的条数
     handleSizeChange(val) {
@@ -342,38 +337,30 @@ export default {
           file.onProgress({ percent: progressPercent });
         }
       };
-      https
-        .uploadFile(
-          "/api/reinforce/sign/uploadReinforceSignFile",
-          params,
-          config
-        )
-        .then(res => {
-          if (res) {
-            if (res.data.code === "00") {
-              let data = res.data.data;
-              this.uploadSignatureFileItem.push({
-                signatureFileName: file.file.name,
-                signFilePath: ""
-              });
-              this.signatureItemForm.push({
-                signatureAddress: data,
-                signatureName: "",
-                signaturePwd: "",
-                signatureAliasName: [],
-                signatureAliasNameValue: "",
-                signatureAliasPwd: "",
-                signatureAliasBox: false
-              });
-              console.log(this.signatureItemForm.length, "###");
-              this.uploadShow = false;
-              this.$refs.uploadSignature.clearFiles();
-            }
-          }
-        })
-        .catch(error => {
-          console.log(error);
-        });
+      api.uploadService.uploadSignatureFile(params, config).then(res => {
+        if (res.code == "01" || res.code == "99" || res.code == "500") {
+          this.uploadSignatureDrawer = false;
+          this.$refs.uploadSignature.clearFiles();
+        }
+        if (res.code == "00") {
+          let data = res.data;
+          this.uploadSignatureFileItem.push({
+            signatureFileName: file.file.name,
+            signFilePath: ""
+          });
+          this.signatureItemForm.push({
+            signatureAddress: data,
+            signatureName: "",
+            signaturePwd: "",
+            signatureAliasName: [],
+            signatureAliasNameValue: "",
+            signatureAliasPwd: "",
+            signatureAliasBox: false
+          });
+          this.uploadShow = false;
+          this.$refs.uploadSignature.clearFiles();
+        }
+      });
     },
     //删除签名
     deleteSignature(id, name) {
@@ -385,44 +372,38 @@ export default {
           type: "warning"
         })
         .then(() => {
-          https
-            .fetchGet("/api/reinforce/sign/deleteReinforceSignById/" + id)
-            .then(res => {
-              if (res.data.code == "00") {
-                _this.$message({
-                  message: "删除成功!",
-                  type: "success",
-                  duration: 1000
-                });
-                _this.reload();
-              }
-            });
+          api.signatureService.deleteSignature(id).then(res => {
+            if (res.code == "00") {
+              _this.$message({
+                message: "删除成功!",
+                type: "success",
+                duration: 1000
+              });
+              _this.reload();
+            }
+          });
         })
         .catch(() => {});
     },
     //上传签名结束
     //获取签名别名
     getSignatureAlias(signaturePwd, signatureAddress, signatureIndex) {
-      const _this = this;
-      https
-        .fetchPost("/api/reinforce/sign/findSignAliasNameList", {
-          signPwd: signaturePwd,
-          signFilePath: signatureAddress
-        })
-        .then(res => {
-          if (res.data.code === "500") {
-            _this.$message.error(res.data.message);
-            _this.signatureItemForm[signatureIndex].signatureAliasBox = false;
-          }
-          if (res.data.code === "00") {
-            _this.signatureItemForm[signatureIndex].signatureAliasBox = true;
-            res.data.data.map(item => {
-              _this.signatureItemForm[signatureIndex].signatureAliasName.push({
-                value: item
-              });
+      const _this = this,
+        params = { signPwd: signaturePwd, signFilePath: signatureAddress };
+      api.signatureService.getSignatureAlias;
+      api.signatureService.getSignatureAlias(params).then(res => {
+        if (res.code === "500") {
+          _this.signatureItemForm[signatureIndex].signatureAliasBox = false;
+        }
+        if (res.code === "00") {
+          _this.signatureItemForm[signatureIndex].signatureAliasBox = true;
+          res.data.map(item => {
+            _this.signatureItemForm[signatureIndex].signatureAliasName.push({
+              value: item
             });
-          }
-        });
+          });
+        }
+      });
     },
     //上传签名
     uploadSignature() {
@@ -449,17 +430,12 @@ export default {
       let _this = this,
         signName = _this.signatureItemForm[0]["signatureName"];
       if (signName) {
-        https
-          .fetchGet("/api/reinforce/sign/checkSignName", {
-            signName
-          })
-          .then(res => {
-            if (res.data) {
-            } else {
-              _this.$message.error("签名名称不能重复哦");
-              _this.saveSignatureBox = false;
-            }
-          });
+        api.signatureService.checkSignName({ signName }).then(res => {
+          if (!res) {
+            _this.$message.error("签名名称已存在!");
+            _this.saveSignatureBox = false;
+          }
+        });
       } else {
       }
     },
@@ -472,8 +448,8 @@ export default {
         signAliasName = data.signatureAliasNameValue,
         signAliasPwd = data.signatureAliasPwd,
         signFilePath = data.signatureAddress;
-      https
-        .fetchPost("/api/reinforce/sign/addReinforceSign", {
+      api.signatureService
+        .saveSignature({
           signName,
           signPwd,
           signAliasName,
@@ -481,7 +457,7 @@ export default {
           signFilePath
         })
         .then(res => {
-          if (res.data.code === "00") {
+          if (res.code == "00") {
             _this.$message({
               message: "新增签名成功",
               type: "success",

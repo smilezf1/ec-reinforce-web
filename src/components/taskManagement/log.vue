@@ -22,7 +22,7 @@
   </div>
 </template>
 <script>
-import https from "../../request/http";
+import api from "../../request/api";
 export default {
   name: "Log",
   data() {
@@ -35,11 +35,11 @@ export default {
     const id = parseInt(this.$route.params.id),
       _this = this;
     _this.titleItem = this.$route.query;
-    https
-      .fetchGet("/api/reinforce/info/findLogoByReinforceId/" + id)
-      .then(res => {
-        _this.listItem = res.data.data;
-      });
+    api.reinforceService.getReinforceLog(id).then(res => {
+      if (res.code == "00") {
+        _this.listItem = res.data;
+      }
+    });
   },
   methods: {
     back() {
@@ -55,17 +55,19 @@ export default {
   font-size: 14px;
 }
 .logBody {
-  box-shadow: 0px 0px 10px #00000029;
+  box-shadow: 0px 0px 10px #00000021;
   margin: 10px 10px 0 0;
   padding: 20px;
 }
 .logBodyTitle {
-  font-size: 16px;
+  font-size: 14px;
+  font-weight: 550;
+  color: #606266;
 }
 .logBodyContent {
   white-space: pre-line;
   font-size: 14px;
-  color: #45494c;
+  color: #606266;
   line-height: 25px;
 }
 </style>

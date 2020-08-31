@@ -187,7 +187,8 @@
                               addChannelStrategyParameter(
                                 'createChannel',
                                 0,
-                                item.appPath
+                                item.appPath,
+                                0
                               )
                             "
                           ></el-button>
@@ -253,7 +254,8 @@
                                 addChannelStrategyParameter(
                                   'createChannel',
                                   0,
-                                  item.appPath
+                                  item.appPath,
+                                  channelSubIndex
                                 )
                               "
                             ></el-button>
@@ -344,7 +346,8 @@
                                 addChannelStrategyParameter(
                                   'createChannel',
                                   channelIndex,
-                                  item.appPath
+                                  item.appPath,
+                                  channelIndex
                                 )
                               "
                             ></el-button>
@@ -419,7 +422,8 @@
                                   addChannelStrategyParameter(
                                     'createChannel',
                                     channelIndex,
-                                    item.appPath
+                                    item.appPath,
+                                    channelSubIndex
                                   )
                                 "
                               ></el-button>
@@ -605,7 +609,8 @@
                             addChannelStrategyParameter(
                               'amendChannel',
                               detailIndex,
-                              channelStrategyParticulars.reinforceInfo.appPath
+                              channelStrategyParticulars.reinforceInfo.appPath,
+                              parameterIndex
                             )
                           "
                         ></el-button>
@@ -669,6 +674,7 @@
         :destroy-on-cloase="true"
         ref="detailChannelStrategyDrawer"
         size="40%"
+        class="detailChannelStrategyDrawer"
       >
         <div class="el-drawer-header">
           <h3>渠道详细</h3>
@@ -845,7 +851,7 @@
   </div>
 </template>
 <script>
-import https from "../../request/http";
+import api from "../../request/api";
 import { set, template, values } from "xe-utils/methods";
 export default {
   name: "channelStrategy",
@@ -939,19 +945,14 @@ export default {
     },
     //获取表格数据
     getData(queryInfo) {
-      https
-        .fetchPost("/api/channel/strategy/findChannelStrategyByPage", {
-          pn: this.curPage,
-          limit: this.limit,
-          queryInfo
-        })
-        .then(res => {
-          if (res.data.code === "00") {
-            let data = res.data.data;
-            this.listItem = data.items;
-            this.dataCount = data.count;
-          }
-        });
+      const params = { pn: this.curPage, limit: this.limit, queryInfo };
+      api.multipleChannelService.getChannelList(params).then(res => {
+        if (res.code == "00") {
+          const data = res.data;
+          this.listItem = data.items;
+          this.dataCount = data.count;
+        }
+      });
     },
     //刷新
     refresh() {
@@ -969,33 +970,25 @@ export default {
     getChannelStrategy(id) {
       const _this = this;
       let appPath = null;
-      https
-        .fetchGet("/api/channel/strategy/findChannelStrategyDetail/" + id)
-        .then(res => {
-          if (res.data.code == "00") {
-            let data = res.data.data,
-              appPath = data.reinforceInfo.appPath;
-            _this.channelStrategyParticulars = data;
-            https
-              .fetchGet(
-                "/api/channel/strategy/parseApkMateInfoByFileKey/" + appPath
-              )
-              .then(res => {
-                if (res.data.code === "00") {
-                  let channelKeyData = [];
-                  res.data.data.forEach(v => {
-                    channelKeyData.push({ value: v, disabled: false });
-                  });
-                  _this.channelStrategyParticulars.itemDetailDtoList.forEach(
-                    v => {
-                      _this.$set(v, "channelKeyData", channelKeyData);
-                    }
-                  );
-                  _this.channelKeyData = channelKeyData;
-                }
+      api.multipleChannelService.getChannelStrategyDetail(id).then(res => {
+        if (res.code == "00") {
+          let data = res.data,
+            appPath = data.reinforceInfo.appPath;
+          _this.channelStrategyParticulars = data;
+          api.multipleChannelService.getChannelKeyList(appPath).then(res => {
+            if (res.code == "00") {
+              let channelKeyData = [];
+              res.data.forEach(v => {
+                channelKeyData.push({ value: v, disabled: false });
               });
-          }
-        });
+              _this.channelStrategyParticulars.itemDetailDtoList.forEach(v => {
+                _this.$set(v, "channelKeyData", channelKeyData);
+              });
+              _this.channelKeyData = channelKeyData;
+            }
+          });
+        }
+      });
     },
     //渠道策略详细
     channelStrategyDetail(id) {
@@ -1012,20 +1005,17 @@ export default {
           type: "warning"
         })
         .then(() => {
-          https
-            .fetchGet(
-              "/api/channel/strategy/deleteChannelStrategyByStrategyId/" + id
-            )
-            .then(res => {
-              if (res.data.code == "00") {
-                _this.$message({
-                  message: "删除成功!",
-                  type: "success",
-                  duration: 1000
-                });
-                _this.reload();
-              }
-            });
+          api.multipleChannelService.deleteChannelStrategy(id).then(res => {
+            console.log(res);
+            if (res.code == "00") {
+              _this.$message({
+                message: "删除成功!",
+                type: "success",
+                duration: 1000
+              });
+              _this.reload();
+            }
+          });
         })
         .catch(() => {});
     },
@@ -1056,38 +1046,29 @@ export default {
           file.onProgress({ percent: progressEvent });
         }
       };
-      https
-        .uploadFile("/api/reinforce/info/uploadReinforceFile", params, config)
-        .then(res => {
-          if (
-            (res.data.code === "01" && res.data.code === "99") ||
-            res.data.code === "500"
-          ) {
-            _this.createChannelStrategyDrawer = false;
-            _this.$refs.createChannelStrategyUpload.clearFiles();
-          }
-          if (res.data.code === "00") {
-            _this.createChannelStrategyUploadShow = false;
-            _this.showSaveChannelStrategy = false;
-            let data = res.data.data,
-              appPath = data.appPath,
-              channelKeyData = [];
-            https
-              .fetchGet(
-                "/api/channel/strategy/parseApkMateInfoByFileKey/" + appPath
-              )
-              .then(res => {
-                if (res.data.code === "00") {
-                  res.data.data.forEach(v => {
-                    channelKeyData.push({ value: v, disabled: false });
-                  });
-                  _this.channelKeyData = channelKeyData;
-                  _this.channelStrategyList[0].channelKeyData = channelKeyData;
-                }
+      api.uploadService.uploadFile(params, config).then(res => {
+        if ((res.code === "01" && res.code === "99") || res.code === "500") {
+          _this.createChannelStrategyDrawer = false;
+          _this.$refs.createChannelStrategyUpload.clearFiles();
+        }
+        if (res.code === "00") {
+          _this.createChannelStrategyUploadShow = false;
+          _this.showSaveChannelStrategy = false;
+          let data = res.data,
+            appPath = data.appPath,
+            channelKeyData = [];
+          api.multipleChannelService.getChannelKeyList(appPath).then(res => {
+            if (res.code === "00") {
+              res.data.forEach(v => {
+                channelKeyData.push({ value: v, disabled: false });
               });
-            _this.createChannelStrategyFileItem.push(data);
-          }
-        });
+              _this.channelKeyData = channelKeyData;
+              _this.channelStrategyList[0].channelKeyData = channelKeyData;
+            }
+          });
+          _this.createChannelStrategyFileItem.push(data);
+        }
+      });
     },
     //保存创建的渠道策略
     saveChannelStrategy() {
@@ -1117,23 +1098,21 @@ export default {
             allValid = false;
           }
           if (v.channelKey && v.channelValue) {
-            checkChannelValueType = https
-              .fetchGet(
-                "/api/channel/strategy/checkChannelValueType?channelKey=" +
-                  v.channelKey +
-                  "&channelValue=" +
-                  v.channelValue +
-                  "&fileKey=" +
-                  formItem.appPath
+            /*  checkChannelValueType = api.multipleChannelService
+              .checkChannelValueType(
+                v.channelKey,
+                v.channelValue,
+                formItem.appPath
               )
               .then(res => {
-                if (res.data.code === "500") {
+                console.log(res);
+                if (res.code == "500") {
                   return false;
                 }
-                if (res.data == true) {
+                if (res == true) {
                   return true;
                 }
-              });
+              }); */
           }
         });
         let result = {
@@ -1142,12 +1121,10 @@ export default {
         };
         return result;
       });
-      let checkChannelStrategyName = https
-        .fetchGet("/api/channel/strategy/checkChannelStrategyName", {
-          channelStrategyName
-        })
+      let checkChannelStrategyName = api.multipleChannelService
+        .checkChannelStrategyName({ channelStrategyName })
         .then(res => {
-          if (res.data == true) {
+          if (res == true) {
             return true;
           } else {
             _this.$message.error("策略名称已存在");
@@ -1172,21 +1149,18 @@ export default {
         values => {
           let valid = values.every(item => item);
           if (allValid && valid) {
-            https
-              .fetchPost(
-                "/api/channel/strategy/saveOrUpdateChannelStrategy",
-                channelStrategyDto
-              )
+            api.multipleChannelService
+              .saveChannelStrategy(channelStrategyDto)
               .then(res => {
                 if (
-                  res.data.code === "01" ||
-                  res.data.code == "99" ||
-                  res.data.code === "500"
+                  res.code === "01" ||
+                  res.code == "99" ||
+                  res.code === "500"
                 ) {
                   _this.createChannelStrategyDrawer = false;
                   _this.$refs.createChannelStrategyUpload.clearFiles();
                 }
-                if (res.data.code === "00") {
+                if (res.code === "00") {
                   _this.createChannelStrategyDrawer = false;
                   _this.$notify({
                     message: "新增渠道成功!",
@@ -1195,7 +1169,6 @@ export default {
                   });
                   _this.reload();
                 }
-                console.log(res);
               });
           }
         }
@@ -1223,7 +1196,7 @@ export default {
       }
     },
     //添加渠道参数
-    addChannelStrategyParameter(typeChannel, index, appPath) {
+    addChannelStrategyParameter(typeChannel, index, appPath, parameterIndex) {
       const _this = this,
         fileKey = appPath;
       let parameterIsValid = true,
@@ -1243,21 +1216,14 @@ export default {
             parameterDetailIsValid = false;
           }
           if (parameterDetailIsValid) {
-            checkChannelValueType = https
-              .fetchGet(
-                "/api/channel/strategy/checkChannelValueType?channelKey=" +
-                  v.channelKey +
-                  "&channelValue=" +
-                  v.channelValue +
-                  "&fileKey=" +
-                  fileKey
-              )
+            checkChannelValueType = api.multipleChannelService
+              .checkChannelValueType(v.channelKey, v.channelValue, fileKey)
               .then(res => {
-                if (res.data.code === "500") {
+                if (res.code == "500") {
                   parameterIsValid = false;
                   return false;
                 }
-                if (res.data == true) {
+                if (res == true) {
                   return true;
                 }
               });
@@ -1275,8 +1241,8 @@ export default {
       if (typeChannel == "createChannel") {
         let channelList =
             _this.channelStrategyList[index].channelStrategyParameteList,
-          channelKey = channelList[0].channelKey,
-          channelValue = channelList[0].channelValue;
+          channelKey = channelList[parameterIndex].channelKey,
+          channelValue = channelList[parameterIndex].channelValue;
         if (!channelValue) {
           _this.$message.error("渠道参数 channelValue不能为空!");
           parameterIsValid = false;
@@ -1286,20 +1252,13 @@ export default {
           parameterIsValid = false;
         }
         if (parameterIsValid) {
-          https
-            .fetchGet(
-              "/api/channel/strategy/checkChannelValueType?channelKey=" +
-                channelKey +
-                "&channelValue=" +
-                channelValue +
-                "&fileKey=" +
-                fileKey
-            )
+          api.multipleChannelService
+            .checkChannelValueType(channelKey, channelValue, fileKey)
             .then(res => {
-              if (res.data.code === "500") {
+              if (res.code == "500") {
                 parameterIsValid = false;
               }
-              if (res.data == true) {
+              if (res == true) {
                 _this.channelStrategyList[
                   index
                 ].channelStrategyParameteList.push({
@@ -1406,20 +1365,13 @@ export default {
             allValid = false;
           }
           if (v.channelKey && v.channelValue) {
-            checkChannelValueType = https
-              .fetchGet(
-                "/api/channel/strategy/checkChannelValueType?channelKey=" +
-                  v.channelKey +
-                  "&channelValue=" +
-                  v.channelValue +
-                  "&fileKey=" +
-                  appPath
-              )
+            checkChannelValueType = api.multipleChannelService
+              .checkChannelValueType(v.channelKey, v.channelValue, appPath)
               .then(res => {
-                if (res.data.code === "500") {
+                if (res.code == "500") {
                   return false;
                 }
-                if (res.data == true) {
+                if (res == true) {
                   return true;
                 }
               });
@@ -1429,20 +1381,13 @@ export default {
       Promise.all([checkChannelValueType]).then(value => {
         let valid = value.every(item => item);
         if (allValid && valid) {
-          https
-            .fetchPost(
-              "/api/channel/strategy/saveOrUpdateChannelStrategy",
-              channelStrategyDto
-            )
+          api.multipleChannelService
+            .saveChannelStrategy(channelStrategyDto)
             .then(res => {
-              if (
-                res.data.code === "01" ||
-                res.data.code == "99" ||
-                res.data.code == "500"
-              ) {
+              if (res.code == "01" || res.code == "99" || res.code == "500") {
                 _this.amendChannelStrategyDrawer = false;
               }
-              if (res.data.code === "00") {
+              if (res.code == "00") {
                 _this.$notify({
                   message: "修改渠道成功",
                   type: "success",
@@ -1467,10 +1412,12 @@ export default {
 };
 </script>
 <style>
-.el-select-dropdown {
+.detailChannelStrategyDrawer.el-select-dropdown {
   position: absolute !important;
   top: 35px !important;
   left: 0 !important;
+  min-height: 100% !important;
+  overflow-y: auto !important;
 }
 .el-collapse-item__wrap {
   overflow: visible;

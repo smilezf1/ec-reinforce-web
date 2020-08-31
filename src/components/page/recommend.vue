@@ -66,7 +66,6 @@ export default {
   height: 50px;
   line-height: 50px;
   font-size: 14px;
-  padding-left: 30px;
 }
 .recommendContentTitle {
   height: 60px;

@@ -1,7 +1,9 @@
 <template>
   <div class="reinfore">
     <div class="reinforeHeader">
-      <p>当前位置:加固服务</p>
+      <div class="reinforceHeaderContent">
+        <p>当前位置:加固服务</p>
+      </div>
     </div>
     <div class="searchForm">
       <div class="searchBox">
@@ -819,7 +821,7 @@
   </div>
 </template>
 <script>
-import https from "../../request/http";
+import api from "../../request/api";
 export default {
   name: "reinfore",
   data() {
@@ -948,26 +950,19 @@ export default {
     },
     //获取后台数据
     getData(queryInfo) {
-      https
-        .fetchPost("/api/reinforce/info/page", {
-          pn: this.curPage,
-          limit: this.limit,
-          queryInfo
-        })
-        .then(res => {
-          if (res) {
-            if (res.data.code == "00") {
-              let data = res.data.data;
-              this.listItem = data.items;
-              this.dataCount = data.count;
-            }
-          }
-        });
+      const params = { pn: this.curPage, limit: this.limit, queryInfo };
+      api.reinforceService.reinforceList(params).then(res => {
+        if (res.code == "00") {
+          const data = res.data;
+          this.listItem = data.items;
+          this.dataCount = data.count;
+        }
+      });
     },
     //显示的页面条数
     handleSizeChange(val) {
       this.limit = val;
-      let appName = this.ruleForm.appName,
+      const appName = this.ruleForm.appName,
         appVersion = this.ruleForm.appVersion,
         queryInfo = { appName, appVersion };
       this.getData(queryInfo);
@@ -1048,7 +1043,6 @@ export default {
           formItem.signMd5Items.forEach((v, i) => {
             signMd5Items.push(v.value);
           });
-          console.log(formItem.choiceArray, formItem.tamperArray, "哈哈");
           let signMd5ItemsData = signMd5Items.filter(v => v);
           formItem.flatSoArray = formItem.flatSoArray.filter(v => v);
           formItem.flatH5Array = formItem.flatH5Array.filter(v => v);
@@ -1078,28 +1072,21 @@ export default {
           };
           return result;
         });
-        https
-          .fetchPost(
-            "/api/reinforce/info/saveReinforceInfoOrUpdate",
-            reinforceInfoDto
-          )
-          .then(res => {
-            if (res) {
-              if (res.data.code == "500") {
-                _this.addTaskDrawer = false;
-                _this.reload();
-              }
-              if (res.data.code == "00") {
-                _this.addTaskDrawer = false;
-                _this.$notify({
-                  message: "新增任务成功",
-                  type: "success",
-                  duration: 1000
-                });
-                _this.reload();
-              }
-            }
-          });
+        api.reinforceService.saveReinforce(reinforceInfoDto).then(res => {
+          if (res.code == "500") {
+            _this.addTaskDrawer = false;
+            _this.reload();
+          }
+          if (res.code == "00") {
+            _this.addTaskDrawer = false;
+            _this.$notify({
+              message: "新增任务成功",
+              type: "success",
+              duration: 1000
+            });
+            _this.reload();
+          }
+        });
       } else {
         return "";
       }
@@ -1124,7 +1111,7 @@ export default {
       }
     },
     //加固
-    reinforce(id) {
+    /*  reinforce(id) {
       https
         .fetchGet("/api/reinforce/info/startReinforce", {
           reinforceInfoId: id
@@ -1136,7 +1123,7 @@ export default {
           });
           this.reload();
         });
-    },
+    }, */
     //上传-----开始
     addFileToFormData(file) {
       let params = new FormData(),
@@ -1150,145 +1137,131 @@ export default {
           file.onProgress({ percent: progressPercent });
         }
       };
-      https
-        .uploadFile("/api/reinforce/info/uploadReinforceFile", params, config)
-        .then(res => {
-          if (res) {
-            if (
-              res.data.code === "01" ||
-              res.data.code === "99" ||
-              res.data.code === "500"
-            ) {
-              _this.addTaskDrawer = false;
-              _this.$refs.upload.clearFiles();
-            }
-            if (res.data.code === "00") {
-              _this.saveReinforceTaskBox = false;
-              if (res.data.data) {
-                let data = res.data.data,
-                  keyData = data.appPath,
-                  packageData = data.appPackage,
-                  keyTreeData = [],
-                  packageTreeData = [],
-                  dataItem = { data, keyTreeData, packageTreeData };
-                this.addRoleFormArray.push({
-                  curPrinter1: "",
-                  curPrinter2: "",
-                  curPrinter3: "",
-                  curPrinter4: "",
-                  curPrinter5: "",
-                  curPrinter6: "",
-                  radio1: "",
-                  radio2: "",
-                  strategyItemDto: {},
-                  strategyItemDtoTest: [],
-                  signMd5Items: [{ value: "" }],
-                  choiceItem: [],
-                  choiceTamperItem: [],
-                  choiceDebugItem: [],
-                  md5Checked: false,
-                  soChecked: false,
-                  h5Checked: false,
-                  soDisabled: false,
-                  h5Disabled: false,
-                  soItemList: [],
-                  h5ItemList: [],
-                  md5List: [],
-                  addSignatureClick: false,
-                  flatSoArray: [],
-                  flatH5Array: [],
-                  tamperArray: "",
-                  choiceArray: [],
-                  showReinforceItem: false,
-                  strategyType: 1,
-                  strategyDescribe: ""
-                });
-                https
-                  .fetchGet(
-                    "/api/reinforce/info/parseApkInfoByFileKey/" + keyData
-                  )
-                  .then(res => {
-                    if (res.data.code == "00") {
-                      let data = res.data.data;
-                      this.amendOriginTree(data.soItems);
-                      this.amendOriginTree(data.h5Items);
-                      if (data.soItems.length == 0) {
-                        this.addRoleFormArray.forEach((v, i) => {
-                          v.soDisabled = true;
-                        });
-                      }
-                      if (data.h5Items.length == 0) {
-                        this.addRoleFormArray.forEach((v, i) => {
-                          v.h5Disabled = true;
-                        });
-                      }
-                      keyTreeData.push(data);
-                    }
-                  });
-                https
-                  .fetchGet(
-                    "/api/reinforce/strategy/findStrategyByPackageName",
-                    { packageName: packageData }
-                  )
-                  .then(res => {
-                    if (res.data.code == "00") {
-                      packageTreeData.push(res.data.data);
-                    }
-                  });
-                this.uploadFileItems.push(dataItem);
-                for (var i = 0; i < this.uploadFileItems.length; i++) {
-                  this.activeNames.push(i + 1);
-                  this.activeNames = Array.from(new Set(this.activeNames));
-                }
-                this.uploadShow = false;
-              }
-              _this.$refs.upload.clearFiles();
-              //查询加固策略列表
-              https
-                .fetchPost("/api/reinforce/strategy/page", {
-                  pn: 1,
-                  limit: 20
-                })
-                .then(res => {
-                  if (res.data.code == "00") {
-                    let data = res.data.data.items;
-                    data = JSON.parse(
-                      JSON.stringify(data).replace(
-                        /reinforce_strategy_name/g,
-                        "label"
-                      )
-                    );
-                    this.strategyOptions = data;
-                  }
-                });
-              //查询签名列表 签名策略列表
-              https
-                .fetchPost("/api/reinforce/sign/page", { pn: 1, limit: 20 })
-                .then(res => {});
-              //查询加固项tree
-              https
-                .fetchPost("/api/reinforce/item/findReinforceItemTree", {
-                  reinforceItem: {}
-                })
-                .then(res => {
-                  if (res.data.code == "00") {
-                    this.reinforceItemData = res.data.data;
-                    this.reinforceItemData.forEach((v, i) => {
-                      if (v.children) {
-                        this.checkedItem.push(v);
-                      } else {
-                        this.radioItem.push(v);
-                      }
-                    });
-                  }
-                });
-            }
-          } else {
-            _this.$refs.upload.clearFiles();
+      api.uploadService.uploadFile(params, config).then(res => {
+        if (res) {
+          if (res.code == "01" || res.code == "99" || res.code == "500") {
             _this.addTaskDrawer = false;
-            _this.$notify.error({ title: "错误", message: "应用解析错误" });
+            _this.$refs.upload.clearFiles();
           }
-        });
+          if (res.code == "00") {
+            _this.saveReinforceTaskBox = false;
+            if (res.data) {
+              let data = res.data,
+                keyData = data.appPath,
+                packageData = data.appPackage,
+                keyTreeData = [],
+                packageTreeData = [],
+                dataItem = { data, keyTreeData, packageTreeData };
+              this.addRoleFormArray.push({
+                curPrinter1: "",
+                curPrinter2: "",
+                curPrinter3: "",
+                curPrinter4: "",
+                curPrinter5: "",
+                curPrinter6: "",
+                radio1: "",
+                radio2: "",
+                strategyItemDto: {},
+                strategyItemDtoTest: [],
+                signMd5Items: [{ value: "" }],
+                choiceItem: [],
+                choiceTamperItem: [],
+                choiceDebugItem: [],
+                md5Checked: false,
+                soChecked: false,
+                h5Checked: false,
+                soDisabled: false,
+                h5Disabled: false,
+                soItemList: [],
+                h5ItemList: [],
+                md5List: [],
+                addSignatureClick: false,
+                flatSoArray: [],
+                flatH5Array: [],
+                tamperArray: "",
+                choiceArray: [],
+                showReinforceItem: false,
+                strategyType: 1,
+                strategyDescribe: ""
+              });
+              api.reinforceService
+                .getParseApkInfoByFileKey(keyData)
+                .then(res => {
+                  if (res.code == "00") {
+                    let data = res.data;
+                    this.amendOriginTree(data.soItems);
+                    this.amendOriginTree(data.h5Items);
+                    if (data.soItems.length == 0) {
+                      this.addRoleFormArray.forEach((v, i) => {
+                        v.soDisabled = true;
+                      });
+                    }
+                    if (data.h5Items.length == 0) {
+                      this.addRoleFormArray.forEach((v, i) => {
+                        v.h5Disabled = true;
+                      });
+                    }
+                    keyTreeData.push(data);
+                  }
+                });
+              const params = { packageName: packageData };
+              api.reinforceService
+                .getStrategyByPackageName(params)
+                .then(res => {
+                  if (res.code == "00") {
+                    packageTreeData.push(res.data);
+                  }
+                });
+              this.uploadFileItems.push(dataItem);
+              for (var i = 0; i < this.uploadFileItems.length; i++) {
+                this.activeNames.push(i + 1);
+                this.activeNames = Array.from(new Set(this.activeNames));
+              }
+              this.uploadShow = false;
+            }
+            _this.$refs.upload.clearFiles();
+            //查询加固策略列表
+            /*  https
+              .fetchPost("/api/reinforce/strategy/page", {
+                pn: 1,
+                limit: 20
+              })
+              .then(res => {
+                if (res.data.code == "00") {
+                  let data = res.data.data.items;
+                  data = JSON.parse(
+                    JSON.stringify(data).replace(
+                      /reinforce_strategy_name/g,
+                      "label"
+                    )
+                  );
+                  this.strategyOptions = data;
+                }
+              }); */
+            //查询签名列表 签名策略列表
+            /*   https
+              .fetchPost("/api/reinforce/sign/page", { pn: 1, limit: 20 })
+              .then(res => {}); */
+            //查询加固项tree
+            api.reinforceService
+              .getReinforceItemTree({ reinforceItem: {} })
+              .then(res => {
+                this.reinforceItemData = res.data;
+                this.reinforceItemData.forEach((v, i) => {
+                  if (v.children) {
+                    this.checkedItem.push(v);
+                  } else {
+                    this.radioItem.push(v);
+                  }
+                });
+              });
+          }
+        } else {
+          _this.$refs.upload.clearFiles();
+          _this.addTaskDrawer = false;
+          _this.$notify.error({ title: "错误", message: "应用解析错误" });
+        }
+      });
     },
     //上传结束---
     //详情
@@ -1331,17 +1304,15 @@ export default {
         type: "warning"
       })
         .then(res => {
-          https
-            .fetchGet("/api/reinforce/info/deleteReinforceInfoById/" + id)
-            .then(res => {
-              if (res.data.code == "00") {
-                _this.$message({ type: "success", message: "删除成功" });
-                _this.reload();
-              }
-            });
+          api.reinforceService.deleteReinforceById(id).then(res => {
+            if (res.code == "00") {
+              _this.$message({ type: "success", message: "删除成功" });
+              _this.reload();
+            }
+          });
         })
         .catch(() => {
-          _this.$message({ type: "info", message: "已取消删除" });
+          _this.$message({ type: "info", message: "取消删除" });
           _this.reload();
         });
     },
@@ -1379,101 +1350,96 @@ export default {
       });
       this.strategyItemDto = data; */
       const _this = this;
-      https
-        .fetchGet("/api/reinforce/strategy/getStrategyDetail", {
-          id
-        })
-        .then(res => {
-          if (res.data.code == "00") {
-            _this.addRoleFormArray[index].showReinforceItem = true;
-            let data = res.data.data,
-              selectedList = data.reinforceItemList;
-            _this.addRoleFormArray[index].strategyType = data.strategyType;
-            _this.addRoleFormArray[index].strategyDescribe = "";
-            //初始化防止每次都push一下
-            _this.addRoleFormArray[index].signMd5Items = [{ value: "" }];
-            data.md5ItemList.map(v => {
-              _this.addRoleFormArray[index].signMd5Items.push({ value: v });
+      api.reinforceService.getStrategyDetail({ id }).then(res => {
+        _this.addRoleFormArray[index].showReinforceItem = true;
+        if (res.code == "00") {
+          _this.addRoleFormArray[index].showReinforceItem = true;
+          let data = res.data,
+            selectedList = data.reinforceItemList;
+          _this.addRoleFormArray[index].strategyType = data.strategyType;
+          _this.addRoleFormArray[index].strategyDescribe = "";
+          //初始化防止每次都push一下
+          _this.addRoleFormArray[index].signMd5Items = [{ value: "" }];
+          data.md5ItemList.map(v => {
+            _this.addRoleFormArray[index].signMd5Items.push({ value: v });
+          });
+          if (data.strategyType == 1) {
+            _this.$message({
+              message:
+                "当前选择为用户自定义策略,会随您的操作进行更新,请谨慎操作！",
+              type: "warning"
             });
-            if (data.strategyType == 1) {
-              _this.$message({
-                message:
-                  "当前选择为用户自定义策略,会随您的操作进行更新,请谨慎操作！",
-                type: "warning"
+          }
+          if (data.strategyType == 2) {
+            _this.$message({
+              message: "当前选择为默认加固策略,不可做修改！",
+              type: "warning"
+            });
+          }
+          _this.reinforceItemData.forEach(obj => {
+            obj["checked"] = false;
+            if (obj.children) {
+              obj.children.forEach(v => {
+                v["checked"] = false;
+                selectedList.some(obj1 => {
+                  if (obj1.id == v.id) {
+                    v["checked"] = true;
+                  }
+                });
               });
             }
-            if (data.strategyType == 2) {
-              _this.$message({
-                message: "当前选择为默认加固策略,不可做修改！",
-                type: "warning"
-              });
-            }
-            _this.reinforceItemData.forEach(obj => {
-              obj["checked"] = false;
-              if (obj.children) {
-                obj.children.forEach(v => {
-                  v["checked"] = false;
-                  selectedList.some(obj1 => {
-                    if (obj1.id == v.id) {
-                      v["checked"] = true;
+            selectedList.some(obj1 => {
+              if (obj1.id == obj.id) {
+                obj["checked"] = true;
+              }
+            });
+          });
+          let choiceArray = [],
+            tamperArray = "",
+            result = _this.reinforceItemData.map(item => {
+              if (item.children) {
+                if (item.reinforceItemName == "防篡改") {
+                  item.children.forEach(v => {
+                    if (v.checked == true) {
+                      tamperArray = v.id;
                     }
                   });
-                });
+                } else {
+                  item.children.forEach(v => {
+                    if (v.checked == true) {
+                      choiceArray.push(v.id);
+                    }
+                  });
+                }
               }
-              selectedList.some(obj1 => {
-                if (obj1.id == obj.id) {
-                  obj["checked"] = true;
-                }
-              });
+              if (item.checked == true) {
+                return item.id;
+              }
             });
-            let choiceArray = [],
-              tamperArray = "",
-              result = _this.reinforceItemData.map(item => {
-                if (item.children) {
-                  if (item.reinforceItemName == "防篡改") {
-                    item.children.forEach(v => {
-                      if (v.checked == true) {
-                        tamperArray = v.id;
-                      }
-                    });
-                  } else {
-                    item.children.forEach(v => {
-                      if (v.checked == true) {
-                        choiceArray.push(v.id);
-                      }
-                    });
-                  }
-                }
-                if (item.checked == true) {
-                  return item.id;
-                }
-              });
-            result = result.filter(v => v);
-            choiceArray = choiceArray.filter(v => v);
-            choiceArray = choiceArray.concat(result);
-            _this.traverseTree(
-              data.soItemList,
-              _this.addRoleFormArray[index].flatSoArray
-            );
-            _this.traverseTree(
-              data.h5ItemList,
-              _this.addRoleFormArray[index].flatH5Array
-            );
-            _this.addRoleFormArray[index].choiceArray = choiceArray;
-            _this.addRoleFormArray[index].tamperArray = tamperArray;
-          }
-        });
+          result = result.filter(v => v);
+          choiceArray = choiceArray.filter(v => v);
+          choiceArray = choiceArray.concat(result);
+          _this.traverseTree(
+            data.soItemList,
+            _this.addRoleFormArray[index].flatSoArray
+          );
+          _this.traverseTree(
+            data.h5ItemList,
+            _this.addRoleFormArray[index].flatH5Array
+          );
+          _this.addRoleFormArray[index].choiceArray = choiceArray;
+          _this.addRoleFormArray[index].tamperArray = tamperArray;
+        }
+      });
     },
     //是否多渠道打包
     channelPackChange(item, packageName, index) {
       if (item == "是") {
-        https
-          .fetchGet("/api/channel/strategy/findChannelStrategyByPackageName", {
-            packageName
-          })
+        api.reinforceService
+          .getChannelByPackageName({ packageName })
           .then(res => {
-            if (res.data.code == "00") {
-              this.channelPackList = res.data.data;
+            if (res.code == "00") {
+              this.channelPackList = res.data;
             }
           });
       }
@@ -1484,14 +1450,11 @@ export default {
     //是否签名
     signatureChange(item, index) {
       if (item == "是") {
-        https
-          .fetchPost("/api/reinforce/sign/page", {
-            limit: 20,
-            pn: 1
-          })
-          .then(res => {
-            this.signatureList = res.data.data.items;
-          });
+        const params = { limit: 20, pn: 1 };
+        api.reinforceService.getSignatureList(params).then(res => {
+          this.signatureList = res.data.items;
+          console.log(res);
+        });
       }
       if (item == "否") {
         this.addRoleFormArray[index].curPrinter5 = "";
@@ -1514,10 +1477,12 @@ export default {
 };
 </script>
 <style>
-.el-select-dropdown {
+.addTaskDrawer .el-select-dropdown {
   position: absolute !important;
   top: 35px !important;
   left: 0 !important;
+  min-height: 100% !important;
+  overflow-y: auto !important;
 }
 .el-collapse-item__wrap {
   overflow: visible;
@@ -1544,10 +1509,6 @@ export default {
 .reinforeBody {
   width: 99%;
   box-sizing: border-box;
-}
-.el-select-dropdown {
-  height: 200%;
-  overflow-y: auto;
 }
 .reinforeBody img {
   width: 33px;
@@ -1707,7 +1668,7 @@ export default {
 .el-table ::before {
   background: white;
 }
-.operateBox .el-drawer {
+.reinfore.operateBox .el-drawer {
   overflow-y: auto;
   box-sizing: border-box !important;
 }

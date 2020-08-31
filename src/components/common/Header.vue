@@ -16,7 +16,7 @@
   </div>
 </template>
 <script>
-import http from "../../request/http.js";
+import api from "../../request/api";
 export default {
   name: "Header",
   data() {
@@ -41,8 +41,8 @@ export default {
           type: "warning"
         })
           .then(() => {
-            http.fetchGet("/api/system/login/logout").then(res => {
-              if (res.data.code === "00") {
+            api.userService.logout().then(res => {
+              if (res.code == "00") {
                 this.$router.push({ path: "/" });
               }
             });
@@ -75,6 +75,7 @@ export default {
 }
 .headerRightBox {
   float: right;
+  padding-right: 25px;
 }
 .headerRightBox .userName {
   color: white;
