@@ -1,7 +1,6 @@
 const baseUrl = "http://192.168.3.58:9990/manxi-reinforce";
 import { fetchGet, fetchPost, uploadFile } from './http'
 import { rsort } from 'semver';
-//登录
 let userService = {
     //登录
     login(params) {
@@ -85,6 +84,10 @@ let reinforceService = {
 //系统管理
 let systemManageService = {
     //用户管理开始----
+    userManageCheckUserName(params) {
+        console.log(params, "用户管理")
+        return fetchGet("/api/system/user/checkUserName", params).then(res => res.data)
+    },
     userManageList(params) {
         return fetchPost("/api/system/user/page", params).then(res => res.data)
     },

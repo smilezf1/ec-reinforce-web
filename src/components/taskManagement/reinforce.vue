@@ -756,20 +756,30 @@
                   @click="downloadOriginalPackage(scope.row)"
                 ></i>
               </el-tooltip>
-              <el-tooltip
-                effect="dark"
-                content="下载加固包"
-                placement="top-start"
-              >
+              <el-tooltip effect="dark" placement="top-start">
+                <div slot="content" v-if="scope.row.channelStrategyId">
+                  下载多渠道包
+                </div>
+                <div slot="content" v-else>下载加固包</div>
                 <template v-if="scope.row.reinforceTaskStatus == 3">
+                  <!-- 下载多渠道包 -->
                   <i
+                    v-if="scope.row.channelStrategyId"
+                    class="el-icon-sold-out reinforcePackageIcon"
+                    @click="downloadMultiChannelPackage(scope.row.id)"
+                  ></i>
+                  <!-- 下载加固包 -->
+                  <i
+                    v-else
                     class="el-icon-sold-out reinforcePackageIcon"
                     @click="downloadReinforcePackage(scope.row.id)"
                   ></i>
                 </template>
+
                 <template v-else>
                   <i class="el-icon-sold-out disabledIcon"></i>
                 </template>
+                
               </el-tooltip>
               <el-tooltip effect="dark" content="日志" placement="top-start">
                 <template
@@ -1284,6 +1294,17 @@ export default {
           Authorization;
       window.location.href = downloadUrl;
     },
+    //下载多渠道包
+    downloadMultiChannelPackage(id) {
+      let Authorization = localStorage.getItem("Authorization");
+      let downloadUrl =
+        this.api.baseUrl +
+        "/api/reinforce/info/downloadPackage/?reinforceTaskId=" +
+        id +
+        "&type=2&Authorization=" +
+        Authorization;
+      window.location.href = downloadUrl;
+    },
     //下载加固包
     downloadReinforcePackage(id) {
       let Authorization = localStorage.getItem("Authorization");
@@ -1472,8 +1493,7 @@ export default {
       to.meta.KeepAlive = false;
     }
     next();
-  },
-  mounted() {}
+  }
 };
 </script>
 <style>
@@ -1481,11 +1501,8 @@ export default {
   position: absolute !important;
   top: 35px !important;
   left: 0 !important;
-  min-height: 100% !important;
+  height: 300% !important;
   overflow-y: auto !important;
-}
-.el-collapse-item__wrap {
-  overflow: visible;
 }
 .reinforeHeader {
   height: 50px;
@@ -1668,8 +1685,9 @@ export default {
 .el-table ::before {
   background: white;
 }
-.reinfore.operateBox .el-drawer {
-  overflow-y: auto;
+.reinfore .operateBox .el-drawer {
+  height: 100%;
+  overflow-y: auto !important;
   box-sizing: border-box !important;
 }
 .el-drawer-header {
@@ -1682,6 +1700,7 @@ export default {
   border-bottom: 1px solid #ebebeb;
 }
 .el-drawer-content {
+  height: 100%;
   margin-top: 50px;
   position: relative;
   overflow-y: auto;

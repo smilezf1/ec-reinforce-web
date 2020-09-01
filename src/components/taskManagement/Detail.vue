@@ -150,75 +150,80 @@
             </el-row>
           </div>
         </el-collapse-item>
-
-        <el-collapse-item title="3.多渠道策略信息" name="3">
-          <div v-for="item in multipleChannel" :key="item.id">
-            <el-row>
-              <el-col :span="12"
-                >策略名称:&nbsp;&nbsp;&nbsp;&nbsp;{{
-                  item.channelStrategyName
-                }}</el-col
-              >
-              <el-col :span="12"
-                >策略描述:&nbsp;&nbsp;&nbsp;&nbsp;{{
-                  item.channelStrategyDescribe
-                }}</el-col
-              >
-            </el-row>
-            <el-row>
-              <el-col :span="12"
-                >策略数量:&nbsp;&nbsp;&nbsp;&nbsp;{{
-                  item.channelStrategyCount
-                }}</el-col
-              >
-            </el-row>
-            <el-row>
-              <el-col :span="24">
-                <el-collapse-item title="3-1.多渠道策略列表">
-                  <div
-                    v-for="subItem in item.itemDetailDtoList"
-                    :key="subItem.id"
-                  >
-                    <el-row>
-                      <el-col :span="12"
-                        >渠道名称:&nbsp;&nbsp;&nbsp;&nbsp;{{
-                          subItem.channelName
-                        }}</el-col
-                      >
-                      <el-col :span="12"
-                        >渠道状态:&nbsp;&nbsp;&nbsp;&nbsp;
-                        <span v-if="subItem.status == 1">已完成</span>
-                      </el-col>
-                    </el-row>
-                    <el-row>
-                      <el-col :span="24">
-                        <el-collapse-item title="渠道详细">
-                          <div
-                            v-for="grandItem in subItem.channelDetails"
-                            :key="grandItem.id"
-                          >
-                            <el-row>
-                              <el-col :span="12"
-                                >渠道关键字:&nbsp;&nbsp;&nbsp;&nbsp;{{
-                                  grandItem.channelKey
-                                }}</el-col
-                              >
-                              <el-col :span="12"
-                                >渠道值:&nbsp;&nbsp;&nbsp;&nbsp;{{
-                                  grandItem.channelValue
-                                }}</el-col
-                              >
-                            </el-row>
-                          </div>
-                        </el-collapse-item>
-                      </el-col>
-                    </el-row>
-                  </div>
-                </el-collapse-item>
-              </el-col>
-            </el-row>
-          </div>
-        </el-collapse-item>
+        <template v-if="data">
+          <el-collapse-item
+            title="3.多渠道策略信息"
+            name="3"
+            v-if="data.channelStrategyDto"
+          >
+            <div v-for="item in multipleChannel" :key="item.id">
+              <el-row>
+                <el-col :span="12"
+                  >策略名称:&nbsp;&nbsp;&nbsp;&nbsp;{{
+                    item.channelStrategyName
+                  }}</el-col
+                >
+                <el-col :span="12"
+                  >策略描述:&nbsp;&nbsp;&nbsp;&nbsp;{{
+                    item.channelStrategyDescribe
+                  }}</el-col
+                >
+              </el-row>
+              <el-row>
+                <el-col :span="12"
+                  >策略数量:&nbsp;&nbsp;&nbsp;&nbsp;{{
+                    item.channelStrategyCount
+                  }}</el-col
+                >
+              </el-row>
+              <el-row>
+                <el-col :span="24">
+                  <el-collapse-item title="3-1.多渠道策略列表">
+                    <div
+                      v-for="subItem in item.itemDetailDtoList"
+                      :key="subItem.id"
+                    >
+                      <el-row>
+                        <el-col :span="12"
+                          >渠道名称:&nbsp;&nbsp;&nbsp;&nbsp;{{
+                            subItem.channelName
+                          }}</el-col
+                        >
+                        <el-col :span="12"
+                          >渠道状态:&nbsp;&nbsp;&nbsp;&nbsp;
+                          <span v-if="subItem.status == 1">已完成</span>
+                        </el-col>
+                      </el-row>
+                      <el-row>
+                        <el-col :span="24">
+                          <el-collapse-item title="渠道详细">
+                            <div
+                              v-for="grandItem in subItem.channelDetails"
+                              :key="grandItem.id"
+                            >
+                              <el-row>
+                                <el-col :span="12"
+                                  >渠道关键字:&nbsp;&nbsp;&nbsp;&nbsp;{{
+                                    grandItem.channelKey
+                                  }}</el-col
+                                >
+                                <el-col :span="12"
+                                  >渠道值:&nbsp;&nbsp;&nbsp;&nbsp;{{
+                                    grandItem.channelValue
+                                  }}</el-col
+                                >
+                              </el-row>
+                            </div>
+                          </el-collapse-item>
+                        </el-col>
+                      </el-row>
+                    </div>
+                  </el-collapse-item>
+                </el-col>
+              </el-row>
+            </div>
+          </el-collapse-item>
+        </template>
       </el-collapse>
     </div>
   </div>
@@ -229,6 +234,7 @@ export default {
   name: "Detail",
   data() {
     return {
+      data: null,
       listItem: [],
       signatureItem: [],
       strategyItem: [],
@@ -249,6 +255,7 @@ export default {
       params = { reinforceTaskId: id };
     api.reinforceService.getReinforceDetail(params).then(res => {
       const data = res.data;
+      this.data = data;
       if (res.code == "00") {
         if (data.reinforceInfo) {
           this.listItem.push(data.reinforceInfo);

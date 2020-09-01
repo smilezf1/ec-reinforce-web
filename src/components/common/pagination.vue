@@ -67,7 +67,7 @@ export default {
     },
     handleSizeChange(pageSize) {
       //每页条数改变
-      const willMakePageChange = this.total / pageSize + 1 < this.total;
+      const willMakePageChange = this.total / pageSize + 1 < this.curPage;
       this.pageSize = pageSize;
       //可能会造成页码发生改变,这时不发送事件,可能会造成事件死循环
       if (!willMakePageChange) {

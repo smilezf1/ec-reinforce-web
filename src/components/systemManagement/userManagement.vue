@@ -791,17 +791,25 @@ export default {
             sex,
             status
           };
-          api.systemManageService.userManageSaveAdd(params).then(res => {
-            if (res.code == "00") {
-              this.addUserDrawer = false;
-              this.reload();
-              this.$notify.success({
-                message: "新增用户成功",
-                showClose: false,
-                duration: 1000
-              });
-            }
-          });
+          api.systemManageService
+            .userManageCheckUserName({ userName })
+            .then(res => {
+              if (res) {
+                api.systemManageService.userManageSaveAdd(params).then(res => {
+                  if (res.code == "00") {
+                    this.addUserDrawer = false;
+                    this.reload();
+                    this.$notify.success({
+                      message: "新增用户成功",
+                      showClose: false,
+                      duration: 1000
+                    });
+                  }
+                });
+              } else {
+                this.$message.error("登录名已存在");
+              }
+            });
         } else {
           return false;
         }

@@ -1412,7 +1412,7 @@ export default {
 };
 </script>
 <style>
-.detailChannelStrategyDrawer.el-select-dropdown {
+.detailChannelStrategyDrawer .el-select-dropdown {
   position: absolute !important;
   top: 35px !important;
   left: 0 !important;

@@ -44,13 +44,17 @@
         :total="dataCount"
         class="paginationBox"
       ></el-pagination>
+      <!--  <pagination @pageChanged="onPageChanged"></pagination> -->
     </div>
   </div>
 </template>
 <script>
 import api from "../../request/api";
+import pagination from "../common/pagination";
+import pageMixins from "../../pageMixins";
 export default {
   name: "reinforceItem",
+  mixins: [pageMixins],
   data() {
     return {
       curPage: 1,
@@ -59,7 +63,13 @@ export default {
       listItem: []
     };
   },
+  components: { pagination: pagination },
   methods: {
+    /*  async getData() {
+      const params = { pn: this.curPage, limit: this.limit };
+      const data = await getAll(this.addPageInfo(params));
+      this.onGotPageData(data);
+    } */
     getData(queryInfo) {
       const params = { pn: this.curPage, limit: this.limit, queryInfo };
       api.reinforceService.getReinforceItem(params).then(res => {
@@ -70,7 +80,6 @@ export default {
         }
       });
     },
-    //显示页面的条数
     handleSizeChange(val) {
       this.limit = val;
       this.getData();

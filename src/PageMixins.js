@@ -1,4 +1,3 @@
-import { objectEach } from "xe-utils/methods";
 
 export default {
     provide() {//定义provide传递参数
@@ -20,7 +19,7 @@ export default {
     methods: {
         onGotPageData({ content, totalElements, size, number }) {
             this.data = content;
-            this.pagination.curPage = num + 1;
+            this.pagination.curPage = number + 1;
             this.pagination.pageSize = size;
             this.pagination.total = totalElements
         },
@@ -32,8 +31,8 @@ export default {
             }
         },
         addPageInfo(params = {}) {
-            object.assign(params, { pageSize: this.pagination.pageSize, curPage: pagination.curPage - 1 })
-            return params
+            Object.assign(params, { pageSize: this.pagination.pageSize, curPage: this.pagination.curPage });
+            return params;
         }
 
     }
