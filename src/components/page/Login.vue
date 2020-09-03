@@ -104,6 +104,7 @@ export default {
           api.userService
             .login(params)
             .then(res => {
+              console.log(res.code);
               if (res.code === "00") {
                 const accessToken = res.data.accessToken,
                   userName = res.data.userName;

@@ -236,6 +236,7 @@
             :show-overflow-tooltip="true"
             width="200"
           ></el-table-column>
+
           <el-table-column prop="operate" label="操作" width="290">
             <template slot-scope="scope">
               <el-tooltip effect="dark" content="编辑" placement="top-start">
@@ -530,7 +531,7 @@ export default {
       roleTreeData: [],
       checkedNodes: [], //角色列表选中的数据
       roleList: [],
-      setRoleList: [], //测试
+      setRoleList: [],
       options: [
         { label: "是", id: "1" },
         { label: "否", id: "0" }
@@ -568,6 +569,7 @@ export default {
       loading: false,
       labelPosition: "left",
       editRules: {
+        
         trueName: [
           { required: true, message: "请输入用户名", trigger: "blur" }
         ],
@@ -773,6 +775,7 @@ export default {
     //保存新增的用户
     // status 1:有效 0:无效  sex 1:男 0:女
     saveaddUserForm(formName, form) {
+
       let trueName = form.trueName,
         userName = form.userName,
         password = md5(form.pass),
@@ -814,6 +817,8 @@ export default {
           return false;
         }
       });
+
+
     },
     //设置角色开始
     setRole(id) {
@@ -887,6 +892,7 @@ export default {
           });
         })
         .catch(() => {});
+
     },
     //停用
     blockUp(id) {

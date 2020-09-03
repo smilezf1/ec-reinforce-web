@@ -347,7 +347,7 @@
                                   'createChannel',
                                   channelIndex,
                                   item.appPath,
-                                  channelIndex
+                                  0
                                 )
                               "
                             ></el-button>
@@ -1006,7 +1006,6 @@ export default {
         })
         .then(() => {
           api.multipleChannelService.deleteChannelStrategy(id).then(res => {
-            console.log(res);
             if (res.code == "00") {
               _this.$message({
                 message: "删除成功!",
@@ -1098,21 +1097,20 @@ export default {
             allValid = false;
           }
           if (v.channelKey && v.channelValue) {
-            /*  checkChannelValueType = api.multipleChannelService
+            checkChannelValueType = api.multipleChannelService
               .checkChannelValueType(
                 v.channelKey,
                 v.channelValue,
                 formItem.appPath
               )
               .then(res => {
-                console.log(res);
                 if (res.code == "500") {
                   return false;
                 }
                 if (res == true) {
                   return true;
                 }
-              }); */
+              });
           }
         });
         let result = {
@@ -1231,10 +1229,17 @@ export default {
         });
         Promise.all([checkChannelValueType]).then(res => {
           if (res[0] == true && parameterDetailIsValid) {
-            channelDetailList.push({
-              channelKey: "",
-              channelValue: ""
-            });
+            if (channelDetailList.length <= 4) {
+              channelDetailList.push({
+                channelKey: "",
+                channelValue: ""
+              });
+            } else {
+              this.$message({
+                message: "最多只能添加5个渠道参数哦!",
+                type: "warning"
+              });
+            }
           }
         });
       }
@@ -1259,12 +1264,22 @@ export default {
                 parameterIsValid = false;
               }
               if (res == true) {
-                _this.channelStrategyList[
-                  index
-                ].channelStrategyParameteList.push({
-                  channelKey: "",
-                  channelValue: ""
-                });
+                if (
+                  _this.channelStrategyList[index].channelStrategyParameteList
+                    .length <= 4
+                ) {
+                  _this.channelStrategyList[
+                    index
+                  ].channelStrategyParameteList.push({
+                    channelKey: "",
+                    channelValue: ""
+                  });
+                } else {
+                  this.$message({
+                    message: "最多只能添加5个渠道参数哦!",
+                    type: "warning"
+                  });
+                }
               }
             });
         }

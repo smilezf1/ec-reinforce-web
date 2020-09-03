@@ -56,11 +56,10 @@
         </div>
       </el-drawer>
     </div>
+
     <div class="menuManagementBody">
       <template>
         <el-table ref="menusTable" :row-style="showRow" :data="menusTable">
-          <!--   <el-table-column type="index" label="序号" width="60">
-          </el-table-column> -->
           <el-table-column prop="name" label="资源名称">
             <template slot-scope="scope">
               <span :class="['type' + scope.row.type]">
@@ -478,7 +477,6 @@ export default {
       })
         .then(() => {
           const params = { id };
-          console.log("停用");
           api.systemManageService.menuManageBlockUp(params).then(res => {
             console.log(res);
             if (res.code == "00") {
@@ -498,6 +496,7 @@ export default {
     },
     //启用
     launch(id) {
+      
       this.$alert("确定要启用吗?", "确定启用", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -519,6 +518,7 @@ export default {
         .catch(() => {
           console.log("取消启用");
         });
+
     }
   },
   created() {
@@ -527,8 +527,7 @@ export default {
         this.menusTable = this.toTreeData(res.data);
       }
     });
-  },
-  mounted() {}
+  }
 };
 </script>
 <style scoped>
