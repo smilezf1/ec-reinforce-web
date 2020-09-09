@@ -697,6 +697,11 @@
             :show-overflow-tooltip="true"
           ></el-table-column>
           <el-table-column
+            prop="reinforceStrategyName"
+            label="策略名称"
+            :show-overflow-tooltip="true"
+          ></el-table-column>
+          <el-table-column
             prop="appVersion"
             label="应用版本"
             width="120"
@@ -779,7 +784,6 @@
                 <template v-else>
                   <i class="el-icon-sold-out disabledIcon"></i>
                 </template>
-                
               </el-tooltip>
               <el-tooltip effect="dark" content="日志" placement="top-start">
                 <template
@@ -894,7 +898,7 @@ export default {
   inject: ["reload"],
   methods: {
     handleExceed(files, fileList) {
-      this.$message.warning(`最多只能选5个文件哦`);
+      this.$message.warning(`最多只能上传5个文件哦`);
     },
     getSoCheckedNodes(index) {
       const _this = this;
@@ -1011,8 +1015,17 @@ export default {
         allValid = true;
       taskList.forEach((v, i) => {
         let addRoleFormArray = _this.addRoleFormArray[i];
-        _this.$refs["addRoleForm"][i].validate(valid => {
+        _this.$refs["addRoleForm"][i].validate((valid, message) => {
           if (!valid) {
+            if (message.radio1) {
+              _this.$message.error("请选择是否多渠道打包");
+            }
+            if (message.radio2) {
+              _this.$message.error("请选择是否签名");
+            }
+            if (message.curPrinter1) {
+              _this.$message.error("请选择加固策略");
+            }
             allValid = false;
           }
         });
@@ -1667,6 +1680,13 @@ export default {
   font-size: 12px;
   border: 1px solid #dcdee2 !important;
   border-bottom: 1px solid transparent !important;
+}
+.el-radio__input.is-checked .el-radio__inner {
+  border-color: #409eff;
+  background: #409eff;
+}
+.el-radio__input.is-disabled.is-checked .el-radio__inner::after {
+  background: #409eff;
 }
 .el-table thead {
   color: #515a6e !important;

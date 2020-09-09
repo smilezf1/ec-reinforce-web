@@ -9,12 +9,12 @@ import axios from 'axios'
 import guid from './guid'
 import VueRouter from 'vue-router';
 import resetMessage from './resetMessage';//设置ElementUi中的消息提示每次只弹出一个
+Vue.use(ElementUI);
+Vue.prototype.$message = resetMessage
 Vue.config.productionTip = false
 Vue.prototype.api = api;
 Vue.prototype.guid = guid;
 Vue.prototype.$axios = axios;
-Vue.use(ElementUI);
-Vue.prototype.$message = resetMessage
 new Vue({
   el: '#app',
   router,

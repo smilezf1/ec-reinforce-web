@@ -35,6 +35,11 @@
           >
           </el-table-column>
           <el-table-column
+            prop="reinforceStrategyName"
+            label="策略名称"
+            :show-overflow-tooltip="true"
+          ></el-table-column>
+          <el-table-column
             prop="appVersion"
             label="应用版本"
             width="230"

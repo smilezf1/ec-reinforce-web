@@ -124,10 +124,7 @@ export default {
             })
             .catch(error => {});
         } else {
-          this.$message({
-            message: "必填项不能为空",
-            type: "error"
-          });
+          _this.$message.error("必填项不能为空");
           _this.Guid = this.guid.getGuid();
           return false;
         }

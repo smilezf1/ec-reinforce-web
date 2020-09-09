@@ -74,7 +74,7 @@
             <el-button @click="cancelSaveaddRole()" plain>取消</el-button>
           </div>
         </el-drawer>
-      
+
         <el-tooltip effect="dark" content="刷新" placement="top-start">
           <el-button
             type="primary"
@@ -84,8 +84,6 @@
             style="margin-left:10px"
           ></el-button>
         </el-tooltip>
-
-        
       </div>
     </div>
     <div class="roleManagementBody">
@@ -229,7 +227,7 @@
         </el-table>
       </template>
     </div>
-    
+
     <div class="roleManagementBase">
       <template>
         <el-pagination
@@ -400,23 +398,19 @@ export default {
     },
     //将数据转化成树形格式
     toTreeData(data) {
-      //删除所有的children,以防止多次调用
       data.forEach(item => {
         delete item.children;
       });
-      let map = {}; //构建map
+      let map = {};
       data.forEach(i => {
-        map[i.id] = i; //构建以id为键 当前数据为值
+        map[i.id] = i;
       });
       let treeData = [];
       data.forEach(child => {
-        const mapItem = map[child.pId]; //判断当前数据的pId是否存在map中
+        const mapItem = map[child.pId];
         if (mapItem) {
-          //不是最顶层的数据
-          //注:这里map中的数据是引用了data的它的指向还是data,当mapItem改变时,arr也会改变
-          (mapItem.children || (mapItem.children = [])).push(child); //判断mapItem是否存在child
+          (mapItem.children || (mapItem.children = [])).push(child);
         } else {
-          //顶层数据
           treeData.push(child);
         }
       });
@@ -507,6 +501,7 @@ export default {
             });
         })
         .catch(() => {});
+        
     },
     //设置菜单结束
     //停用
@@ -534,6 +529,7 @@ export default {
     },
     //启用
     launch(id) {
+      
       this.$alert("确定要启用吗?", "确定启用", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
