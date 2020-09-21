@@ -1,25 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Login from '@/components/page/Login.vue'
-import Home from '@/components/common/Home.vue'
-import dashboard from '@/components/page/dashboard'
-import menuManagement from '@/components/systemManagement/menuManagement'
-import reinforceItem from '@/components/reinforceConfiguration/reinforceItem'
-import reinforceStrategy from '@/components/reinforceConfiguration/reinforceStrategy'
-import reinforce from '@/components/taskManagement/reinforce'
-import channelStrategy from '@/components/reinforceConfiguration/channelStrategy'
-import roleManagement from '@/components/systemManagement/roleManagement'
-import signature from '@/components/reinforceConfiguration/signature'
-import recommend from '@/components/page/recommend'
-import userManagement from '@/components/systemManagement/userManagement'
 import VueRouter from 'vue-router'
-import index from '@/components/treeTable/index.vue'
-//加固服务详情
-import detail from '@/components/taskManagement/detail.vue'
-//加固日志
-import log from '@/components/taskManagement/log.vue'
 Vue.use(Router);
-//解决 Element UI 导航栏重复点击菜单报错问题
 const originalPush = VueRouter.prototype.push;
 VueRouter.prototype.push = function push(location) {
     return originalPush.call(this, location).catch(err => err);
@@ -29,79 +11,86 @@ const router = new Router({
         {
             path: "/",
             name: "Login",
-            component: Login
+            component: () => import("../components/page/Login.vue")
         },
         {
             path: "/Home",
-            component: Home,
-            meta: { requireAuth: true },//判断是否需要登录
+            component: () => import("../components/common/Home.vue"),
+            meta: { requireAuth: true },
             children: [
-                { path: "/dashboard", name: "dashboard", component: dashboard, meta: { requireAuth: true, KeepAlive: false } },
+                { path: "/dashboard", name: "dashboard", component: () => import("../components/page/dashboard"), meta: { requireAuth: true, KeepAlive: false } },
                 {
                     path: "/menuManagement",
                     name: "menuManagement",
-                    component: menuManagement,
+                    component: () =>
+                        import("../components/systemManagement/menuManagement"),
                     meta: { requireAuth: true, KeepAlive: false }
                 },
                 {
                     path: "/reinforceItem",
                     name: "reinforceItem",
-                    component: reinforceItem,
+                    component: () => import("../components/reinforceConfiguration/reinforceItem"),
                     meta: { requireAuth: true, KeepAlive: false }
                 },
                 {
                     path: "/reinforceStrategy",
                     name: "reinforceStrategy",
-                    component: reinforceStrategy,
+                    component: () => import("../components/reinforceConfiguration/reinforceStrategy"),
                     meta: { requireAuth: true, KeepAlive: false }
                 },
                 {
                     path: "/channelStrategy",
                     name: "channelStrategy",
-                    component: channelStrategy,
+                    component: () => import("../components/reinforceConfiguration/channelStrategy"),
                     meta: { requireAuth: true, KeepAlive: false }
                 },
                 {
                     path: "/reinforce",
                     name: "reinforce",
-                    component: reinforce,
+                    component: () => import("../components/taskManagement/reinforce"),
+                    meta: { requireAuth: true, KeepAlive: false }
+                },
+                {
+                    path: "/signature",
+                    name: "signature",
+                    component: () => import("../components/reinforceConfiguration/signature"),
                     meta: { requireAuth: true, KeepAlive: false }
                 },
                 {
                     path: "/detail:id",
                     name: 'detail',
-                    component: detail,
+                    component: () => import("../components/taskManagement/detail.vue"),
                     meta: { requireAuth: true, KeepAlive: false }
                 },
                 {
                     path: "/log:id",
                     name: "log",
-                    component: log,
+                    component: () => import("../components/taskManagement/log.vue"),
                     meta: { requireAuth: true, KeepAlive: false }
                 },
 
                 {
                     path: "/roleManagement",
                     name: "roleManagement",
-                    component: roleManagement,
-                    meta: { requireAuth: true, KeepAlive: false }
-                },
-                {
-                    path: "/signature",
-                    name: "signature",
-                    component: signature,
+                    component: () => import("../components/systemManagement/roleManagement"),
                     meta: { requireAuth: true, KeepAlive: false }
                 },
                 {
                     path: "/recommend",
                     name: "recommend",
-                    component: recommend,
+                    component: () => import("../components/page/recommend"),
                     meta: { requireAuth: true, KeepAlive: false }
                 },
                 {
                     path: "/userManagement",
                     name: "userManagement",
-                    component: userManagement,
+                    component: () => import("../components/systemManagement/userManagement"),
+                    meta: { requireAuth: true, KeepAlive: false }
+                },
+                {
+                    path: "/authorizeManagement",
+                    name: "authorizeManagement",
+                    component: () => import("../components/systemManagement/authorizeManagement"),
                     meta: { requireAuth: true, KeepAlive: false }
                 }
             ]
@@ -109,7 +98,7 @@ const router = new Router({
         {
             path: "/Login",
             name: "Login",
-            component: Login
+            component: () => import("../components/page/login.vue")
         },
     ]
 })

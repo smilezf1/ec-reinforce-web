@@ -1018,13 +1018,13 @@ export default {
         _this.$refs["addRoleForm"][i].validate((valid, message) => {
           if (!valid) {
             if (message.radio1) {
-              _this.$message.error("请选择是否多渠道打包");
+              _this.$message.error("请选择是否多渠道打包!");
             }
             if (message.radio2) {
-              _this.$message.error("请选择是否签名");
+              _this.$message.error("请选择是否签名!");
             }
             if (message.curPrinter1) {
-              _this.$message.error("请选择加固策略");
+              _this.$message.error("请选择加固策略!");
             }
             allValid = false;
           }
@@ -1686,7 +1686,7 @@ export default {
   background: #409eff;
 }
 .el-radio__input.is-disabled.is-checked .el-radio__inner::after {
-  background: #409eff;
+  background: #409eff !important;
 }
 .el-table thead {
   color: #515a6e !important;

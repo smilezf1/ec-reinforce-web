@@ -1320,7 +1320,7 @@ export default {
         let md5Value =
             taskList.signMd5Items[taskList.signMd5Items.length - 1].value,
           regularResult = /^[A-Fa-f0-9]{32}$/.test(md5Value);
-        if (md5ItemList) {
+        if (md5Value) {
           if (!regularResult) {
             _this.$message.error("长度32位,仅支持数字和字母A-F,不区分大小写");
             allValid = false;

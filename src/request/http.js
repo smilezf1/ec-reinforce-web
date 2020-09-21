@@ -3,6 +3,8 @@ import router from '../router'
 import Vue from 'vue';
 let v = new Vue();
 //环境的切换
+//192.168.3.100:8080
+//192.168.3.58:9990
 if (process.env.NODE_ENV == 'development') {//开发环境
     axios.defaults.baseURL = 'http://192.168.3.58:9990/manxi-reinforce';
 } else if (process.env.NODE_ENV == 'debug') { //测试环境
@@ -26,8 +28,7 @@ axios.interceptors.response.use(response => {//响应拦截器
             confirmButtonText: '确定',
             type: "warning",
             callback: action => {
-                router.push({ name: 'Login' });
-                location.reload(true);
+                window.location.href = "/"
             }
         })
     }
@@ -46,8 +47,7 @@ axios.interceptors.response.use(response => {//响应拦截器
         confirmButtonText: '确定',
         type: "warning",
         callback: action => {
-            router.push({ name: 'Login' });
-            location.reload(true);
+            window.location.href = "/"
         }
     })
 })

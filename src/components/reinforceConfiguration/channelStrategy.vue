@@ -82,8 +82,10 @@
             >
               <div class="channelStrategyItem">
                 <h3 class="channelStrategyItemTitle">
-                  <i class="channelStrategyItemIcon"> </i>
-                  <span>应用信息</span>
+                  <div class="channelStrategyItemTitleLeft">
+                    <i class="channelStrategyItemIcon"> </i>
+                    <span>应用信息</span>
+                  </div>
                 </h3>
                 <div class="channelStrategyItemContent">
                   <el-row>
@@ -129,8 +131,21 @@
               </div>
               <div class="channelStrategyItem">
                 <h3 class="channelStrategyItemTitle">
-                  <i class="channelStrategyItemIcon"></i>
-                  <span>渠道配置</span>
+                  <div class="channelStrategyItemTitleLeft">
+                    <i class="channelStrategyItemIcon"></i>
+                    <span>渠道配置</span>
+                  </div>
+                  <div class="channelStrategyItemTitleRight">
+                    <el-tooltip
+                      content="最多只能添加50个渠道"
+                      placement="top-start"
+                    >
+                      <img
+                        src="../../assets/question.png"
+                        class="questionImg"
+                      />
+                    </el-tooltip>
+                  </div>
                 </h3>
                 <div class="channelStrategyItemContent">
                   <el-row>
@@ -502,8 +517,10 @@
           <el-form :model="channelStrategyForm">
             <div class="channelStrategyItem">
               <h3 class="channelStrategyItemTitle">
-                <i class="channelStrategyItemIcon"> </i>
-                <span>应用信息</span>
+                <div class="channelStrategyItemTitleLeft">
+                  <i class="channelStrategyItemIcon"> </i>
+                  <span>应用信息</span>
+                </div>
               </h3>
               <div class="channelStrategyItemContent">
                 <el-row v-if="channelStrategyParticulars">
@@ -548,8 +565,15 @@
             </div>
             <div class="channelStrategyItem">
               <h3 class="channelStrategyItemTitle">
-                <i class="channelStrategyItemIcon"></i>
-                <span>渠道配置</span>
+                <div class="channelStrategyItemTitleLeft">
+                  <i class="channelStrategyItemIcon"></i>
+                  <span>渠道配置</span>
+                </div>
+                <div class="channelStrategyItemTitleRight">
+                  <el-tooltip content="最多只能添加50个渠道" placement="top">
+                    <img src="../../assets/question.png" class="questionImg" />
+                  </el-tooltip>
+                </div>
               </h3>
               <div class="channelStrategyItemContent">
                 <!-- 渠道列表 -->
@@ -684,8 +708,10 @@
           <el-form :model="channelStrategyParticulars">
             <div class="channelStrategyItem">
               <h3 class="channelStrategyItemTitle">
-                <i class="channelStrategyItemIcon"> </i>
-                <span>应用信息</span>
+                <div class="channelStrategyItemTitleLeft">
+                  <i class="channelStrategyItemIcon"> </i>
+                  <span>应用信息</span>
+                </div>
               </h3>
               <div class="channelStrategyItemContent">
                 <el-row v-if="channelStrategyParticulars">
@@ -730,8 +756,10 @@
             </div>
             <div class="channelStrategyItem">
               <h3 class="channelStrategyItemTitle">
-                <i class="channelStrategyItemIcon"></i>
-                <span>渠道配置</span>
+                <div class="channelStrategyItemTitleLeft">
+                  <i class="channelStrategyItemIcon"></i>
+                  <span>渠道配置</span>
+                </div>
               </h3>
               <div class="channelStrategyItemContent ">
                 <!-- 渠道列表 -->
@@ -1305,18 +1333,32 @@ export default {
         v.disabled = false;
       });
       if (typeChannel == "amendChannel") {
-        this.channelStrategyParticulars.itemDetailDtoList.push({
-          channelName: "",
-          channelDetails: [{ channelKey: "", channelValue: "" }],
-          channelKeyData: this.channelKeyData
-        });
+        if (this.channelStrategyParticulars.itemDetailDtoList.length < 50) {
+          this.channelStrategyParticulars.itemDetailDtoList.push({
+            channelName: "",
+            channelDetails: [{ channelKey: "", channelValue: "" }],
+            channelKeyData: this.channelKeyData
+          });
+        } else {
+          this.$message({
+            message: "最多只能添加50个渠道哦!",
+            type: "warning"
+          });
+        }
       }
       if (typeChannel == "createChannel") {
-        this.channelStrategyList.push({
-          channelName: "",
-          channelStrategyParameteList: [{ channelKey: "", channelValue: "" }],
-          channelKeyData: this.channelKeyData
-        });
+        if (this.channelStrategyList.length < 50) {
+          this.channelStrategyList.push({
+            channelName: "",
+            channelStrategyParameteList: [{ channelKey: "", channelValue: "" }],
+            channelKeyData: this.channelKeyData
+          });
+        } else {
+          this.$message({
+            message: "最多只能添加50个渠道哦!",
+            type: "warning"
+          });
+        }
       }
     },
     //删除渠道
@@ -1545,18 +1587,24 @@ export default {
 }
 .channelStrategyItemIcon {
   width: 3px;
-  height: 14px;
+  height: 15px;
   background: #409eff;
-  margin-right: 10px;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  display: inline-block;
+  position: relative;
+  top: 2px;
 }
 .channelStrategyItemTitle {
   position: relative;
   font-weight: 700;
   font-size: 16px;
   margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.channelStrategyItemTitleRight .questionImg {
+  width: 26px;
+  cursor: pointer;
 }
 .channelStrategyItemTitle > span {
   color: #333;

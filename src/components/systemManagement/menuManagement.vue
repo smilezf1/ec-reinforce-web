@@ -139,6 +139,12 @@
                         auto-complete="off"
                       ></el-input>
                     </el-form-item>
+                    <el-form-item label="资源路径">
+                      <el-input
+                        v-model="form.address"
+                        auto-complete="off"
+                      ></el-input>
+                    </el-form-item>
                   </el-form>
                 </div>
                 <div class="el-drawer-footer">
@@ -199,6 +205,12 @@
                     <el-form-item label="资源图标">
                       <el-input
                         v-model="addLinkForm.icon"
+                        auto-complete="off"
+                      ></el-input>
+                    </el-form-item>
+                    <el-form-item label="资源路径">
+                      <el-input
+                        v-model="addLinkForm.address"
                         auto-complete="off"
                       ></el-input>
                     </el-form-item>
@@ -269,7 +281,8 @@ export default {
       addLinkForm: {
         name: "",
         type: "链接",
-        icon: ""
+        icon: "",
+        address: ""
       },
       rules: {
         name: [{ required: true, message: "请输入资源名称", trigger: "blur" }]
@@ -372,6 +385,7 @@ export default {
       let id = parseInt(this.id),
         name = form.name,
         icon = form.icon,
+        address = form.address,
         type = null;
       if (form.type === "目录") {
         type = "M";
@@ -381,7 +395,7 @@ export default {
       }
       this.$refs[formName].validate(valid => {
         if (valid) {
-          let params = { id, name, icon, type };
+          let params = { id, name, icon, type, address };
           api.systemManageService.menuManageEditSave(params).then(res => {
             if (res.code == "00") {
               this.reload();
@@ -441,6 +455,7 @@ export default {
     saveAddLink(formName, addLinkForm) {
       const name = addLinkForm.name,
         icon = addLinkForm.icon,
+        address = addLinkForm.address,
         pId = this.linkID;
       let type = null;
       if (addLinkForm.type == "目录") {
@@ -451,7 +466,7 @@ export default {
       }
       this.$refs[formName].validate(valid => {
         if (valid) {
-          const params = { pId, name, icon, type };
+          const params = { pId, name, icon, type, address };
           api.systemManageService.menuManageSaveAddLink(params).then(res => {
             if (res.code == "00") {
               this.reload();
@@ -496,7 +511,6 @@ export default {
     },
     //启用
     launch(id) {
-      
       this.$alert("确定要启用吗?", "确定启用", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -518,7 +532,6 @@ export default {
         .catch(() => {
           console.log("取消启用");
         });
-
     }
   },
   created() {

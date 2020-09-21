@@ -1,4 +1,5 @@
 const baseUrl = "http://192.168.3.58:9990/manxi-reinforce";
+//http://192.168.3.100:8080/manxi-reinforce
 import { fetchGet, fetchPost, uploadFile } from './http'
 import { rsort } from 'semver';
 let userService = {
@@ -173,7 +174,7 @@ let systemManageService = {
     //启用
     menuManageLaunch(params) {
         return fetchGet("/api/system/menu/active", params).then(res => res.data)
-    }
+    },
     //菜单管理结束--
 }
 //签名服务
@@ -241,6 +242,24 @@ let uploadService = {
     },
     uploadSignatureFile(params, config) {
         return uploadFile("/api/reinforce/sign/uploadReinforceSignFile", params, config).then(res => res.data)
+    },
+    //上传授权文件
+    uploadAuthorizeFile(params, config) {
+        return uploadFile("/api/system/auth/uploadAuthFile", params, config).then(res => res.data)
+    }
+}
+//授权管理
+let authorizeService = {
+    //生成userCode
+    authorizeManageList() {
+        return fetchGet("/api/system/auth/findAuthInfo").then(res => res.data)
+    },
+    getUserCode() {
+        return fetchGet("/api/system/auth/generateUserCode").then(res => res.data)
+    },
+    //更新授权信息
+    updateAuthorizeInfo(params) {
+        return fetchPost("/api/system/auth/updateAuthInfo", params).then(res => res.data)
     }
 }
 //关于系统
@@ -250,5 +269,5 @@ let systemService = {
     }
 }
 export default {
-    baseUrl, userService, reinforceService, systemService, systemManageService, uploadService, signatureService, multipleChannelService
+    baseUrl, userService, reinforceService, systemService, systemManageService, uploadService, signatureService, multipleChannelService, authorizeService
 }
