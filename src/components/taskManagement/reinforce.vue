@@ -820,30 +820,23 @@
       </template>
     </div>
     <div class="reinforeBase">
-      <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="curPage"
-        :page-sizes="[10, 20, 30, 40, 50]"
-        :page-size="10"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="dataCount"
-        class="pagingBox"
-      >
-      </el-pagination>
+      <pagination @pageChanged="onPageChanged"></pagination>
     </div>
   </div>
 </template>
 <script>
 import api from "../../request/api";
+import pagination from "../common/pagination";
+import pageMixins from "../../utils/pageMixins";
 export default {
   name: "reinfore",
+  components: { pagination },
+  mixins: [pageMixins],
   data() {
     return {
       labelPosition: "right",
       curPage: 1,
       limit: 10,
-      dataCount: 0,
       listItem: [],
       ruleForm: {
         appName: "",
@@ -963,43 +956,35 @@ export default {
       }
     },
     //获取后台数据
-    getData(queryInfo) {
-      const params = { pn: this.curPage, limit: this.limit, queryInfo };
+    async getData() {
+      const params = {};
+      params.queryInfo = this.ruleForm;
+      this.getDataItem(this.addPageInfo(params));
+    },
+
+    getDataItem(params) {
+      /* const params = { pn: this.curPage, limit: this.limit, queryInfo }; */
       api.reinforceService.reinforceList(params).then(res => {
         if (res.code == "00") {
-          const data = res.data;
+          const data = res.data,
+            count = data.count,
+            number = params.pn,
+            size = params.limit;
           this.listItem = data.items;
-          this.dataCount = data.count;
+          this.curPage = number;
+          this.limit = size;
+          this.onGotPageData({ totalElements: count, size, number });
         }
       });
-    },
-    //显示的页面条数
-    handleSizeChange(val) {
-      this.limit = val;
-      const appName = this.ruleForm.appName,
-        appVersion = this.ruleForm.appVersion,
-        queryInfo = { appName, appVersion };
-      this.getData(queryInfo);
-    },
-    //鼠标点击哪一页
-    handleCurrentChange(val) {
-      this.curPage = val;
-      let appName = this.ruleForm.appName,
-        appVersion = this.ruleForm.appVersion,
-        queryInfo = { appName, appVersion };
-      this.getData(queryInfo);
     },
     refresh() {
       this.reload();
     },
     //查询加固服务
     search(form) {
-      const appName = form.appName,
-        appVersion = form.appVersion,
-        queryInfo = { appName, appVersion },
-        _this = this;
+      const _this = this;
       _this.loading = true;
-      this.getData(queryInfo);
+      this.getData();
       setTimeout(function() {
         _this.loading = false;
       }, 500);

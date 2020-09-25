@@ -79,55 +79,46 @@
       </template>
     </div>
     <div class="dashboardBase">
-      <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="curPage"
-        :page-sizes="[10, 20, 30, 40, 50]"
-        :page-size="10"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="dataCount"
-        class="pagingBox"
-      >
-      </el-pagination>
+      <pagination @pageChanged="onPageChanged"></pagination>
     </div>
   </div>
 </template>
 <script>
 import api from "../../request/api";
+import pagination from "../common/pagination";
+import pageMixins from "../../utils/pageMixins";
 export default {
   name: "dashboard",
+  components: { pagination },
+  mixins: [pageMixins],
   data() {
     return {
       curPage: 1,
       limit: 10,
-      dataCount: 0,
       listItem: []
     };
   },
   methods: {
+    async getData() {
+      const params = {};
+      this.getDataItem(this.addPageInfo(params));
+    },
     //获取后台数据
-    getData() {
-      let params = { pn: this.curPage, limit: this.limit };
+    getDataItem(params) {
       api.reinforceService.reinforceList(params).then(res => {
         if (res.code == "00") {
+          const count = res.data.count,
+            number = params.pn,
+            size = params.limit;
           this.listItem = res.data.items;
-          this.dataCount = res.data.count;
+          this.curPage = number;
+          this.limit = size;
+          this.onGotPageData({ totalElements: count, size, number });
         }
       });
-    },
-    //显示的页面条数
-    handleSizeChange(val) {
-      this.limit = val;
-      this.getData();
-    },
-    //鼠标点击哪一页
-    handleCurrentChange(val) {
-      this.curPage = val;
-      this.getData();
     }
   },
-  mounted() {
+  beforeMount() {
     this.getData();
   }
 };

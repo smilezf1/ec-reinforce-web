@@ -21,16 +21,19 @@ axios.interceptors.request.use(config => {//请求拦截器
 }, error => {
     return Promise.reject(error)
 })
+let dialog = null;
 axios.interceptors.response.use(response => {//响应拦截器
     if (response.data.code === "05") {
         localStorage.removeItem('Authorization');
-        v.$alert('会话过期,请重新登录', '系统提示', {
-            confirmButtonText: '确定',
-            type: "warning",
-            callback: action => {
-                window.location.href = "/"
-            }
-        })
+        if (!dialog) {
+            dialog = v.$alert('会话过期,请重新登录', '系统提示', {
+                confirmButtonText: '确定',
+                type: "warning",
+                callback: action => {
+                    router.push({ name: 'Login' })
+                }
+            })
+        }
     }
     if (response.data.code === '500' || response.data.code === '01' || response.data.code === '99') {
         v.$notify({
@@ -43,13 +46,15 @@ axios.interceptors.response.use(response => {//响应拦截器
     return response;
 }, error => {
     localStorage.removeItem('Authorization');
-    v.$alert('请求超时', '系统提示', {
-        confirmButtonText: '确定',
-        type: "warning",
-        callback: action => {
-            window.location.href = "/"
-        }
-    })
+    if (!dialog) {
+        dialog = v.$alert('请求超时', '系统提示', {
+            confirmButtonText: '确定',
+            type: "warning",
+            callback: action => {
+                router.push({ name: 'Login' })
+            }
+        })
+    }
 })
 //返回一个Promise(发送get请求)
 export function fetchGet(url, params, responseType) {

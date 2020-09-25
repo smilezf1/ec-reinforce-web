@@ -1,26 +1,24 @@
 
 export default {
-    provide() {//定义provide传递参数
+    provide() {
         return {
-            data: this.data || {},//表格数据
-            pagination: this.pagination //分页属性
+            pagination: this.pagination
         }
     },
     data() {
         return {
-            data: [],
             pagination: {
                 curPage: 1,
+                total: 0,
                 pageSize: 10,
-                total: 0
+                queryInfo: null
             }
         }
     },
     methods: {
-        onGotPageData({ content, totalElements, size, number }) {
-            this.data = content;
-            this.pagination.curPage = number + 1;
-            this.pagination.pageSize = size;
+        onGotPageData({ totalElements, size, number, queryInfo }) {
+            this.pagination.curPage = number
+            this.pagination.pageSize = size
             this.pagination.total = totalElements
         },
         onPageChanged({ curPage, pageSize }) {
@@ -31,10 +29,8 @@ export default {
             }
         },
         addPageInfo(params = {}) {
-            Object.assign(params, { pageSize: this.pagination.pageSize, curPage: this.pagination.curPage });
-            return params;
+            Object.assign(params, { limit: this.pagination.pageSize, pn: this.pagination.curPage })
+            return params
         }
-
     }
-
 }

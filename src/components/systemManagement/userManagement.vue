@@ -452,25 +452,19 @@
       </template>
     </div>
     <div class="userManagementBase">
-      <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="curPage"
-        :page-sizes="[10, 20, 30, 40, 50]"
-        :page-size="10"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="dataCount"
-        class="pagingBox"
-      >
-      </el-pagination>
+      <pagination @pageChanged="onPageChanged"></pagination>
     </div>
   </div>
 </template>
 <script>
 import api from "../../request/api";
 import md5 from "js-md5";
+import pagination from "../common/pagination";
+import pageMixins from "../../utils/pageMixins";
 export default {
   name: "userManagement",
+  components: { pagination },
+  mixins: [pageMixins],
   data() {
     var validatePass = (rule, value, callback) => {
       if (value === "") {
@@ -520,7 +514,6 @@ export default {
       },
       curPage: 1, //当前页
       limit: 10, //每页显示的条目个数
-      dataCount: 0, //总数目
       listItem: [],
       editDrawer: false,
       editId: null,
@@ -569,7 +562,6 @@ export default {
       loading: false,
       labelPosition: "left",
       editRules: {
-        
         trueName: [
           { required: true, message: "请输入用户名", trigger: "blur" }
         ],
@@ -618,33 +610,25 @@ export default {
   },
   inject: ["reload"],
   methods: {
+    async getData() {
+      const params = {};
+      params.queryInfo = this.ruleForm;
+      this.getDataItem(this.addPageInfo(params));
+    },
     //获取后台数据
-    getData(queryInfo) {
-      let params = { pn: this.curPage, limit: this.limit, queryInfo };
+    getDataItem(params) {
       api.systemManageService.userManageList(params).then(res => {
         if (res.code == "00") {
-          this.listItem = res.data.items;
-          this.dataCount = res.data.count;
+          const data = res.data,
+            count = data.count,
+            number = params.pn,
+            size = params.limit;
+          this.listItem = data.items;
+          this.curPage = number;
+          this.limit = size;
+          this.onGotPageData({ totalElements: count, size, number });
         }
       });
-    },
-    handleChange(val) {
-      this.curPage = val;
-      this.getData();
-    },
-    handleSizeChange(val) {
-      this.limit = val;
-      this.getData();
-    },
-    handleCurrentChange(val) {
-      this.curPage = val;
-      let trueName = this.ruleForm.trueName,
-        userName = this.ruleForm.userName,
-        mobile = this.ruleForm.mobile,
-        email = this.ruleForm.email,
-        status = this.ruleForm.status;
-      let queryInfo = { trueName, userName, mobile, email, status };
-      this.getData(queryInfo);
     },
     //关闭Drawer时清空表单中的值
     resetForm(formName) {
@@ -656,15 +640,9 @@ export default {
     },
     //设置角色结束
     search(ruleForm) {
-      let trueName = ruleForm.trueName,
-        userName = ruleForm.userName,
-        mobile = ruleForm.mobile,
-        email = ruleForm.email,
-        status = ruleForm.status,
-        _this = this;
-      let queryInfo = { trueName, userName, mobile, email, status, queryInfo };
+      const _this = this;
+      _this.getData();
       _this.loading = true;
-      this.getData(queryInfo);
       setTimeout(function() {
         _this.loading = false;
       }, 500);
@@ -775,7 +753,6 @@ export default {
     //保存新增的用户
     // status 1:有效 0:无效  sex 1:男 0:女
     saveaddUserForm(formName, form) {
-
       let trueName = form.trueName,
         userName = form.userName,
         password = md5(form.pass),
@@ -817,8 +794,6 @@ export default {
           return false;
         }
       });
-
-
     },
     //设置角色开始
     setRole(id) {
@@ -892,7 +867,6 @@ export default {
           });
         })
         .catch(() => {});
-
     },
     //停用
     blockUp(id) {

@@ -10,7 +10,7 @@
           <el-input
             placeholder="请输入策略名称"
             size="small"
-            v-model="ruleForm.strategyName"
+            v-model="ruleForm.reinforceStrategyName"
           ></el-input>
         </el-form>
       </div>
@@ -1017,32 +1017,26 @@
     </div>
     <!-- 表格底部 分页 -->
     <div class="reinforceStrategyBase">
-      <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="curPage"
-        :page-size="10"
-        :page-sizes="[10, 20, 30, 40, 50]"
-        layout="total,sizes,prev,pager,next,jumper"
-        :total="dataCount"
-        class="paginationBox"
-      ></el-pagination>
+      <pagination @pageChanged="onPageChanged"></pagination>
     </div>
   </div>
 </template>
 <script>
 import api from "../../request/api";
+import pagination from "../common/pagination";
+import pageMixins from "../../utils/pageMixins";
 export default {
   name: "reinforceStrategy",
+  components: { pagination },
+  mixins: [pageMixins],
   data() {
     return {
       test: [],
       ruleForm: {
-        strategyName: ""
+        reinforceStrategyName: ""
       },
       curPage: 1,
       limit: 10,
-      dataCount: 0,
       listItem: [],
       loading: false,
       createStrategyDrawer: false,
@@ -1104,14 +1098,23 @@ export default {
       });
   },
   methods: {
+    async getData() {
+      const params = {};
+      params.queryInfo = this.ruleForm;
+      this.getDataItem(this.addPageInfo(params));
+    },
     //获取列表数据
-    getData(queryInfo) {
-      const params = { pn: this.curPage, limit: this.limit, queryInfo };
+    getDataItem(params) {
       api.signatureService.getSignatureList(params).then(res => {
         if (res.code == "00") {
-          const data = res.data;
+          const data = res.data,
+            count = data.count,
+            number = params.pn,
+            size = params.limit;
           this.listItem = data.items;
-          this.dataCount = data.count;
+          this.curPage = number;
+          this.limit = size;
+          this.onGotPageData({ totalElements: count, size, number });
         }
       });
     },
@@ -1119,20 +1122,10 @@ export default {
     handleExceed(files, fileList) {
       this.$message.warning("最多只能上传1个文件哦");
     },
-    handleSizeChange(val) {
-      this.limit = val;
-      this.getData();
-    },
-    handleCurrentChange(val) {
-      this.curPage = val;
-      this.getData();
-    },
     search() {
-      let _this = this,
-        reinforceStrategyName = _this.ruleForm.strategyName,
-        queryInfo = { reinforceStrategyName };
+      let _this = this;
       _this.loading = true;
-      _this.getData(queryInfo);
+      _this.getData();
       setTimeout(() => {
         _this.loading = false;
       }, 500);

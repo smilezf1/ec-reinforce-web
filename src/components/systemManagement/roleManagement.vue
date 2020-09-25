@@ -230,7 +230,7 @@
 
     <div class="roleManagementBase">
       <template>
-        <el-pagination
+        <!--  <el-pagination
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
           :current-page="curPage"
@@ -240,15 +240,20 @@
           :total="dataCount"
           class="pagingBox"
         >
-        </el-pagination>
+        </el-pagination> -->
+        <pagination @pageChanged="onPageChanged"></pagination>
       </template>
     </div>
   </div>
 </template>
 <script>
 import api from "../../request/api";
+import pagination from "../common/pagination";
+import pageMixins from "../../utils/pageMixins";
 export default {
   name: "roleManagement",
+  components: { pagination },
+  mixins: [pageMixins],
   data() {
     return {
       ruleForm: {
@@ -260,9 +265,8 @@ export default {
         { label: "否", id: "0" }
       ],
       listItem: [],
-      dataCount: 0, //总数目
-      curPage: 1, //当前页
-      limit: 10, //每页显示的条目数
+      curPage: 1,
+      limit: 10,
       editDrawer: false,
       addRoleDrawer: false,
       menuDialog: false,
@@ -291,39 +295,31 @@ export default {
   },
   inject: ["reload"],
   methods: {
+    async getData() {
+      const params = {};
+      params.queryInfo = this.ruleForm;
+      this.getDataItem(this.addPageInfo(params));
+    },
     //获取后台数据
-    getData(queryInfo) {
+    getDataItem(params) {
       const _this = this;
-      let params = { pn: this.curPage, limit: this.limit, queryInfo };
       api.systemManageService.roleManageList(params).then(res => {
         if (res.code == "00") {
-          _this.listItem = res.data.items;
-          _this.dataCount = res.data.count;
+          const data = res.data,
+            count = data.count,
+            number = params.pn,
+            size = params.limit;
+          _this.listItem = data.items;
+          _this.curPage = number;
+          _this.limit = size;
+          this.onGotPageData({ totalElements: count, size, number });
         }
       });
     },
-    handleChange(val) {
-      this.curPage = val;
-      this.getData();
-    },
-    handleSizeChange(val) {
-      this.limit = val;
-      this.getData();
-    },
-    handleCurrentChange(val) {
-      let name = this.ruleForm.name,
-        status = this.ruleForm.status,
-        queryInfo = { name, status };
-      this.curPage = val;
-      this.getData(queryInfo);
-    },
     search(ruleForm) {
-      let name = ruleForm.name,
-        status = ruleForm.status,
-        _this = this;
+      const _this = this;
       _this.loading = true;
-      let queryInfo = { name, status };
-      this.getData(queryInfo);
+      this.getData();
       setTimeout(function() {
         _this.loading = false;
       }, 500);
@@ -501,7 +497,6 @@ export default {
             });
         })
         .catch(() => {});
-        
     },
     //设置菜单结束
     //停用
@@ -529,7 +524,6 @@ export default {
     },
     //启用
     launch(id) {
-      
       this.$alert("确定要启用吗?", "确定启用", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
