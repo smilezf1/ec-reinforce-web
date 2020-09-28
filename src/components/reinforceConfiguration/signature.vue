@@ -356,25 +356,20 @@ export default {
     //删除签名
     deleteSignature(id, name) {
       const _this = this;
-      _this
-        .$confirm("确定要删除" + name + "签名吗?", "提示", {
-          confirmButtonText: "确定",
-          cancelButonText: "取消",
-          type: "warning"
-        })
-        .then(() => {
-          api.signatureService.deleteSignature(id).then(res => {
-            if (res.code == "00") {
-              _this.$message({
-                message: "删除成功!",
-                type: "success",
-                duration: 1000
-              });
-              _this.reload();
-            }
-          });
-        })
-        .catch(() => {});
+      new this.$messageTips(({ confirm }) => {
+        confirm({ content: `确定要删除${name}签名吗?` });
+      }).then(() => {
+        api.signatureService.deleteSignature(id).then(res => {
+          if (res.code == "00") {
+            _this.$message({
+              message: "删除成功!",
+              type: "success",
+              duration: 1000
+            });
+            _this.reload();
+          }
+        });
+      });
     },
     //上传签名结束
     //获取签名别名
@@ -462,19 +457,13 @@ export default {
     //取消上传的签名
     cancelSignature() {
       if (this.signatureItemForm.length) {
-        this.$confirm("会清空当前上传的文件,是否继续?", "提示", {
-          closeOnClickModal: false,
-          confirmButtonText: "确定",
-          cancelButonText: "取消",
-          type: "warning"
-        })
-          .then(() => {
-            this.uploadSignatureDrawer = false;
-            this.$refs.uploadSignature.clearFiles();
-            this.reload();
-          })
-          .catch(() => {});
-        this.$refs.uploadSignature.clearFiles();
+        new this.$messageTips(({ confirm }) => {
+          confirm({ content: "会清空当前上传的文件,是否继续" });
+        }).then(() => {
+          this.uploadSignatureDrawer = false;
+          this.$refs.uploadSignature.clearFiles();
+          this.reload();
+        });
       } else {
         this.uploadSignatureDrawer = false;
       }

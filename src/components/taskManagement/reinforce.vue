@@ -1102,18 +1102,13 @@ export default {
     //取消加固任务
     cancelReinforceTask() {
       if (this.uploadFileItems.length) {
-        this.$confirm("会清空当前上传的文件,是否继续?", "提示", {
-          closeOnClickModal: false,
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        })
-          .then(() => {
-            this.addTaskDrawer = false;
-            this.$refs.upload.clearFiles();
-            this.reload();
-          })
-          .catch(() => {});
+        new this.$messageTips(({ confirm }) => {
+          confirm({ content: "会清空当前上传的文件,是否继续" });
+        }).then(() => {
+          this.addTaskDrawer = false;
+          this.$refs.upload.clearFiles();
+          this.reload();
+        });
       } else {
         this.addTaskDrawer = false;
       }
@@ -1317,23 +1312,16 @@ export default {
     //删除
     deletePackage(id) {
       const _this = this;
-      this.$confirm("确定要删除吗?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      })
-        .then(res => {
-          api.reinforceService.deleteReinforceById(id).then(res => {
-            if (res.code == "00") {
-              _this.$message({ type: "success", message: "删除成功" });
-              _this.reload();
-            }
-          });
-        })
-        .catch(() => {
-          _this.$message({ type: "info", message: "取消删除" });
-          _this.reload();
+      new this.$messageTips(({ confirm }) => {
+        confirm({ content: "确定要删除吗?" });
+      }).then(res => {
+        api.reinforceService.deleteReinforceById(id).then(res => {
+          if (res.code == "00") {
+            _this.$message({ type: "success", message: "删除成功" });
+            _this.reload();
+          }
         });
+      });
     },
     //修改原始SOH5数据
     amendOriginTree(treeNodes) {

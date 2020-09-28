@@ -1021,25 +1021,22 @@ export default {
     //删除渠道策略
     deleteChannelStrategy(id, channelStrategyName) {
       const _this = this;
-      _this
-        .$confirm("确定要删除" + channelStrategyName + "渠道吗?", "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        })
-        .then(() => {
-          api.multipleChannelService.deleteChannelStrategy(id).then(res => {
-            if (res.code == "00") {
-              _this.$message({
-                message: "删除成功!",
-                type: "success",
-                duration: 1000
-              });
-              _this.reload();
-            }
-          });
-        })
-        .catch(() => {});
+      new this.$messageTips(({ confirm }) => {
+        confirm({
+          content: `确定要删除${channelStrategyName}渠道吗?`
+        });
+      }).then(() => {
+        api.multipleChannelService.deleteChannelStrategy(id).then(res => {
+          if (res.code == "00") {
+            _this.$message({
+              message: "删除成功!",
+              type: "success",
+              duration: 1000
+            });
+            _this.reload();
+          }
+        });
+      });
     },
     //查询渠道策略名称
     searchChannelStrategyName() {
@@ -1198,19 +1195,13 @@ export default {
     cancelChannelStrategy() {
       const _this = this;
       if (_this.createChannelStrategyFileItem.length) {
-        _this
-          .$confirm("会清空当前上传的文件,是否继续?", "提示", {
-            closeOnClickModal: false,
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning"
-          })
-          .then(() => {
-            _this.reload();
-            _this.createChannelStrategyDrawer = false;
-            _this.$refs.createChannelStrategyUpload.clearFiles();
-          })
-          .catch(() => {});
+        new this.$messageTips(({ confirm }) => {
+          confirm({ content: "会清空当前上传的文件,是否继续?" });
+        }).then(() => {
+          _this.reload();
+          _this.createChannelStrategyDrawer = false;
+          _this.$refs.createChannelStrategyUpload.clearFiles();
+        });
       } else {
         _this.createChannelStrategyDrawer = false;
       }

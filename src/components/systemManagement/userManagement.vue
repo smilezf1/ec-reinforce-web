@@ -824,72 +824,60 @@ export default {
           }
         }
       }
-      this.$confirm("确定要更新用户角色吗?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      })
-        .then(res => {
-          let params = { roleList, userId: id };
-          api.systemManageService.userManageSaveUserRole(params).then(res => {
-            if (res.code == "00") {
-              this.$notify({
-                message: "更新成功",
-                type: "success",
-                duration: 1000
-              });
-              this.reload();
-              this.dialogVisible = false;
-            }
-          });
-        })
-        .catch(() => {});
+      new this.$messageTips(({ confirm }) => {
+        confirm({ content: "确定要更新用户角色吗?" });
+      }).then(res => {
+        let params = { roleList, userId: id };
+        api.systemManageService.userManageSaveUserRole(params).then(res => {
+          if (res.code == "00") {
+            this.$notify({
+              message: "更新成功",
+              type: "success",
+              duration: 1000
+            });
+            this.reload();
+            this.dialogVisible = false;
+          }
+        });
+      });
     },
     //设置角色结束
     //启用
     launch(id) {
-      this.$alert("确定要启用吗?", "确定启用", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      })
-        .then(() => {
-          let params = { id };
-          api.systemManageService.userManageActive(params).then(res => {
-            if (res.code === "00") {
-              this.reload();
-              this.$notify.success({
-                message: "启用成功",
-                showClose: false,
-                duration: 1000
-              });
-            }
-          });
-        })
-        .catch(() => {});
+      new this.$messageTips(({ alert }) => {
+        alert({ content: "确定要启用吗?", tips: "确定启用" });
+      }).then(() => {
+        let params = { id };
+        api.systemManageService.userManageActive(params).then(res => {
+          if (res.code === "00") {
+            this.reload();
+            this.$notify.success({
+              message: "启用成功",
+              showClose: false,
+              duration: 1000
+            });
+          }
+        });
+      });
     },
     //停用
     blockUp(id) {
-      this.$alert("确定要停用吗?", "确定停用", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      })
-        .then(() => {
-          let params = { id };
-          api.systemManageService.userManageInvalid(params).then(res => {
-            if (res.code === "00") {
-              this.reload();
-              this.$notify({
-                message: "停用成功",
-                type: "warning",
-                showClose: false,
-                duration: 1000
-              });
-            }
-          });
-        })
-        .catch(() => {});
+      new this.$messageTips(({ alert }) => {
+        alert({ content: "确定要停用吗?", tips: "确定停用" });
+      }).then(() => {
+        let params = { id };
+        api.systemManageService.userManageInvalid(params).then(res => {
+          if (res.code === "00") {
+            this.reload();
+            this.$notify({
+              message: "停用成功",
+              type: "warning",
+              showClose: false,
+              duration: 1000
+            });
+          }
+        });
+      });
     }
   },
   mounted() {

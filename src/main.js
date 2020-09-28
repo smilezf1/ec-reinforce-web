@@ -9,8 +9,10 @@ import axios from 'axios'
 import guid from '../src/utils/guid'
 import VueRouter from 'vue-router';
 import resetMessage from '../src/utils/resetMessage';//设置ElementUi中的消息提示每次只弹出一个
+import confirm from '../src/utils/confirm'
 Vue.use(ElementUI);
 Vue.prototype.$message = resetMessage
+Vue.prototype.$messageTips = confirm;
 Vue.config.productionTip = false
 Vue.prototype.api = api;
 Vue.prototype.guid = guid;

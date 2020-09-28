@@ -104,7 +104,6 @@ export default {
           api.userService
             .login(params)
             .then(res => {
-              console.log(res.code);
               if (res.code === "00") {
                 const accessToken = res.data.accessToken,
                   userName = res.data.userName;
@@ -143,7 +142,6 @@ export default {
       e = window.event || e;
       if (e.code == "NumpadEnter" || e.code == "Enter" || e.code == "enter") {
         _this.submitForm("ruleForm");
-      } else {
       }
     };
   }

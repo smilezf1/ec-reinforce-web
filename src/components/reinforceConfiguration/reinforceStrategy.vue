@@ -1269,19 +1269,13 @@ export default {
     cancelStrategy() {
       const _this = this;
       if (_this.createStrategyFileItem.length) {
-        _this
-          .$confirm("会清空当前上传文件,是否继续?", "提示", {
-            closeOnClickModal: false,
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning"
-          })
-          .then(() => {
-            _this.reload();
-            _this.createStrategyDrawer = false;
-            _this.$refs.createStrategyUpload.clearFiles();
-          })
-          .catch(() => {});
+        new this.$messageTips(({ confirm }) => {
+          confirm({ content: "会清空当前上传文件,是否继续" });
+        }).then(() => {
+          _this.reload();
+          _this.createStrategyDrawer = false;
+          _this.$refs.createStrategyUpload.clearFiles();
+        });
       } else {
         _this.createStrategyDrawer = false;
       }
