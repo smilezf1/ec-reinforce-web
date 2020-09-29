@@ -1198,6 +1198,7 @@ export default {
         new this.$messageTips(({ confirm }) => {
           confirm({ content: "会清空当前上传的文件,是否继续?" });
         }).then(() => {
+          
           _this.reload();
           _this.createChannelStrategyDrawer = false;
           _this.$refs.createChannelStrategyUpload.clearFiles();
