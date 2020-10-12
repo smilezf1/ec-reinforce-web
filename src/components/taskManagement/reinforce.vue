@@ -73,8 +73,9 @@
               :limit="5"
               :http-request="addFileToFormData"
               v-show="uploadShow"
-              :file-list="uploadFileItems"
+              :file-list="fileList"
               :on-exceed="handleExceed"
+              :on-progress="handleProgress"
               accept=".apk"
               ref="upload"
             >
@@ -82,10 +83,20 @@
               <div class="el-upload__text">
                 将文件拖到此处，或<em>点击上传</em>
               </div>
+              <div class="el-upload_tip" slot="tip">最多只能上传5个文件</div>
             </el-upload>
-            <p class="uploadTip" v-show="uploadShow">
-              最多只能上传5个文件
-            </p>
+            <div
+              class="fileUploading"
+              v-if="getLoadingNum > 0 && !uploadShow"
+              style="margin-top:20px;text-align:center"
+            >
+              <p
+                class="el-loading-text"
+                style="font-size:14px;color:red;margin-top:5px"
+              >
+                请稍等还有{{ getLoadingNum }}个文件加载中...
+              </p>
+            </div>
             <!-- 上传文件的列表 -->
             <div v-for="(item, index) in uploadFileItems" :key="item.id">
               <el-form
@@ -872,6 +883,7 @@ export default {
       },
       strategyName: "",
       addTaskDrawer: false,
+      fileList: [],
       uploadFileItems: [],
       uploadShow: true,
       strategyOptions: [],
@@ -885,13 +897,25 @@ export default {
       reinforceItemData: [],
       radioItem: [],
       checkedItem: [],
-      saveReinforceTaskBox: true
+      saveReinforceTaskBox: true,
+      uploadTaskNum: null,
+      loadingNum: null
     };
+  },
+  computed: {
+    getLoadingNum() {
+      return (this.loadingNum =
+        this.uploadTaskNum - this.uploadFileItems.length);
+    }
   },
   inject: ["reload"],
   methods: {
     handleExceed(files, fileList) {
       this.$message.warning(`最多只能上传5个文件哦`);
+    },
+    handleProgress(event, file, fileList) {
+      this.uploadTaskNum = fileList.length;
+      console.log(this.uploadTaskNum);
     },
     getSoCheckedNodes(index) {
       const _this = this;
@@ -1222,7 +1246,7 @@ export default {
               }
               this.uploadShow = false;
             }
-            _this.$refs.upload.clearFiles();
+            /*  _this.$refs.upload.clearFiles(); */
             //查询加固策略列表
             /*  https
               .fetchPost("/api/reinforce/strategy/page", {
@@ -1530,6 +1554,12 @@ export default {
   color: #409eff;
   margin-right: 10px;
   cursor: pointer;
+}
+.el-upload_tip {
+  text-align: center;
+  font-size: 14px;
+  margin-top: 5px;
+  color: #a3a9b1;
 }
 .disabledIcon {
   font-size: 22px;
