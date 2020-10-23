@@ -530,7 +530,7 @@ export default {
   }
 };
 </script>
-<style scoped>
+<style>
 .menuManagementHeader {
   line-height: 50px;
   line-height: 50px;

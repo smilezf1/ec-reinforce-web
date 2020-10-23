@@ -137,7 +137,7 @@ export default {
     }
   },
   created() {
-    let _this = this;
+    const _this = this;
     document.onkeydown = function(e) {
       e = window.event || e;
       if (e.code == "NumpadEnter" || e.code == "Enter" || e.code == "enter") {
@@ -159,6 +159,7 @@ body,
   background: -webkit-linear-gradient(to right, #26d0ce, #1a2980);
   background: linear-gradient(to right, #26d0ce, #1a2980);
   position: relative;
+  font-family: URW Chancery L, cursive;
 }
 .login-header {
   color: white;
@@ -212,6 +213,7 @@ body,
   height: 50px;
   border-radius: 30px;
   box-shadow: 0 0 8px #eee;
+  font-family: URW Chancery L, cursive;
 }
 .user-login-main-box .submit {
   width: 100%;
@@ -220,6 +222,7 @@ body,
   border: none;
   font-size: 22px;
   border-radius: 30px;
+  font-family: URW Chancery L, cursive;
 }
 .user-login-main-box .el-button:hover {
   background: #207ba6 !important;
@@ -233,7 +236,5 @@ body,
   color: white;
   font-size: 15px;
   transform: translateX(-50%);
-  font-family: "Helvetica Neue", Helvetica, "PingFang SC", 微软雅黑, Tahoma,
-    Arial, sans-serif;
 }
 </style>

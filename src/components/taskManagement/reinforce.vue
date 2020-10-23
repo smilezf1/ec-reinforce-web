@@ -1,10 +1,8 @@
 <template>
   <div class="reinfore">
-    <div class="reinforeHeader">
-      <div class="reinforceHeaderContent">
-        <p>当前位置:加固服务</p>
-      </div>
-    </div>
+    <header>
+      <p>当前位置:加固服务</p>
+    </header>
     <div class="searchForm">
       <div class="searchBox">
         <el-form :model="ruleForm" ref="ruleForm">
@@ -18,11 +16,6 @@
             size="small"
             v-model="ruleForm.appVersion"
           ></el-input>
-          <!--    <el-date-picker
-            type="datetime"
-            placeholder="选择日期时间"
-            v-model="ruleForm.createTime"
-          ></el-date-picker> -->
         </el-form>
       </div>
       <div class="operateBox">
@@ -164,24 +157,6 @@
                         </p>
                       </el-col>
                     </el-row>
-                    <!--  <el-row class="strategyDescribe">
-                      <el-col :span="24">
-                        <p class="strategyDescribe">
-                          <el-form-item
-                            prop="strategyDescribe"
-                            label-width="22%"
-                          >
-                            <label slot="label">策略描述:</label>
-                            <el-input
-                              placeholder="策略描述"
-                              size="small"
-                              style="width:59%"
-                              v-model="addRoleFormArray[index].strategyDescribe"
-                            ></el-input>
-                          </el-form-item>
-                        </p>
-                      </el-col>
-                    </el-row> -->
                     <el-row
                       class="reinforceItem"
                       v-if="addRoleFormArray[index].showReinforceItem"
@@ -226,36 +201,6 @@
                                   >{{ subItem.reinforceItemName }}</el-radio
                                 >
                               </el-radio-group>
-                              <!-- <el-checkbox-group
-                                v-if="
-                                  checkboxItem.reinforceItemName == '防篡改'
-                                "
-                                v-model="addRoleFormArray[index].tamperArray"
-                                :min="0"
-                                :max="1"
-                              >
-                                <el-checkbox
-                                  v-for="subItem in checkboxItem.children"
-                                  :key="subItem.id"
-                                  :label="subItem.id"
-                                  :disabled="
-                                    subItem.isCancel == 2 ||
-                                      addRoleFormArray[index].strategyType == 2
-                                  "
-                                  style="margin-right:8px"
-                                  @change="
-                                    checked =>
-                                      handleCheckedChange(
-                                        checked,
-                                        index,
-                                        'falsify',
-                                        '',
-                                        checkboxItem.id
-                                      )
-                                  "
-                                  >{{ subItem.reinforceItemName }}
-                                </el-checkbox>
-                              </el-checkbox-group> -->
                               <el-checkbox-group
                                 v-else
                                 v-model="addRoleFormArray[index].choiceArray"
@@ -873,9 +818,6 @@ export default {
         curPrinter6: [
           { required: true, message: "请选择签名版本", trigger: "blur" }
         ],
-        /*  strategyDescribe: [
-          { required: true, message: "请输入策略描述", trigger: "blur" }
-        ], */
         radio1: [
           { required: true, message: "是否多渠道打包", trigger: "blur" }
         ],
@@ -915,7 +857,6 @@ export default {
     },
     handleProgress(event, file, fileList) {
       this.uploadTaskNum = fileList.length;
-      console.log(this.uploadTaskNum);
     },
     getSoCheckedNodes(index) {
       const _this = this;
@@ -940,7 +881,6 @@ export default {
             this.addRoleFormArray[index].choiceArray.push(id);
           }
         } else {
-          console.log(this.addRoleFormArray[index].choiceArray, "choiceArray");
           this.addRoleFormArray[index].choiceArray = this.addRoleFormArray[
             index
           ].choiceArray.filter(v => v !== 3);
@@ -987,7 +927,6 @@ export default {
     },
 
     getDataItem(params) {
-      /* const params = { pn: this.curPage, limit: this.limit, queryInfo }; */
       api.reinforceService.reinforceList(params).then(res => {
         if (res.code == "00") {
           const data = res.data,
@@ -1017,19 +956,20 @@ export default {
     addReinforceTask() {
       this.addTaskDrawer = true;
     },
+
     //保存加固任务
     saveReinforceTask(formName, form) {
-      let _this = this,
-        taskList = _this.addRoleFormArray,
-        allValid = true;
+      const _this = this,
+        taskList = _this.addRoleFormArray;
+      let allValid = true;
       taskList.forEach((v, i) => {
         let addRoleFormArray = _this.addRoleFormArray[i];
         _this.$refs["addRoleForm"][i].validate((valid, message) => {
+          console.log(message.radio1);
           if (!valid) {
             if (message.radio1) {
               _this.$message.error("请选择是否多渠道打包!");
-            }
-            if (message.radio2) {
+            } else if (message.radio2) {
               _this.$message.error("请选择是否签名!");
             }
             if (message.curPrinter1) {
@@ -1137,20 +1077,6 @@ export default {
         this.addTaskDrawer = false;
       }
     },
-    //加固
-    /*  reinforce(id) {
-      https
-        .fetchGet("/api/reinforce/info/startReinforce", {
-          reinforceInfoId: id
-        })
-        .then(res => {
-          this.$notify({
-            message: "启动成功！",
-            type: "success"
-          });
-          this.reload();
-        });
-    }, */
     //上传-----开始
     addFileToFormData(file) {
       let params = new FormData(),
@@ -1246,29 +1172,6 @@ export default {
               }
               this.uploadShow = false;
             }
-            /*  _this.$refs.upload.clearFiles(); */
-            //查询加固策略列表
-            /*  https
-              .fetchPost("/api/reinforce/strategy/page", {
-                pn: 1,
-                limit: 20
-              })
-              .then(res => {
-                if (res.data.code == "00") {
-                  let data = res.data.data.items;
-                  data = JSON.parse(
-                    JSON.stringify(data).replace(
-                      /reinforce_strategy_name/g,
-                      "label"
-                    )
-                  );
-                  this.strategyOptions = data;
-                }
-              }); */
-            //查询签名列表 签名策略列表
-            /*   https
-              .fetchPost("/api/reinforce/sign/page", { pn: 1, limit: 20 })
-              .then(res => {}); */
             //查询加固项tree
             api.reinforceService
               .getReinforceItemTree({ reinforceItem: {} })
@@ -1313,24 +1216,23 @@ export default {
     },
     //下载多渠道包
     downloadMultiChannelPackage(id) {
-      let Authorization = localStorage.getItem("Authorization");
-      let downloadUrl =
-        this.api.baseUrl +
-        "/api/reinforce/info/downloadPackage/?reinforceTaskId=" +
-        id +
-        "&type=2&Authorization=" +
-        Authorization;
-      window.location.href = downloadUrl;
+      this.downloadPackage(id, 2);
     },
     //下载加固包
-    downloadReinforcePackage(id) {
-      let Authorization = localStorage.getItem("Authorization");
-      let downloadUrl =
-        this.api.baseUrl +
-        "/api/reinforce/info/downloadPackage/?reinforceTaskId=" +
-        id +
-        "&type=1&Authorization=" +
-        Authorization;
+    downloadReinforcePackage(id, type) {
+      this.downloadPackage(id, 1);
+    },
+    downloadPackage(id, type) {
+      console.log(id, type);
+      const Authorization = localStorage.getItem("Authorization"),
+        downloadUrl =
+          this.api.baseUrl +
+          "/api/reinforce/info/downloadPackage/?reinforceTaskId=" +
+          id +
+          "&type=" +
+          type +
+          "&Authorization=" +
+          Authorization;
       window.location.href = downloadUrl;
     },
     //删除
@@ -1374,12 +1276,44 @@ export default {
         });
       }
     },
+    //对用户选择的加固策略进行消息提示
+    strategyTypeMessageTips(type) {
+      if (type == 1) {
+        this.$message({
+          message:
+            "当前选择为用户自定义策略,会随着您的操作进行更新,请谨慎操作!",
+          type: "warning"
+        });
+      } else {
+        this.$message({
+          message: "当前选择为默认加固策略,不可做修改!",
+          type: "warning"
+        });
+      }
+    },
+    //设置checked属性
+    setChecked(list, selectedList) {
+      list.forEach(obj => {
+        obj["checked"] = false;
+        if (obj.children) {
+          obj.children.forEach(v => {
+            v["checked"] = false;
+            selectedList.some(obj1 => {
+              if (obj1.id == v.id) {
+                v["checked"] = true;
+              }
+            });
+          });
+        }
+        selectedList.some(obj1 => {
+          if (obj1.id == obj.id) {
+            obj["checked"] = true;
+          }
+        });
+      });
+    },
     //加固策略
     strategyChange(id, index) {
-      /*  let data = this.strategyOptions.filter(val => {
-        return val["reinforce_describe"] == item;
-      });
-      this.strategyItemDto = data; */
       const _this = this;
       api.reinforceService.getStrategyDetail({ id }).then(res => {
         _this.addRoleFormArray[index].showReinforceItem = true;
@@ -1394,37 +1328,9 @@ export default {
           data.md5ItemList.map(v => {
             _this.addRoleFormArray[index].signMd5Items.push({ value: v });
           });
-          if (data.strategyType == 1) {
-            _this.$message({
-              message:
-                "当前选择为用户自定义策略,会随您的操作进行更新,请谨慎操作！",
-              type: "warning"
-            });
-          }
-          if (data.strategyType == 2) {
-            _this.$message({
-              message: "当前选择为默认加固策略,不可做修改！",
-              type: "warning"
-            });
-          }
-          _this.reinforceItemData.forEach(obj => {
-            obj["checked"] = false;
-            if (obj.children) {
-              obj.children.forEach(v => {
-                v["checked"] = false;
-                selectedList.some(obj1 => {
-                  if (obj1.id == v.id) {
-                    v["checked"] = true;
-                  }
-                });
-              });
-            }
-            selectedList.some(obj1 => {
-              if (obj1.id == obj.id) {
-                obj["checked"] = true;
-              }
-            });
-          });
+          _this.strategyTypeMessageTips(data.strategyType);
+          _this.setChecked(_this.reinforceItemData, selectedList);
+
           let choiceArray = [],
             tamperArray = "",
             result = _this.reinforceItemData.map(item => {
@@ -1484,7 +1390,6 @@ export default {
         const params = { limit: 20, pn: 1 };
         api.reinforceService.getSignatureList(params).then(res => {
           this.signatureList = res.data.items;
-          console.log(res);
         });
       }
       if (item == "否") {
@@ -1514,7 +1419,7 @@ export default {
   height: 300% !important;
   overflow-y: auto !important;
 }
-.reinforeHeader {
+.reinfore header {
   height: 50px;
   line-height: 50px;
   font-size: 14px;

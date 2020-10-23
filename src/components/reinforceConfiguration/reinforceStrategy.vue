@@ -933,7 +933,8 @@
                     <template
                       v-if="
                         strategyItem.reinforceItemName == '自定义签名MD5' &&
-                          disabledMd5ArrayList.length != 0
+                          disabledMd5ArrayList.length != 0 &&
+                          strategyItem.checked
                       "
                     >
                       <div
@@ -1405,12 +1406,18 @@ export default {
         });
       }
     },
+    //如果没有数据用户禁点
+    setDisabled(item, type) {
+      if (item.length == 0) {
+        type = true;
+      }
+    },
     //获取策略具体内容
     getstrategy(id) {
       const _this = this;
       api.reinforceService.getStrategyDetail({ id }).then(res => {
         if (res.code == "00") {
-          let data = res.data,
+          const data = res.data,
             keyData = data.reinforceInfo.appPath;
           //防止每次点击详情都push
           _this.strategyItemForm.signMd5Items = [{ value: "" }];
@@ -1423,14 +1430,17 @@ export default {
               _this.md5ArrayList = keyData.signMd5Value;
               _this.amendOriginalTree(_this.soArrayList);
               _this.amendOriginalTree(_this.h5ArrayList);
-              if (keyData.soItems.length == 0) {
+              _this.setDisabled(_this.soArrayList, _this.amendSoDisabled);
+              _this.setDisabled(_this.h5ArrayList, _this.amendH5Disabled);
+              _this.setDisabled(_this.md5ArrayList, _this.amendH5Disabled);
+              /*  if (keyData.soItems.length == 0) {
                 _this.amendSoDisabled = true;
               }
               if (keyData.h5Items.length == 0) {
                 _this.amendH5Disabled = true;
               } else {
                 _this.amendH5Disabled = false;
-              }
+              } */
               _this.strategyDetailItem = data;
               _this.disabledSoArrayList = data.soItemList;
               _this.disabledH5ArrayList = data.h5ItemList;
@@ -1446,56 +1456,64 @@ export default {
               });
             }
           });
-          let selectedList = data.reinforceItemList;
-          _this.strategyItemData.forEach(obj => {
-            obj["checked"] = false;
-            if (obj.children) {
-              obj.children.forEach(v => {
-                v["checked"] = false;
-                selectedList.some(obj1 => {
-                  if (obj1.id == v.id) {
-                    v["checked"] = true;
-                  }
-                });
-              });
-            }
+          _this.getSelectedList(data.reinforceItemList);
+        }
+      });
+    },
+    //得到用户选中项
+    getSelectedList(list) {
+      const selectedList = list, //用户选中的集合
+        _this = this;
+      _this.strategyItemData.forEach(obj => {
+        //全部的加固项
+        obj["checked"] = false;
+        if (obj.children) {
+          obj.children.forEach(v => {
+            v["checked"] = false;
             selectedList.some(obj1 => {
-              if (obj1.id == obj.id) {
-                obj["checked"] = true;
+              if (obj1.id == v.id) {
+                v["checked"] = true;
               }
             });
           });
-          let choiceArray = [],
-            tamperArray = [],
-            result = _this.strategyItemData.map(item => {
-              if (item.children) {
-                if (item.reinforceItemName == "防篡改") {
-                  item.children.forEach(v => {
-                    if (v.checked == true) {
-                      tamperArray.push(v.id);
-                    }
-                  });
-                } else {
-                  item.children.forEach(v => {
-                    if (v.checked == true) {
-                      choiceArray.push(v.id);
-                    }
-                  });
-                }
-              }
-              if (item.checked == true) {
-                return item.id;
-              }
-            });
-          _this.choiceArray = result.concat(choiceArray);
-          _this.tamperArray = tamperArray;
         }
+        selectedList.some(obj1 => {
+          if (obj1.id == obj.id) {
+            obj["checked"] = true;
+          }
+        });
       });
+      const choiceArray = [],
+        tamperArray = [],
+        result = _this.strategyItemData.map(item => {
+          if (item.children) {
+            if (item.reinforceItemName == "防篡改") {
+              item.children.forEach(v => {
+                console.log(v);
+                if (v.checked == true) {
+                  tamperArray.push(v.id);
+                }
+              });
+            } else {
+              item.children.forEach(v => {
+                if (v.checked == true) {
+                  choiceArray.push(v.id);
+                }
+              });
+            }
+          } else {
+            if (item.checked == true) {
+              choiceArray.push(item.id);
+            }
+          }
+        });
+      _this.choiceArray = choiceArray;
+      _this.tamperArray = tamperArray;
     },
     //修改策略
     amendStrategy(id) {
       this.amendStrategyDrawer = true;
-      let _this = this,
+      const _this = this,
         strategyItemForm = _this.strategyItemForm;
       _this.getstrategy(id);
     },
@@ -1505,7 +1523,7 @@ export default {
         strategyDetailItem = _this.strategyDetailItem["reinforceInfo"],
         strategyItemForm = _this.strategyItemForm,
         choiceItem = _this.choiceArray.concat(_this.tamperArray),
-        choiceList = [], //选中的id集合
+        choiceList = [],
         allValid = true,
         signMd5ItemsData = [];
       _this.strategyItemForm.signMd5Items.forEach(v => {

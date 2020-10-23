@@ -40,65 +40,8 @@
                 >版本信息:&nbsp;&nbsp;&nbsp;&nbsp;{{ item.appVersion }}</el-col
               >
             </el-row>
-            <!--    <el-row>
-              <el-col :span="12"
-                >签名信息:&nbsp;&nbsp;&nbsp;&nbsp;{{ item.signature }}</el-col
-              >
-              <el-col :span="12"
-                >签名类型:&nbsp;&nbsp;&nbsp;&nbsp;{{
-                  item.signatureType
-                }}</el-col
-              >
-            </el-row> -->
           </div>
         </el-collapse-item>
-
-        <!-- <el-collapse-item title="2.签名信息" name="2">
-          <div v-for="item in signatureItem" :key="item.id">
-            <el-row>
-              <el-col :span="12"
-                >签名名称:&nbsp;&nbsp;&nbsp;&nbsp;{{ item.signName }}</el-col
-              >
-              <el-col :span="12"
-                >签名密码:&nbsp;&nbsp;&nbsp;&nbsp;
-                <el-input
-                  v-model="item.signPwd"
-                  show-password
-                  readonly
-                  size="small"
-                  style="width:20%"
-                ></el-input>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="12"
-                >签名别名:&nbsp;&nbsp;&nbsp;&nbsp;{{
-                  item.signAliasName
-                }}</el-col
-              >
-              <el-col :span="12"
-                >别名密码:&nbsp;&nbsp;&nbsp;&nbsp;
-                <el-input
-                  v-model="item.signAliasPwd"
-                  readonly
-                  size="small"
-                  style="width:20%"
-                  show-password
-                ></el-input>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="12"
-                >签名状态:&nbsp;&nbsp;&nbsp;&nbsp;
-                <span v-if="item.status == 1">已完成</span>
-              </el-col>
-              <el-col :span="12"
-                >创建时间:&nbsp;&nbsp;&nbsp;&nbsp;{{ item.createTime }}</el-col
-              >
-            </el-row>
-          </div>
-        </el-collapse-item> -->
-
         <el-collapse-item title="2.策略信息" name="2">
           <div v-for="item in strategyItem" :key="item.id">
             <el-row>

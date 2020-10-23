@@ -21,10 +21,6 @@
             prop="reinforce_item_describe"
             label="加固项描述"
           ></el-table-column>
-          <!--  <el-table-column
-            prop="reinforce_item_code"
-            label="加固项编码"
-          ></el-table-column> -->
           <el-table-column
             prop="create_time"
             label="创建时间"

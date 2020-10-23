@@ -536,7 +536,7 @@ export default {
   }
 };
 </script>
-<style scoped>
+<style>
 .roleManagementHeader {
   height: 50px;
   line-height: 50px;
