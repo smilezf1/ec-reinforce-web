@@ -1,12 +1,11 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import { use } from 'vue/types/umd';
 Vue.use(Vuex);
-let loginstatus = true;
 const store = new Vuex.Store({
     state: {
         //存储token
-        Authorization: localStorage.getItem('Authorization') ? localStorage.getItem('Authorization') : ''
+        Authorization: localStorage.getItem('Authorization') ? localStorage.getItem('Authorization') : '',
+        cacheComponents: []
     },
     mutations: {
         //修改token,并将token存入localStorage
@@ -14,6 +13,9 @@ const store = new Vuex.Store({
             state.Authorization = user.Authorization;
             localStorage.setItem('Authorization', user.Authorization)
         },
+        getCacheComponents(state, data) {
+            state.cacheComponents = data
+        }
     }
 })
 export default store;

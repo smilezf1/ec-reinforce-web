@@ -24,74 +24,74 @@ const router = new Router({
                     name: "menuManagement",
                     component: () =>
                         import("../components/systemManagement/menuManagement"),
-                    meta: { requireAuth: true, KeepAlive: false }
+                    meta: { requireAuth: true}
                 },
                 {
                     path: "/reinforceItem",
                     name: "reinforceItem",
                     component: () => import("../components/reinforceConfiguration/reinforceItem"),
-                    meta: { requireAuth: true, KeepAlive: false }
+                    meta: { requireAuth: true}
                 },
                 {
                     path: "/reinforceStrategy",
                     name: "reinforceStrategy",
                     component: () => import("../components/reinforceConfiguration/reinforceStrategy"),
-                    meta: { requireAuth: true, KeepAlive: false }
+                    meta: { requireAuth: true}
                 },
                 {
                     path: "/channelStrategy",
                     name: "channelStrategy",
                     component: () => import("../components/reinforceConfiguration/channelStrategy"),
-                    meta: { requireAuth: true, KeepAlive: false }
+                    meta: { requireAuth: true}
                 },
                 {
                     path: "/reinforce",
                     name: "reinforce",
                     component: () => import("../components/taskManagement/reinforce"),
-                    meta: { requireAuth: true, KeepAlive: false }
+                    meta: { requireAuth: true}
                 },
                 {
                     path: "/signature",
                     name: "signature",
                     component: () => import("../components/reinforceConfiguration/signature"),
-                    meta: { requireAuth: true, KeepAlive: false }
+                    meta: { requireAuth: true}
                 },
                 {
                     path: "/detail:id",
                     name: 'detail',
                     component: () => import("../components/taskManagement/detail.vue"),
-                    meta: { requireAuth: true, KeepAlive: false }
+                    meta: { requireAuth: true}
                 },
                 {
                     path: "/log:id",
                     name: "log",
                     component: () => import("../components/taskManagement/log.vue"),
-                    meta: { requireAuth: true, KeepAlive: false }
+                    meta: { requireAuth: true}
                 },
 
                 {
                     path: "/roleManagement",
                     name: "roleManagement",
                     component: () => import("../components/systemManagement/roleManagement"),
-                    meta: { requireAuth: true, KeepAlive: false }
+                    meta: { requireAuth: true}
                 },
                 {
                     path: "/recommend",
                     name: "recommend",
                     component: () => import("../components/page/recommend"),
-                    meta: { requireAuth: true, KeepAlive: false }
+                    meta: { requireAuth: true}
                 },
                 {
                     path: "/userManagement",
                     name: "userManagement",
                     component: () => import("../components/systemManagement/userManagement"),
-                    meta: { requireAuth: true, KeepAlive: false }
+                    meta: { requireAuth: true}
                 },
                 {
                     path: "/authorizeManagement",
                     name: "authorizeManagement",
                     component: () => import("../components/systemManagement/authorizeManagement"),
-                    meta: { requireAuth: true, KeepAlive: false }
+                    meta: { requireAuth: true}
                 }
             ]
         },

@@ -785,7 +785,7 @@ import api from "../../request/api";
 import pagination from "../common/pagination";
 import pageMixins from "../../utils/pageMixins";
 export default {
-  name: "reinfore",
+  name: "reinforce",
   components: { pagination },
   mixins: [pageMixins],
   data() {
@@ -1401,11 +1401,11 @@ export default {
   beforeMount() {
     this.getData();
   },
-  beforeRouteEnter(to, from, next) {
-    if (from.name == "detail" || from.name == "log") {
-      to.meta.KeepAlive = true;
+  beforeRouteLeave(to, from, next) {
+    if (to.name == "detail" || to.name == "log") {
+      this.$store.commit("getCacheComponents", ["reinforce"]);
     } else {
-      to.meta.KeepAlive = false;
+      this.$store.commit("getCacheComponents", []);
     }
     next();
   }
