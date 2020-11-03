@@ -101,11 +101,11 @@ export default {
     },
     //上传授权文件开始
     uploadAuthorizeFile(file) {
-      const _this = this;
-      let params = new FormData();
+      const _this = this,
+        params = new FormData();
       params.append("file", file.file);
       //进度条配置
-      let config = {
+      const config = {
         onUploadProgress: ProgressEvent => {
           let progressEvent =
             ((ProgressEvent.loaded / ProgressEvent.total) * 100) | 0;

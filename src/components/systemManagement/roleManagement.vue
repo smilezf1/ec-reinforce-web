@@ -230,17 +230,6 @@
 
     <div class="roleManagementBase">
       <template>
-        <!--  <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="curPage"
-          :page-sizes="[10, 20, 30, 40, 50]"
-          :page-size="10"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="dataCount"
-          class="pagingBox"
-        >
-        </el-pagination> -->
         <pagination @pageChanged="onPageChanged"></pagination>
       </template>
     </div>
@@ -305,11 +294,9 @@ export default {
       const _this = this;
       api.systemManageService.roleManageList(params).then(res => {
         if (res.code == "00") {
-          const data = res.data,
-            count = data.count,
-            number = params.pn,
-            size = params.limit;
-          _this.listItem = data.items;
+          const count = res.data.count,
+            { pn: number, limit: size } = params;
+          _this.listItem = res.data.items;
           _this.curPage = number;
           _this.limit = size;
           this.onGotPageData({ totalElements: count, size, number });
@@ -336,7 +323,7 @@ export default {
       const name = form.name;
       this.$refs[formName].validate(valid => {
         if (valid) {
-          let params = { name };
+          const params = { name };
           api.systemManageService.roleManageSave(params).then(res => {
             if (res.code == "00") {
               this.reload();
@@ -358,7 +345,7 @@ export default {
     edit(id) {
       this.editDrawer = true;
       this.editId = id;
-      let params = { id };
+      const params = { id };
       api.systemManageService.roleManageDetail(params).then(res => {
         if (res.code == "00") {
           this.editForm.name = res.data.name;
@@ -462,11 +449,11 @@ export default {
       });
     },
     setMenuSave() {
-      let id = this.setMenuId,
-        nodes = this.checkedNodes,
-        menuList = this.menuList;
+      const id = this.setMenuId,
+        nodes = this.checkedNodes;
+      let menuList = this.menuList;
       if (nodes && nodes.length != 0) {
-        for (var i = 0; i < nodes.length; i++) {
+        for (let i = 0; i < nodes.length; i++) {
           if (nodes[i].id.indexOf("T")) {
           } else {
             nodes[i].id = nodes[i].id.replace("T", "");
@@ -564,24 +551,6 @@ export default {
   margin-right: 10px;
   cursor: pointer;
 }
-.el-table {
-  font-size: 12px;
-  border: 1px solid #dcdee2;
-  border-bottom: 1px solid transparent;
-}
-.el-table thead {
-  color: #515a6e !important;
-  font-weight: 700;
-}
-.el-table__header-wrapper {
-  background: #f8f8f9;
-}
-.el-table__header-wrapper th {
-  background: #f2f5f7;
-}
-.el-table ::before {
-  background: white;
-}
 .el-drawer-header {
   height: 50px;
   padding: 17px 20px;
@@ -604,7 +573,7 @@ export default {
   padding: 10px 20px;
   border-top: 1px solid #ebebeb;
 }
-.el-input {
+.roleManagement .el-input {
   width: auto;
 }
 .roleManagementBase {

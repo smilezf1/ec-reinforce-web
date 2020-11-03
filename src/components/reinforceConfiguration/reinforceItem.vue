@@ -57,14 +57,16 @@ export default {
     getDataItem(params) {
       api.reinforceService.getReinforceItem(params).then(res => {
         if (res.code == "00") {
-          const data = res.data,
-            count = data.count,
-            number = params.pn,
-            size = params.limit;
-          this.listItem = data.items;
-          this.curPage = number;
-          this.limit = size;
-          this.onGotPageData({ totalElements: count, size, number });
+          const count = res.data.count,
+            { pn, limit } = params;
+          this.listItem = res.data.items;
+          this.curPage = pn;
+          this.limit = limit;
+          this.onGotPageData({
+            totalElements: count,
+            size: limit,
+            number: this.curPage
+          });
         }
       });
     }
@@ -79,17 +81,6 @@ export default {
   height: 50px;
   line-height: 50px;
   font-size: 14px;
-}
-.reinforceItemBody .el-table {
-  font-size: 12px;
-  border: 1px solid #dcdee2;
-  border-bottom: 1px solid transparent !important;
-}
-.el-table thead {
-  color: #515a6a;
-}
-.el-table__header-wrapper th {
-  background: #f2f5f7 !important;
 }
 .reinforceItemBase {
   margin-top: 20px;

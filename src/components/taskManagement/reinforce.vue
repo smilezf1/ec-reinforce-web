@@ -861,14 +861,14 @@ export default {
     getSoCheckedNodes(index) {
       const _this = this;
       _this.$refs.soTree.forEach((v, i) => {
-        let result = v.getCheckedNodes().map(v => v.value);
+        const result = v.getCheckedNodes().map(v => v.value);
         _this.addRoleFormArray[index].flatSoArray = result;
       });
     },
     getH5CheckedNodes(index) {
       const _this = this;
       _this.$refs.h5Tree.forEach((v, i) => {
-        let result = v.getCheckedNodes().map(v => v.value);
+        const result = v.getCheckedNodes().map(v => v.value);
         _this.addRoleFormArray[index].flatH5Array = result;
       });
     },
@@ -902,7 +902,7 @@ export default {
     },
     addSignature(index, value) {
       this.addRoleFormArray[index].addSignatureClick = true;
-      let signMd5Items = value,
+      const signMd5Items = value,
         regularResult = /^[A-Fa-f0-9]{32}$/.test(signMd5Items);
       if (regularResult) {
         this.addRoleFormArray[index].signMd5Items.push({
@@ -931,8 +931,7 @@ export default {
         if (res.code == "00") {
           const data = res.data,
             count = data.count,
-            number = params.pn,
-            size = params.limit;
+            { pn: number, limit: size } = params;
           this.listItem = data.items;
           this.curPage = number;
           this.limit = size;
@@ -963,9 +962,8 @@ export default {
         taskList = _this.addRoleFormArray;
       let allValid = true;
       taskList.forEach((v, i) => {
-        let addRoleFormArray = _this.addRoleFormArray[i];
+        const addRoleFormArray = _this.addRoleFormArray[i];
         _this.$refs["addRoleForm"][i].validate((valid, message) => {
-          console.log(message.radio1);
           if (!valid) {
             if (message.radio1) {
               _this.$message.error("请选择是否多渠道打包!");
@@ -991,7 +989,7 @@ export default {
           }
         }
         if (addRoleFormArray.choiceArray.includes(13)) {
-          let signMd5Items =
+          const signMd5Items =
               addRoleFormArray.signMd5Items[
                 addRoleFormArray.signMd5Items.length - 1
               ].value,
@@ -1010,12 +1008,12 @@ export default {
       if (allValid) {
         _this.saveReinforceTaskBox = true;
         const reinforceInfoDto = taskList.map((formItem, index) => {
-          const curFileItem = _this.uploadFileItems[index].data;
-          let signMd5Items = [];
+          const curFileItem = _this.uploadFileItems[index].data,
+            signMd5Items = [];
           formItem.signMd5Items.forEach((v, i) => {
             signMd5Items.push(v.value);
           });
-          let signMd5ItemsData = signMd5Items.filter(v => v);
+          const signMd5ItemsData = signMd5Items.filter(v => v);
           formItem.flatSoArray = formItem.flatSoArray.filter(v => v);
           formItem.flatH5Array = formItem.flatH5Array.filter(v => v);
           formItem.choiceArray = formItem.choiceArray.concat(
@@ -1079,13 +1077,13 @@ export default {
     },
     //上传-----开始
     addFileToFormData(file) {
-      let params = new FormData(),
+      const params = new FormData(),
         _this = this;
       params.append("file", file.file);
       //进度条配置
-      let config = {
+      const config = {
         onUploadProgress: ProgressEvent => {
-          let progressPercent =
+          const progressPercent =
             ((ProgressEvent.loaded / ProgressEvent.total) * 100) | 0;
           file.onProgress({ percent: progressPercent });
         }
@@ -1196,11 +1194,14 @@ export default {
     //上传结束---
     //详情
     detail(id) {
-      this.$router.push({ path: "/detail" + id + "" });
+      this.$router.push({ path: "/reinforce/detail?id=" + id });
     },
     //查看日志
     viewLog(id, appName, status) {
-      this.$router.push({ path: "/Log" + id + "", query: { appName, status } });
+      this.$router.push({
+        path: "/reinforce/Log",
+        query: { id, appName, status }
+      });
     },
     //下载原包
     downloadOriginalPackage(data) {
@@ -1584,34 +1585,13 @@ export default {
 .reinfore .operateBox {
   margin-left: 20px;
 }
-.el-table {
-  font-size: 12px;
-  border: 1px solid #dcdee2 !important;
-  border-bottom: 1px solid transparent !important;
-}
+
 .el-radio__input.is-checked .el-radio__inner {
   border-color: #409eff;
   background: #409eff;
 }
 .el-radio__input.is-disabled.is-checked .el-radio__inner::after {
   background: #409eff !important;
-}
-.el-table thead {
-  color: #515a6e !important;
-  font-size: 12px !important;
-}
-
-.el-table__header-wrapper th {
-  background: #f2f5f7 !important;
-}
-.el-table__body-wrapper span {
-  font-size: 12px !important;
-}
-.el-table .cell {
-  font-size: 12px;
-}
-.el-table ::before {
-  background: white;
 }
 .reinfore .operateBox .el-drawer {
   height: 100%;

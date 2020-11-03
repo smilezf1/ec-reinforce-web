@@ -382,11 +382,9 @@ export default {
       });
     },
     save(formName, form) {
-      let id = parseInt(this.id),
-        name = form.name,
-        icon = form.icon,
-        address = form.address,
-        type = null;
+      const id = parseInt(this.id),
+        { name, icon, address } = form;
+      let type = null;
       if (form.type === "目录") {
         type = "M";
       }
@@ -395,7 +393,7 @@ export default {
       }
       this.$refs[formName].validate(valid => {
         if (valid) {
-          let params = { id, name, icon, type, address };
+          const params = { id, name, icon, type, address };
           api.systemManageService.menuManageEditSave(params).then(res => {
             if (res.code == "00") {
               this.reload();
@@ -417,9 +415,9 @@ export default {
     },
     //保存新增的目录
     saveAddCatalogue(formName, addCatalogueForm) {
-      let name = addCatalogueForm.name,
-        icon = addCatalogueForm.icon,
-        type = null;
+      debugger;
+      const { name, icon } = addCatalogueForm;
+      let type = null;
       if (addCatalogueForm.type == "目录") {
         type = "M";
       }
@@ -453,9 +451,7 @@ export default {
     },
     //保存新增的链接
     saveAddLink(formName, addLinkForm) {
-      const name = addLinkForm.name,
-        icon = addLinkForm.icon,
-        address = addLinkForm.address,
+      const { name, icon, address } = addLinkForm,
         pId = this.linkID;
       let type = null;
       if (addLinkForm.type == "目录") {
@@ -543,20 +539,6 @@ export default {
 .typeT {
   margin-left: 20px;
 }
-.el-table {
-  font-size: 12px;
-  border: 1px solid #dcdee2;
-  border-bottom: 1px solid transparent;
-}
-.el-table thead {
-  font-size: 12px !important;
-}
-.el-table__header-wrapper {
-  background: #f8f8f9;
-}
-.el-table__header-wrapper th {
-  background: #f2f5f7;
-}
 .editIcon,
 .addCatalogueIcon,
 .addLinkIcon,
@@ -566,9 +548,6 @@ export default {
   color: #409eff;
   margin-right: 10px;
   cursor: pointer;
-}
-.el-table ::before {
-  background: white;
 }
 .el-drawer-header {
   height: 50px;

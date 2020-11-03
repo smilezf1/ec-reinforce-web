@@ -926,34 +926,36 @@ export default {
     removeRepetitionChannelKeyData(typeChannel, index) {
       const _this = this;
       if (typeChannel == "createChannel") {
-        const dropDownList = _this.channelStrategyList[index].channelKeyData,
-          parameteList =
-            _this.channelStrategyList[index].channelStrategyParameteList;
-        for (var i = 0; i < dropDownList.length; i++) {
-          _this.$set(dropDownList[i], "disabled", false);
+        const {
+          channelKeyData,
+          channelStrategyParameteList
+        } = _this.channelStrategyList[index];
+        for (let i = 0; i < channelKeyData.length; i++) {
+          _this.$set(channelKeyData[i], "disabled", false);
         }
-        for (var j = 0; j < parameteList.length; j++) {
-          for (var k = 0; k < dropDownList.length; k++) {
-            if (parameteList[j].channelKey == dropDownList[k].value) {
-              _this.$set(dropDownList[k], "disabled", true);
+        for (let j = 0; j < channelStrategyParameteList.length; j++) {
+          for (let k = 0; k < channelKeyData.length; k++) {
+            if (
+              channelStrategyParameteList[j].channelKey ==
+              channelKeyData[k].value
+            ) {
+              _this.$set(channelKeyData[k], "disabled", true);
             }
           }
         }
       }
       if (typeChannel == "amendChannel") {
-        const dropDownList =
-            _this.channelStrategyParticulars.itemDetailDtoList[index]
-              .channelKeyData,
-          parameteList =
-            _this.channelStrategyParticulars.itemDetailDtoList[index]
-              .channelDetails;
-        for (var i = 0; i < dropDownList.length; i++) {
-          _this.$set(dropDownList[i], "disabled", false);
+        const {
+          channelKeyData,
+          channelDetails
+        } = _this.channelStrategyParticulars.itemDetailDtoList[index];
+        for (let i = 0; i < channelKeyData.length; i++) {
+          _this.$set(channelKeyData[i], "disabled", false);
         }
-        for (var j = 0; j < parameteList.length; j++) {
-          for (var k = 0; k < dropDownList.length; k++) {
-            if (parameteList[j].channelKey == dropDownList[k].value) {
-              _this.$set(dropDownList[k], "disabled", true);
+        for (let j = 0; j < channelDetails.length; j++) {
+          for (let k = 0; k < channelKeyData.length; k++) {
+            if (channelDetails[j].channelKey == channelKeyData[k].value) {
+              _this.$set(channelKeyData[k], "disabled", true);
             }
           }
         }
@@ -974,14 +976,12 @@ export default {
     getDataItem(params) {
       api.multipleChannelService.getChannelList(params).then(res => {
         if (res.code == "00") {
-          const data = res.data,
-            count = data.count,
-            number = params.pn,
-            size = params.limit;
-          this.listItem = data.items;
-          this.curPage = number;
-          this.limit = size;
-          this.onGotPageData({ totalElements: count, size, number });
+          const count = res.data.count,
+            { pn, limit } = params;
+          this.listItem = res.data.items;
+          this.curPage = pn;
+          this.limit = limit;
+          this.onGotPageData({ totalElements: count, size: limit, number: pn });
         }
       });
     },
@@ -991,16 +991,16 @@ export default {
     },
     //获取渠道策略具体的内容
     getChannelStrategy(id) {
-      const _this = this;
-      let appPath = null;
+      const _this = this,
+        appPath = null;
       api.multipleChannelService.getChannelStrategyDetail(id).then(res => {
         if (res.code == "00") {
-          let data = res.data,
+          const data = res.data,
             appPath = data.reinforceInfo.appPath;
           _this.channelStrategyParticulars = data;
           api.multipleChannelService.getChannelKeyList(appPath).then(res => {
             if (res.code == "00") {
-              let channelKeyData = [];
+              const channelKeyData = [];
               res.data.forEach(v => {
                 channelKeyData.push({ value: v, disabled: false });
               });
@@ -1053,13 +1053,13 @@ export default {
     },
     //上传渠道策略开始
     createChannelStrategyFile(file) {
-      const _this = this;
-      let params = new FormData();
+      const _this = this,
+        params = new FormData();
       params.append("file", file.file);
       //进度条配置
-      let config = {
+      const config = {
         onUploadProgress: ProgressEvent => {
-          let progressEvent =
+          const progressEvent =
             ((ProgressEvent.loaded / ProgressEvent.total) * 100) | 0;
           file.onProgress({ percent: progressEvent });
         }
@@ -1072,7 +1072,7 @@ export default {
         if (res.code === "00") {
           _this.createChannelStrategyUploadShow = false;
           _this.showSaveChannelStrategy = false;
-          let data = res.data,
+          const data = res.data,
             appPath = data.appPath,
             channelKeyData = [];
           api.multipleChannelService.getChannelKeyList(appPath).then(res => {
@@ -1198,7 +1198,6 @@ export default {
         new this.$messageTips(({ confirm }) => {
           confirm({ content: "会清空当前上传的文件,是否继续?" });
         }).then(() => {
-          
           _this.reload();
           _this.createChannelStrategyDrawer = false;
           _this.$refs.createChannelStrategyUpload.clearFiles();
@@ -1363,22 +1362,22 @@ export default {
     },
     //保存修改的渠道
     saveAmendChannelStrategy(id) {
-      const _this = this;
-      let channelStrategyParticulars = _this.channelStrategyParticulars,
-        channelStrategyName = channelStrategyParticulars.channelStrategyName,
-        channelStrategyDescribe =
-          channelStrategyParticulars.channelStrategyDescribe,
-        itemDetailDtoList = channelStrategyParticulars.itemDetailDtoList,
-        reinforceInfo = channelStrategyParticulars.reinforceInfo,
-        appPath = reinforceInfo.appPath,
+      let {
+          channelStrategyName,
+          channelStrategyDescribe,
+          itemDetailDtoList,
+          reinforceInfo
+        } = this.channelStrategyParticulars,
         allValid = true,
         checkChannelValueType = null;
+      const _this = this,
+        appPath = reinforceInfo.appPath;
       itemDetailDtoList = itemDetailDtoList.filter(v => {
         _this.$delete(v, "createTime");
         _this.$delete(v, "updateTime");
         return v;
       });
-      let channelStrategyDto = {
+      const channelStrategyDto = {
         id,
         channelStrategyName,
         channelStrategyDescribe,
@@ -1422,7 +1421,7 @@ export default {
         });
       });
       Promise.all([checkChannelValueType]).then(value => {
-        let valid = value.every(item => item);
+        const valid = value.every(item => item);
         if (allValid && valid) {
           api.multipleChannelService
             .saveChannelStrategy(channelStrategyDto)
@@ -1465,17 +1464,7 @@ export default {
 .el-collapse-item__wrap {
   overflow: visible;
 }
-.channelStrategyBody .el-table {
-  font-size: 12px;
-  border: 1px solid #dcdee2;
-  border-bottom: 1px solid transparent !important;
-}
-.channelStrategyBody .el-table thead {
-  color: #515a6a;
-}
-.el-table__header-wrapper th {
-  background: #f2f5f7 !important;
-}
+
 .channelStrategyHeader {
   height: 50px;
   line-height: 50px;

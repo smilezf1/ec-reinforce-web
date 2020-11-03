@@ -32,7 +32,7 @@ export default {
     };
   },
   created() {
-    const id = parseInt(this.$route.params.id),
+    const id = parseInt(this.$route.query.id),
       _this = this;
     _this.titleItem = this.$route.query;
     api.reinforceService.getReinforceLog(id).then(res => {

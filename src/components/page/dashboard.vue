@@ -141,34 +141,10 @@ export default {
   border-radius: 3px;
   vertical-align: middle;
 }
-.el-table {
-  font-size: 12px;
-  border: 1px solid #dcdee2 !important;
-  border-bottom: 1px solid transparent !important;
-}
-.el-table::befor {
-  height: 0;
-}
-.el-table__body .status {
-  width: 25px;
-  height: 25px;
-  margin-right: 5px;
-  border: none;
-}
-.el-table thead {
-  color: #515a6e;
-  font-size: 12px;
-}
-.el-table__header-wrapper {
-  background: #f8f8f9;
-}
-.el-table__header-wrapper th {
-  background: #f2f5f7;
-}
-.el-table ::before {
-  background: white;
-}
 .pagingBox {
+  margin-top: 20px;
+}
+.dashboardBase {
   margin-top: 20px;
 }
 </style>

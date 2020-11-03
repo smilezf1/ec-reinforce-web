@@ -86,7 +86,6 @@ let reinforceService = {
 let systemManageService = {
     //用户管理开始----
     userManageCheckUserName(params) {
-        console.log(params, "用户管理")
         return fetchGet("/api/system/user/checkUserName", params).then(res => res.data)
     },
     userManageList(params) {
@@ -149,7 +148,7 @@ let systemManageService = {
         return fetchGet("/api/system/role/active", params).then(res => res.data)
     },
     //角色管理结束---
-    
+
     //菜单管理开始---
     menuManageList(params) {
         return fetchGet("/api/system/menu/list").then(res => res.data)

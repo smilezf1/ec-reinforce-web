@@ -481,17 +481,6 @@ export default {
   display: flex;
   margin-bottom: 15px;
 }
-.signatureBody .el-table {
-  font-size: 12px;
-  border: 1px solid #dcdee2;
-  border-bottom: 1px solid transparent !important;
-}
-.signatureBody .el-table thead {
-  color: #515a6a;
-}
-.el-table__header-wrapper th {
-  background: #f2f5f7 !important;
-}
 .signatureBody .deleteIcon {
   font-size: 22px;
   color: #409eff;

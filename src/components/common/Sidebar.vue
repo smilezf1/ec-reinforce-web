@@ -67,11 +67,11 @@ export default {
       data.forEach(item => {
         delete item.children;
       });
-      let map = {}; //构建map
+      const map = {}; //构建map
       data.forEach(i => {
         map[i.id] = i; //构建以id为键 当前数据为值
       });
-      let treeData = [];
+      const treeData = [];
       data.forEach((child, index) => {
         const mapItem = map[child.pId]; //判断当前数据的pId是否存在map中
         if (mapItem) {

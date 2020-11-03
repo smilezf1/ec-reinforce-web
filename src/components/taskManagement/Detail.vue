@@ -194,7 +194,7 @@ export default {
     }
   },
   mounted() {
-    const id = parseInt(this.$route.params.id),
+    const id = this.$route.query.id,
       params = { reinforceTaskId: id };
     api.reinforceService.getReinforceDetail(params).then(res => {
       const data = res.data;
@@ -267,23 +267,4 @@ export default {
 .detailOperate {
   margin-bottom: 15px;
 }
-.el-table {
-  font-size: 12px;
-  border: 1px solid #dcdee2;
-  border-bottom: 1px solid transparent;
-}
-.el-table thead {
-  color: #515a6e;
-  font-size: 12px;
-}
-.el-table__header-wrapper {
-  background: #f8f8f9;
-}
-.el-table__header-wrapper th {
-  background: #f2f5f7;
-}
-.el-table ::before {
-  background: white;
-}
 </style>
-*/

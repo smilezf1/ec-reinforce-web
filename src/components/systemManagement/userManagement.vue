@@ -466,7 +466,7 @@ export default {
   components: { pagination },
   mixins: [pageMixins],
   data() {
-    var validatePass = (rule, value, callback) => {
+    let validatePass = (rule, value, callback) => {
       if (value === "") {
         callback(new Error("请输入密码"));
       } else {
@@ -476,7 +476,7 @@ export default {
         callback();
       }
     };
-    var validatePass2 = (rule, value, callback) => {
+    let validatePass2 = (rule, value, callback) => {
       if (value === "") {
         callback(new Error("请再次输入密码"));
       } else if (value !== this.resetPasswordForm.pass) {
@@ -485,7 +485,7 @@ export default {
         callback();
       }
     };
-    var validatePass3 = (rule, value, callback) => {
+    let validatePass3 = (rule, value, callback) => {
       if (value === "") {
         callback(new Error("请输入密码"));
       } else {
@@ -495,7 +495,7 @@ export default {
         callback();
       }
     };
-    var validatePass4 = (rule, value, callback) => {
+    let validatePass4 = (rule, value, callback) => {
       if (value === "") {
         callback(new Error("请再次输入密码"));
       } else if (value !== this.addUserForm.pass) {
@@ -621,8 +621,7 @@ export default {
         if (res.code == "00") {
           const data = res.data,
             count = data.count,
-            number = params.pn,
-            size = params.limit;
+            { pn: number, limit: size } = params;
           this.listItem = data.items;
           this.curPage = number;
           this.limit = size;
@@ -659,9 +658,9 @@ export default {
     edit(id) {
       this.editDrawer = true;
       this.editId = id;
-      let params = { id };
+      const params = { id };
       api.systemManageService.userManageDetail(params).then(res => {
-        let data = res.data,
+        const data = res.data,
           editForm = this.editForm;
         editForm.trueName = data.trueName;
         editForm.userName = data.userName;
@@ -685,12 +684,7 @@ export default {
     },
     editFormSave(formName, form) {
       let id = this.editId,
-        trueName = form.trueName,
-        userName = form.userName,
-        email = form.email,
-        mobile = form.mobile,
-        status = form.status,
-        sex = form.sex;
+        { trueName, userName, email, mobile, status, sex } = form;
       if (form.sex === "男") {
         sex = "1";
       } else if (form.sex === "女") {
@@ -703,7 +697,7 @@ export default {
       }
       this.$refs[formName].validate(valid => {
         if (valid) {
-          let params = { id, trueName, userName, email, mobile, status, sex };
+          const params = { id, trueName, userName, email, mobile, status, sex };
           api.systemManageService.userManageSave(params).then(res => {
             if (res.code == "00") {
               this.editDrawer = false;
@@ -729,10 +723,9 @@ export default {
       this.resetPasswordDrawer = false;
     },
     saveresetPassword(formName, form) {
-      let id = this.resetPasswordId,
-        password = md5(form.pass),
-        checkPass = md5(form.checkPass),
-        params = { id, password, checkPass };
+      const id = this.resetPasswordId,
+        { pass: password, checkPass } = form,
+        params = { id, password: md5(password), checkPass: md5(checkPass) };
       this.$refs[formName].validate(valid => {
         if (valid) {
           api.systemManageService.userManageResetPwd(params).then(res => {
@@ -753,16 +746,17 @@ export default {
     //保存新增的用户
     // status 1:有效 0:无效  sex 1:男 0:女
     saveaddUserForm(formName, form) {
-      let trueName = form.trueName,
+      /*   let trueName = form.trueName,
         userName = form.userName,
         password = md5(form.pass),
         mobile = form.mobile,
         email = form.email,
         sex = form.sex,
-        status = form.status;
+        status = form.status; */
+      const { trueName, userName, password, mobile, email, sex, status } = form;
       this.$refs[formName].validate(valid => {
         if (valid) {
-          let params = {
+          const params = {
             trueName,
             userName,
             password,
@@ -799,7 +793,7 @@ export default {
     setRole(id) {
       this.setRoleId = id;
       this.dialogVisible = true;
-      let params = { id };
+      const params = { id };
       api.systemManageService.userManageSetRole(params).then(res => {
         let data = res.data;
         data = JSON.parse(JSON.stringify(data).replace(/name/g, "label"));
@@ -813,9 +807,9 @@ export default {
       });
     },
     setRoleSave() {
-      let id = this.setRoleId,
-        nodes = this.checkedNodes,
-        roleList = this.roleList;
+      const id = this.setRoleId,
+        nodes = this.checkedNodes;
+      let roleList = this.roleList;
       if (nodes && nodes.length != 0) {
         for (var i = 0; i < nodes.length; i++) {
           if (!nodes[i].parent) {
@@ -827,7 +821,7 @@ export default {
       new this.$messageTips(({ confirm }) => {
         confirm({ content: "确定要更新用户角色吗?" });
       }).then(res => {
-        let params = { roleList, userId: id };
+        const params = { roleList, userId: id };
         api.systemManageService.userManageSaveUserRole(params).then(res => {
           if (res.code == "00") {
             this.$notify({
@@ -847,7 +841,7 @@ export default {
       new this.$messageTips(({ alert }) => {
         alert({ content: "确定要启用吗?", tips: "确定启用" });
       }).then(() => {
-        let params = { id };
+        const params = { id };
         api.systemManageService.userManageActive(params).then(res => {
           if (res.code === "00") {
             this.reload();
@@ -865,7 +859,7 @@ export default {
       new this.$messageTips(({ alert }) => {
         alert({ content: "确定要停用吗?", tips: "确定停用" });
       }).then(() => {
-        let params = { id };
+        const params = { id };
         api.systemManageService.userManageInvalid(params).then(res => {
           if (res.code === "00") {
             this.reload();
@@ -897,7 +891,7 @@ export default {
 .searchBox .el-input {
   margin: 0px 5px 5px 0px;
 }
-.el-input {
+.userManagement .el-input {
   width: auto;
 }
 .userManagement .searchBox {
@@ -944,25 +938,6 @@ export default {
   padding: 10px 20px;
   border-top: 1px solid #ebebeb;
 }
-.el-table {
-  font-size: 12px;
-  border: 1px solid #dcdee2;
-  border-bottom: 1px solid transparent;
-}
-.el-table th {
-  color: #515a6e !important;
-  font-weight: 700;
-}
-.el-table thead {
-  font-size: 12px !important;
-}
-.el-table__header-wrapper th {
-  background: #f2f5f7 !important;
-}
-.el-table ::before {
-  background: white;
-}
-
 .userManagementBase {
   margin-top: 20px;
 }

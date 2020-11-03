@@ -87,17 +87,14 @@ export default {
   methods: {
     ...mapMutations(["changeLogin"]),
     submitForm(formName) {
-      let data = this.ruleForm,
-        guid = this.Guid,
-        userName = data.userName,
-        password = md5(data.password),
-        verCode = data.verCode,
-        _this = this;
+      const _this = this,
+        guid = _this.Guid,
+        { userName, password, verCode } = this.ruleForm;
       this.$refs[formName].validate(valid => {
         if (valid) {
           let params = {
             userName: userName,
-            password: password,
+            password: md5(password),
             verCode: verCode,
             guid: guid
           };
@@ -105,8 +102,7 @@ export default {
             .login(params)
             .then(res => {
               if (res.code === "00") {
-                const accessToken = res.data.accessToken,
-                  userName = res.data.userName;
+                const { accessToken, userName } = res.data;
                 localStorage.setItem("Authorization", accessToken);
                 localStorage.setItem("userName", userName);
                 _this.$message({
