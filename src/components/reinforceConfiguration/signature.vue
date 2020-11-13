@@ -490,23 +490,6 @@ export default {
 .searchForm .operateBox {
   margin-left: 20px;
 }
-.signature .el-drawer {
-  overflow-y: auto !important;
-}
-.signature .el-drawer-header {
-  width: 100%;
-  position: fixed;
-  background: white;
-  z-index: 99;
-  height: 50px;
-  padding: 17px 20px;
-  border-bottom: 1px solid #ebebeb;
-}
-.signature .el-drawer-header h3 {
-  color: #333;
-  font-size: 16px;
-  font-weight: 600;
-}
 .el-upload {
   width: 100%;
 }
@@ -520,12 +503,6 @@ export default {
   width: 100%;
   height: 230px;
   margin-top: 20px;
-}
-.signature .el-drawer-content {
-  margin-top: 50px;
-  position: relative;
-  overflow: auto;
-  padding: 0px 20px 40px 20px;
 }
 /* 上传签名的表单 */
 .signatureItemForm .signatureName {
@@ -561,17 +538,6 @@ export default {
 .signatureName .el-form-item__content > .el-input {
   width: 55%;
   margin-right: 5px;
-}
-.signature .el-drawer-footer {
-  width: 40%;
-  position: fixed;
-  bottom: 0px;
-  background: white;
-  z-index: 9;
-  padding: 10px 20px;
-  border-top: 1px solid #ebebeb;
-  right: 0;
-  text-align: right;
 }
 .signatureBase {
   margin-top: 10px;

@@ -17,7 +17,7 @@
               ><span slot="title">{{ item.title }}</span></template
             >
             <template v-for="subItem in item.list">
-              <el-menu-item :index="subItem.jump" :key="subItem.id">
+              <el-menu-item :index="'/home/' + subItem.jump" :key="subItem.id">
                 {{ subItem.title }}
               </el-menu-item>
             </template>
@@ -47,7 +47,7 @@ export default {
   inject: ["reload"],
   computed: {
     onRoutes() {
-      return this.$route.path.replace("/", "");
+      return this.$route.path;
     }
   },
   created() {

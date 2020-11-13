@@ -1477,19 +1477,6 @@ export default {
 .channelStrategy .operateBox {
   margin-left: 10px;
 }
-.channelStrategy .el-drawer-header {
-  width: 100%;
-  position: fixed;
-  background: white;
-  z-index: 99;
-  height: 50px;
-  padding: 17px 20px;
-  border-bottom: 1px solid #ebebeb;
-}
-.channelStrategy .el-drawer-header h3 {
-  color: #333;
-  font-size: 16px;
-}
 .el-upload {
   width: 100%;
 }
@@ -1503,11 +1490,6 @@ export default {
   width: 100%;
   height: 230px;
   margin-top: 20px;
-}
-.channelStrategy .el-drawer-content {
-  position: relative;
-  padding: 0 20px 40px 20px;
-  margin: 60px 0 40px 0;
 }
 .channelStrategyItemContent .appName {
   line-height: 40px;
@@ -1533,17 +1515,6 @@ export default {
 }
 .el-select-dropdown__item {
   font-size: 12px !important;
-}
-.channelStrategy .el-drawer-footer {
-  width: 40%;
-  position: fixed;
-  bottom: 0;
-  background: white;
-  z-index: 9;
-  padding: 10px 20px;
-  border-top: 1px solid #ebebeb;
-  right: 0;
-  text-align: right;
 }
 .editIcon,
 .detailIcon,
@@ -1611,10 +1582,6 @@ export default {
 }
 .addChannelStrategy {
   margin-top: 15px !important;
-}
-.el-drawer {
-  box-sizing: border-box !important;
-  overflow-y: auto !important;
 }
 .el-form-item__content {
   font-size: 12px;

@@ -141,6 +141,10 @@ export default {
   border-radius: 3px;
   vertical-align: middle;
 }
+.dashboard .status {
+  width: 25px;
+  height: 25px;
+}
 .pagingBox {
   margin-top: 20px;
 }

@@ -1648,9 +1648,6 @@ export default {
 .reinforceStrategy .searchForm .operateBox {
   margin-left: 20px;
 }
-.reinforceStrategy .el-drawer {
-  overflow-y: auto;
-}
 .strategyItemTitleIcon {
   display: inline-block;
   width: 3px;
@@ -1661,20 +1658,7 @@ export default {
   top: 50%;
   transform: translateY(-50%);
 }
-.reinforceStrategy .el-drawer-header {
-  width: 100%;
-  position: fixed;
-  background: white;
-  z-index: 99;
-  height: 50px;
-  padding: 17px 20px;
-  border-bottom: 1px solid #ebebeb;
-}
-.reinforceStrategy .el-drawer-header h3 {
-  color: #333;
-  font-size: 16px;
-  font-weight: 600;
-}
+
 .el-upload {
   width: 100%;
 }
@@ -1688,11 +1672,6 @@ export default {
   width: 100%;
   height: 230px;
   margin-top: 20px;
-}
-.reinforceStrategy .el-drawer-content {
-  margin-top: 60px;
-  position: relative;
-  padding: 0 20px;
 }
 .reinforceStrategy .el-drawer-content .upload {
   padding: 0 20px;
@@ -1713,17 +1692,6 @@ export default {
   width: 50%;
   display: block;
   margin: 10px 0;
-}
-.reinforceStrategy .el-drawer-footer {
-  width: 40%;
-  position: fixed;
-  bottom: 0px;
-  background: white;
-  z-index: 9;
-  padding: 10px 0px;
-  border-top: 1px solid #ebebeb;
-  right: 0;
-  text-align: right;
 }
 .strategyItemForm .strategyItemTitle,
 .strategyDetailForm .strategyItemTitle,
@@ -1789,9 +1757,6 @@ export default {
   margin-top: 10px;
 }
 /* 修改策略详情Drawer */
-.strategyDetailDrawer .el-drawer-content {
-  padding-top: 20px;
-}
 .strategyDetailDrawer .strategyNameTitle {
   margin-bottom: 10px;
   position: relative;

@@ -1194,7 +1194,7 @@ export default {
     //上传结束---
     //详情
     detail(id) {
-      this.$router.push({ path: "/reinforce/detail?id=" + id });
+      this.$router.push({ path: "/home/reinforce/detail", query: { id } });
     },
     //查看日志
     viewLog(id, appName, status) {
@@ -1224,7 +1224,6 @@ export default {
       this.downloadPackage(id, 1);
     },
     downloadPackage(id, type) {
-      console.log(id, type);
       const Authorization = localStorage.getItem("Authorization"),
         downloadUrl =
           this.api.baseUrl +
@@ -1473,13 +1472,14 @@ export default {
   cursor: not-allowed;
   color: #9dc7f1;
 }
-.searchForm {
+.reinfore .searchForm {
   display: flex;
+  margin-bottom: 15px;
 }
-.searchForm .el-input {
+.reinfore .searchForm .el-input {
   width: auto;
 }
-.searchForm .el-input {
+.reinfore .searchForm .el-input {
   margin-right: 5px;
 }
 .el-table__body .status {
@@ -1575,7 +1575,7 @@ export default {
   color: #333;
   font-weight: 700;
 }
-.searchBox {
+.reinfore.searchBox {
   margin-bottom: 15px;
   display: flex;
 }
@@ -1593,44 +1593,7 @@ export default {
 .el-radio__input.is-disabled.is-checked .el-radio__inner::after {
   background: #409eff !important;
 }
-.reinfore .operateBox .el-drawer {
-  height: 100%;
-  overflow-y: auto !important;
-  box-sizing: border-box !important;
-}
-.el-drawer-header {
-  width: 100%;
-  position: fixed;
-  background: white;
-  z-index: 99;
-  height: 50px;
-  padding: 17px 20px;
-  border-bottom: 1px solid #ebebeb;
-}
-.el-drawer-content {
-  height: 100%;
-  margin-top: 50px;
-  position: relative;
-  overflow-y: auto;
-  padding: 0px 20px 40px 20px;
-}
 .el-drawer-content .upload {
   text-align: center;
-}
-.el-drawer-header h3 {
-  color: #333;
-  font-size: 16px;
-  font-weight: 600;
-}
-.reinfore .el-drawer-footer {
-  width: 40%;
-  padding: 10px;
-  border-top: 1px solid #ebebeb;
-  position: fixed;
-  bottom: 0;
-  z-index: 99;
-  background: white;
-  right: 0;
-  text-align: right;
 }
 </style>

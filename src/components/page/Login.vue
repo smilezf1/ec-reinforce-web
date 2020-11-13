@@ -110,7 +110,7 @@ export default {
                   type: "success",
                   duration: 1000,
                   onClose() {
-                    _this.$router.push("/dashboard");
+                    _this.$router.push("/home/dashboard");
                   }
                 });
               } else {

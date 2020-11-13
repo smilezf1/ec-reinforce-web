@@ -13,7 +13,7 @@
         :with-header="false"
         :wrapperClosable="false"
         :close-on-press-escape="false"
-        size="30%"
+        size="40%"
         ref="addDrawer"
         @close="resetForm('addCatalogueForm')"
       >
@@ -117,7 +117,7 @@
                 :wrapperClosable="false"
                 :close-on-press-escape="false"
                 ref="editDrawer"
-                size="30%"
+                size="40%"
               >
                 <div class="el-drawer-header">
                   <h3>编辑</h3>
@@ -179,7 +179,7 @@
                 :wrapperClosable="false"
                 :close-on-press-escape="false"
                 ref="addLinkDrawer"
-                size="30%"
+                size="40%"
               >
                 <div class="el-drawer-header">
                   <h3>新增链接</h3>
@@ -370,6 +370,7 @@ export default {
           form.name = data.name;
           form.type = data.type;
           form.icon = data.icon;
+          form.address = data.address;
           this.id = data.id;
           if (data.type === "M") {
             form.type = "目录";
@@ -549,32 +550,11 @@ export default {
   margin-right: 10px;
   cursor: pointer;
 }
-.el-drawer-header {
-  height: 50px;
-  padding: 17px 20px;
-  border-bottom: 1px solid #ebebeb;
-}
-.el-drawer-header h3 {
-  color: #333;
-  font-size: 16px;
-  font-weight: 600;
-}
-.el-form {
+
+.menuManagement .el-form {
   margin-top: 20px;
-}
-.el-drawer-content {
-  padding: 20px;
-}
-.el-drawer-footer {
-  width: 30%;
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  text-align: right;
-  padding: 10px 20px;
-  border-top: 1px solid #ebebeb;
-}
-.operateBox {
+} /*  */
+.menuManagement .operateBox {
   margin-bottom: 15px;
 }
 </style>

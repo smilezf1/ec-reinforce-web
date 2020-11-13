@@ -52,6 +52,7 @@
               action="/"
               :limit="1"
               :http-request="uploadAuthorizeFile"
+              ref="upload"
             >
               <i class="el-icon-upload"></i>
               <div class="el-upload__text">
@@ -59,7 +60,11 @@
               </div>
             </el-upload>
           </div>
-          <div class="el-drawer-footer"></div>
+          <div class="el-drawer-footer">
+            <el-button plain @click="cancelUploadAuthorizeFile()"
+              >取消</el-button
+            >
+          </div>
         </el-drawer>
       </template>
     </div>
@@ -107,12 +112,16 @@ export default {
       //进度条配置
       const config = {
         onUploadProgress: ProgressEvent => {
-          let progressEvent =
+          const progressEvent =
             ((ProgressEvent.loaded / ProgressEvent.total) * 100) | 0;
           file.onProgress({ percent: progressEvent });
         }
       };
       api.uploadService.uploadAuthorizeFile(params, config).then(res => {
+        if (res.code == "01" || res.code == "99" || res.code == "500") {
+          _this.uploadAuthorizeFileDrawer = false;
+          _this.$refs.upload.clearFiles();
+        }
         if (res.code == "00") {
           _this.$notify({ message: "上传授权文件成功!", type: "success" });
           _this.getUserCode();
@@ -129,6 +138,9 @@ export default {
           this.uploadAuthorizeFileDrawer = false;
         }
       });
+    },
+    cancelUploadAuthorizeFile() {
+      this.uploadAuthorizeFileDrawer = false;
     }
   }
 };
@@ -168,19 +180,5 @@ export default {
   width: 100%;
   height: 230px;
   margin-top: 20px;
-}
-.authorizeBody .el-drawer-header {
-  width: 100%;
-  position: fixed;
-  background: white;
-  z-index: 99;
-  height: 50px;
-  padding: 17px 20px;
-  border-bottom: 1px solid #ebebeb;
-}
-.authorizeBody .el-drawer-content {
-  position: relative;
-  padding: 0px 20px 40px 20px;
-  margin: 60px 0 40px 0;
 }
 </style>

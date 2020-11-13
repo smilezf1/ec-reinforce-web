@@ -4,7 +4,6 @@
       <p>当前位置: 系统介绍</p>
     </div>
     <div class="recommendContent">
-      <!--  <div class="recommendContentTitle">平台简介</div> -->
       <div class="recommendContentBody">
         <div class="section">
           <div class="left">

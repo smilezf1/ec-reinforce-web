@@ -411,53 +411,47 @@ export default {
         let data = res.data;
         (data = JSON.parse(JSON.stringify(data).replace(/name/g, "label"))),
           (this.menuTreeData = this.toTreeData(data));
-        for (var j = 0; j < this.menuTreeData.length; j++) {
-          if (this.menuTreeData[j].children) {
-            for (var k = 0; k < this.menuTreeData[j].children.length; k++) {
-              if (this.menuTreeData[j].children[k].id.startsWith("T")) {
-                this.menuTreeData[j].children[k].id = this.menuTreeData[
-                  j
-                ].children[k].id;
-              }
-            }
-          }
-          if (this.menuTreeData[j].id.startsWith("M")) {
-            this.menuTreeData[j].id = this.menuTreeData[j].id;
-          }
-        }
-        this.menuTreeData.forEach((v, i) => {
-          if (v.children) {
-            v.children.forEach((v, i) => {
-              if (v.checked == true) {
-                if (v.pId.startsWith("M")) {
-                  this.setParMentList.push(v.pId);
-                  this.setParMentList = Array.from(
-                    new Set(this.setParMentList)
-                  );
-                }
-                this.setMenuList.push(v.id);
-                this.setMenuList = Array.from(new Set(this.setMenuList));
-              }
-            });
-          } else {
+        this.setMenuList = this.setSelectedList(this.menuTreeData);
+      });
+    },
+    setSelectedList(menuTreeData) {
+      this.setMenuList = [];
+      menuTreeData.forEach((v, i) => {
+        if (v.children) {
+          v.children.forEach((v, i) => {
             if (v.checked == true) {
               this.setMenuList.push(v.id);
               this.setMenuList = Array.from(new Set(this.setMenuList));
             }
+          });
+        } else {
+          if (v.checked == true) {
+            this.setMenuList.push(v.id);
+            this.setMenuList = Array.from(new Set(this.setMenuList));
           }
-        });
+        }
       });
+      return this.setMenuList;
     },
     setMenuSave() {
       const id = this.setMenuId,
         nodes = this.checkedNodes;
-      let menuList = this.menuList;
+      let menuList = this.menuList,
+        selectedList = this.setMenuList;
       if (nodes && nodes.length != 0) {
         for (let i = 0; i < nodes.length; i++) {
           if (nodes[i].id.indexOf("T")) {
           } else {
             nodes[i].id = nodes[i].id.replace("T", "");
             menuList.push(nodes[i].id);
+            menuList = Array.from(new Set(menuList));
+          }
+        }
+      } else {
+        if (selectedList && selectedList.length != 0) {
+          for (let i = 0; i < selectedList.length; i++) {
+            selectedList[i] = selectedList[i].replace("T", "");
+            menuList.push(selectedList[i]);
             menuList = Array.from(new Set(menuList));
           }
         }
@@ -532,14 +526,14 @@ export default {
 .searchBox .el-input {
   margin: 0px 5px 5px 0px;
 }
-.searchForm {
+.roleManagement .searchForm {
   display: flex;
 }
-.searchBox {
+.roleManagement .searchBox {
   margin-bottom: 15px;
   display: flex;
 }
-.operateBox {
+.roleManagement .operateBox {
   margin-left: 20px;
 }
 .editIcon,
@@ -551,30 +545,11 @@ export default {
   margin-right: 10px;
   cursor: pointer;
 }
-.el-drawer-header {
-  height: 50px;
-  padding: 17px 20px;
-  border-bottom: 1px solid #ebebeb;
-}
-.el-drawer-content {
-  padding: 20px;
-}
-.el-drawer-header h3 {
-  color: #333;
-  font-size: 16px;
-  font-weight: 600;
-}
-.el-drawer-footer {
-  width: 40%;
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  text-align: right;
-  padding: 10px 20px;
-  border-top: 1px solid #ebebeb;
-}
 .roleManagement .el-input {
   width: auto;
+}
+.roleManagement .el-drawer .el-input {
+  width: 80%;
 }
 .roleManagementBase {
   margin-top: 20px;

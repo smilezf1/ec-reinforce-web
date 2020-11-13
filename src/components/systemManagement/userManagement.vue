@@ -40,7 +40,6 @@
           </el-select>
         </el-form>
       </div>
-
       <div class="operateBox">
         <el-tooltip effect="dark" content="查询" placement="top-start">
           <el-button
@@ -50,15 +49,21 @@
             @click="search(ruleForm)"
           ></el-button>
         </el-tooltip>
-        <el-tooltip effect="dark" content="新增" placement="top-start">
+        <el-tooltip effect="dark" content="刷新" placement="top-start">
           <el-button
             type="primary"
-            icon="el-icon-zoom-in"
+            icon="el-icon-refresh-right"
             size="small"
-            @click="addUser()"
-            style="margin-right:10px"
+            @click="refresh()"
           ></el-button>
         </el-tooltip>
+        <el-button
+          type="primary"
+          size="small"
+          @click="addUser()"
+          style="margin-right:10px"
+          >新增用户</el-button
+        >
         <el-drawer
           title="新增用户"
           :visible.sync="addUserDrawer"
@@ -67,7 +72,7 @@
           :close-on-press-escape="false"
           ref="addUserDrawer"
           @close="resetForm('addUserForm')"
-          size="30%"
+          size="40%"
         >
           <div class="el-drawer-header">
             <h3>新增用户</h3>
@@ -80,7 +85,9 @@
               :label-position="labelPosition"
             >
               <el-form-item prop="trueName">
-                <label slot="label"> 用&nbsp;户&nbsp;名</label>
+                <label slot="label">
+                  用&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;户&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名</label
+                >
                 <el-input
                   size="small"
                   v-model="addUserForm.trueName"
@@ -88,7 +95,9 @@
                 ></el-input>
               </el-form-item>
               <el-form-item prop="userName">
-                <label slot="label">登&nbsp;录&nbsp;名</label>
+                <label slot="label"
+                  >登&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;录&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名</label
+                >
                 <el-input
                   size="small"
                   v-model="addUserForm.userName"
@@ -96,7 +105,9 @@
                 ></el-input>
               </el-form-item>
               <el-form-item prop="pass">
-                <label slot="label">用户密码</label>
+                <label slot="label"
+                  >用&nbsp;&nbsp;户&nbsp;&nbsp;密&nbsp;&nbsp;码</label
+                >
                 <el-input
                   size="small"
                   show-password
@@ -105,7 +116,9 @@
                 ></el-input>
               </el-form-item>
               <el-form-item prop="checkPass">
-                <label slot="label">确认密码</label>
+                <label slot="label"
+                  >确&nbsp;&nbsp;认&nbsp;&nbsp;密&nbsp;&nbsp;码</label
+                >
                 <el-input
                   size="small"
                   show-password
@@ -115,7 +128,7 @@
               </el-form-item>
               <el-form-item prop="sex">
                 <label slot="label"
-                  >性&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;别</label
+                  >性&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;别</label
                 >
                 <el-select
                   v-model="addUserForm.sex"
@@ -132,21 +145,29 @@
                 </el-select>
               </el-form-item>
               <el-form-item prop="mobile">
-                <label slot="label">手&nbsp;机&nbsp;号</label>
+                <label slot="label"
+                  >手&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;机&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;号</label
+                >
                 <el-input
                   size="small"
                   v-model="addUserForm.mobile"
                   autocomplete="off"
                 ></el-input>
               </el-form-item>
-              <el-form-item label="电子邮箱" prop="email">
+              <el-form-item prop="email">
+                <label slot="label"
+                  >电&nbsp;&nbsp;子&nbsp;&nbsp;邮&nbsp;&nbsp;箱</label
+                >
                 <el-input
                   size="small"
                   v-model="addUserForm.email"
                   autocomplete="off"
                 ></el-input>
               </el-form-item>
-              <el-form-item label="是否有效" prop="status">
+              <el-form-item prop="status">
+                <label slot="label"
+                  >是&nbsp;&nbsp;否&nbsp;&nbsp;有&nbsp;&nbsp;效</label
+                >
                 <el-select
                   v-model="addUserForm.status"
                   placeholder="请选择"
@@ -172,14 +193,6 @@
             <el-button @click="canceladdUserForm()" plain>取消</el-button>
           </div>
         </el-drawer>
-        <el-tooltip effect="dark" content="刷新" placement="top-start">
-          <el-button
-            type="primary"
-            icon="el-icon-refresh-right"
-            size="small"
-            @click="refresh()"
-          ></el-button>
-        </el-tooltip>
       </div>
     </div>
     <div class="userManagementBody">
@@ -252,7 +265,7 @@
                 :wrapperClosable="false"
                 :close-on-press-escape="false"
                 ref="editDrawer"
-                size="30%"
+                size="40%"
               >
                 <div class="el-drawer-header">
                   <h3>编辑</h3>
@@ -265,7 +278,9 @@
                     :label-position="labelPosition"
                   >
                     <el-form-item prop="trueName">
-                      <label slot="label">用&nbsp;户&nbsp;名:&nbsp;</label>
+                      <label slot="label"
+                        >用&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;户&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名</label
+                      >
                       <el-input
                         v-model="editForm.trueName"
                         autocomplete="off"
@@ -273,7 +288,9 @@
                       ></el-input>
                     </el-form-item>
                     <el-form-item prop="userName">
-                      <label slot="label">登&nbsp;录&nbsp;名:&nbsp;</label>
+                      <label slot="label"
+                        >登&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;录&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名</label
+                      >
                       <el-input
                         v-model="editForm.userName"
                         :disabled="true"
@@ -282,9 +299,9 @@
                     </el-form-item>
                     <el-form-item prop="sex">
                       <label slot="label"
-                        >性&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;别:</label
+                        >性&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;别</label
                       >
-                      <el-select v-model="editForm.sex">
+                      <el-select v-model="editForm.sex" size="small">
                         <el-option
                           v-for="item in genderoptions"
                           :key="item.id"
@@ -294,22 +311,31 @@
                       </el-select>
                     </el-form-item>
                     <el-form-item prop="mobile">
-                      <label slot="label">手&nbsp;机&nbsp;号:&nbsp;</label>
+                      <label slot="label"
+                        >手&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;机&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;号</label
+                      >
                       <el-input
                         size="small"
                         v-model="editForm.mobile"
                         autocomplete="off"
                       ></el-input>
                     </el-form-item>
-                    <el-form-item label="电子邮箱:" prop="email">
+                    <el-form-item prop="email">
+                      <label slot="label"
+                        >电&nbsp;&nbsp;子&nbsp;&nbsp;邮&nbsp;&nbsp;箱</label
+                      >
                       <el-input
                         v-model="editForm.email"
                         autocomplete="off"
                         size="small"
                       ></el-input>
                     </el-form-item>
-                    <el-form-item label="是否有效:" prop="status">
+                    <el-form-item prop="status">
+                      <label slot="label"
+                        >是&nbsp;&nbsp;否&nbsp;&nbsp;有&nbsp;&nbsp;效</label
+                      >
                       <el-select
+                        size="small"
                         v-model="editForm.status"
                         :disabled="editForm.userName == getLocalStorageUserName"
                       >
@@ -350,7 +376,7 @@
                 :wrapperClosable="false"
                 :close-on-press-escape="false"
                 ref="resetPasswordDrawer"
-                size="30%"
+                size="40%"
               >
                 <div class="el-drawer-header">
                   <h3>重置密码</h3>
@@ -746,13 +772,6 @@ export default {
     //保存新增的用户
     // status 1:有效 0:无效  sex 1:男 0:女
     saveaddUserForm(formName, form) {
-      /*   let trueName = form.trueName,
-        userName = form.userName,
-        password = md5(form.pass),
-        mobile = form.mobile,
-        email = form.email,
-        sex = form.sex,
-        status = form.status; */
       const { trueName, userName, password, mobile, email, sex, status } = form;
       this.$refs[formName].validate(valid => {
         if (valid) {
@@ -894,6 +913,9 @@ export default {
 .userManagement .el-input {
   width: auto;
 }
+.userManagement .el-drawer .el-input {
+  width: 80%;
+}
 .userManagement .searchBox {
   margin-bottom: 15px;
   display: inline-block;
@@ -911,32 +933,6 @@ export default {
   color: #409eff;
   margin-right: 10px;
   cursor: pointer;
-}
-/* Drawer抽屉 */
-.el-drawer-header {
-  height: 50px;
-  padding: 17px 20px;
-  border-bottom: 1px solid #ebebeb;
-}
-.el-drawer-header h3 {
-  color: #333;
-  font-size: 16px;
-  font-weight: 600;
-}
-.el-drawer-content {
-  padding: 20px;
-}
-.el-drawer-content .el-input {
-  width: 80%;
-}
-.el-drawer-footer {
-  width: 30%;
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  text-align: right;
-  padding: 10px 20px;
-  border-top: 1px solid #ebebeb;
 }
 .userManagementBase {
   margin-top: 20px;

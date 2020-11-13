@@ -264,7 +264,7 @@ export default {
 .detailBody .el-input__inner {
   border: none;
 }
-.detailOperate {
+.Detail .detailOperate {
   margin-bottom: 15px;
 }
 </style>
