@@ -416,7 +416,6 @@ export default {
     },
     //保存新增的目录
     saveAddCatalogue(formName, addCatalogueForm) {
-      debugger;
       const { name, icon } = addCatalogueForm;
       let type = null;
       if (addCatalogueForm.type == "目录") {
