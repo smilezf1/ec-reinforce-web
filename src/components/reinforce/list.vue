@@ -784,6 +784,9 @@
 import api from "../../request/api";
 import pagination from "../common/pagination";
 import pageMixins from "../../utils/pageMixins";
+//websocket
+import SockJsClient from "sockjs-client";
+import Stomp from "stompjs";
 export default {
   name: "reinforce",
   components: { pagination },
@@ -841,7 +844,8 @@ export default {
       checkedItem: [],
       saveReinforceTaskBox: true,
       uploadTaskNum: null,
-      loadingNum: null
+      loadingNum: null,
+      stompClient: null
     };
   },
   computed: {
@@ -851,7 +855,60 @@ export default {
     }
   },
   inject: ["reload"],
+  created() {
+    this.initWebsocket();
+  },
   methods: {
+    //初始化websocket
+    initWebsocket() {
+      const _this = this,
+        userId = localStorage.getItem("id"),
+        url = api.websocketUrl,
+        socket = new SockJsClient(url);
+      this.stompClient = Stomp.over(socket);
+      this.stompClient.connect(
+        {},
+        frame => {
+          //订阅用户socket推送解析APK信息
+          _this.stompClient.subscribe(
+            "/user/" + userId + "/reinforce",
+            message => {
+              if (
+                typeof message != "undefined" &&
+                typeof message.body != "undefined"
+              ) {
+                _this.getWebsocketResult(message);
+              }
+            }
+          );
+        },
+        error => {
+          //断开重连,发送消息,捕获异常时重连
+          setTimeout(() => {
+            _this.initWebsocket();
+          }, 5000);
+        }
+      );
+    },
+    //解析APK推送信息
+    getWebsocketResult(message) {
+      const data = JSON.parse(message.body);
+      this.listItem.map((item, index) => {
+        if (item.id == data.data.id && data.title == "加固") {
+          this.$set(
+            this.listItem[index],
+            "reinforceTaskStatus",
+            data.data.reinforceTaskStatus
+          );
+        }
+      });
+    },
+    //销毁websocket
+    destroyWebsocket() {
+      if (this.stompClient != null) {
+        this.stompClient.disconnect();
+      }
+    },
     handleExceed(files, fileList) {
       this.$message.warning(`最多只能上传5个文件哦`);
     },
@@ -1199,13 +1256,13 @@ export default {
     //查看日志
     viewLog(id, appName, status) {
       this.$router.push({
-        path: "/reinforce/Log",
+        path: "/home/reinforce/log",
         query: { id, appName, status }
       });
     },
     //下载原包
     downloadOriginalPackage(data) {
-      let appkey = data.appPath,
+      const appkey = data.appPath,
         Authorization = localStorage.getItem("Authorization"),
         downloadUrl =
           this.api.baseUrl +
@@ -1400,6 +1457,9 @@ export default {
   },
   beforeMount() {
     this.getData();
+  },
+  destroyed() {
+    this.destroyWebsocket();
   },
   beforeRouteLeave(to, from, next) {
     if (to.name == "detail" || to.name == "log") {

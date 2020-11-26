@@ -102,9 +102,10 @@ export default {
             .login(params)
             .then(res => {
               if (res.code === "00") {
-                const { accessToken, userName } = res.data;
+                const { accessToken, userName, id } = res.data;
                 localStorage.setItem("Authorization", accessToken);
                 localStorage.setItem("userName", userName);
+                localStorage.setItem("id", id);
                 _this.$message({
                   message: "登录成功",
                   type: "success",
