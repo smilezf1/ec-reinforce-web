@@ -633,7 +633,7 @@
           <el-table-column
             prop="appName"
             label="应用名称"
-            width="220"
+            width="200"
             :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
@@ -650,17 +650,19 @@
           <el-table-column
             prop="appFileName"
             label="文件名称"
+            width="200"
             :show-overflow-tooltip="true"
           ></el-table-column>
           <el-table-column
             prop="reinforceStrategyName"
             label="策略名称"
+            width="200"
             :show-overflow-tooltip="true"
           ></el-table-column>
           <el-table-column
             prop="appVersion"
             label="应用版本"
-            width="120"
+            width="150"
           ></el-table-column>
           <el-table-column
             prop="reinforceTaskStartTime"
