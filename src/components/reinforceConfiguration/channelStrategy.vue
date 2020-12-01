@@ -196,7 +196,7 @@
                           <el-button
                             style="margin-left:15px"
                             type="primary"
-                            size="mini"
+                            size="small"
                             icon="el-icon-plus"
                             @click="
                               addChannelStrategyParameter(
@@ -209,7 +209,7 @@
                           ></el-button>
                           <el-button
                             type="primary"
-                            size="mini"
+                            size="small"
                             icon="el-icon-delete"
                             :disabled="
                               channelStrategyList[0].channelStrategyParameteList
@@ -263,7 +263,7 @@
                             <el-button
                               style="margin-left:15px"
                               type="primary"
-                              size="mini"
+                              size="small"
                               icon="el-icon-plus"
                               @click="
                                 addChannelStrategyParameter(
@@ -276,7 +276,7 @@
                             ></el-button>
                             <el-button
                               type="primary"
-                              size="mini"
+                              size="small"
                               icon="el-icon-delete"
                               :disabled="channelSubItem.length == 1"
                               @click="
@@ -355,7 +355,7 @@
                             <el-button
                               style="margin-left:15px"
                               type="primary"
-                              size="mini"
+                              size="small"
                               icon="el-icon-plus"
                               @click="
                                 addChannelStrategyParameter(
@@ -368,7 +368,7 @@
                             ></el-button>
                             <el-button
                               type="primary"
-                              size="mini"
+                              size="small"
                               icon="el-icon-delete"
                               :disabled="
                                 channelItem.channelStrategyParameteList
@@ -431,7 +431,7 @@
                               <el-button
                                 style="margin-left:15px"
                                 type="primary"
-                                size="mini"
+                                size="small"
                                 icon="el-icon-plus"
                                 @click="
                                   addChannelStrategyParameter(
@@ -445,7 +445,7 @@
 
                               <el-button
                                 type="primary"
-                                size="mini"
+                                size="small"
                                 icon="el-icon-delete"
                                 :disabled="
                                   channelItem.channelStrategyParameteList
@@ -627,7 +627,7 @@
                         <el-button
                           style="margin-left:15px;"
                           type="primary"
-                          size="mini"
+                          size="small"
                           icon="el-icon-plus"
                           @click="
                             addChannelStrategyParameter(
@@ -640,7 +640,7 @@
                         ></el-button>
                         <el-button
                           type="primary"
-                          size="mini"
+                          size="small"
                           icon="el-icon-delete"
                           @click="
                             deleteChannelStrategyParameter(

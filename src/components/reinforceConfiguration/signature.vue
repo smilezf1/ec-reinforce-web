@@ -125,7 +125,7 @@
                       >
                       <el-button
                         type="primary"
-                        size="mini"
+                        size="small"
                         v-if="
                           signatureItemForm[index].signaturePwd &&
                             !signatureItemForm[index].signatureAliasBox

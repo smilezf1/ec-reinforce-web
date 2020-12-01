@@ -9,7 +9,7 @@
           <div class="left">
             <p class="name">
               <span> 平台名称:</span>
-              <span>{{ listItem.companyName }}</span>
+              <span>{{ listItem.platformName }}</span>
             </p>
             <p class="version">
               <span>版&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本:</span>
