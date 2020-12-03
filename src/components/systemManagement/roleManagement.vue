@@ -26,29 +26,19 @@
         </el-form>
       </div>
       <div class="operateBox">
-        <el-tooltip effect="dark" content="查询" placement="top-start">
-          <el-button
-            type="primary"
-            icon="el-icon-search"
-            size="small"
-            @click="search(ruleForm)"
-          ></el-button>
-        </el-tooltip>
-        <el-tooltip effect="dark" content="新增角色" placement="top-start">
-          <el-button
-            type="primary"
-            icon="el-icon-zoom-in"
-            size="small"
-            @click="addRole()"
-          ></el-button>
-        </el-tooltip>
+        <el-button type="primary" size="small" @click="search(ruleForm)"
+          >查询</el-button
+        >
+        <el-button type="primary" size="small" @click="addRole()"
+          >新增角色</el-button
+        >
         <el-drawer
           title="新增角色"
           :visible.sync="addRoleDrawer"
           :with-header="false"
           :wrapperClosable="false"
           :close-on-press-escape="false"
-          size="40%"
+          size="30%"
           ref="addRoleDrawer"
           @close="resetForm('addRoleForm')"
         >
@@ -61,6 +51,7 @@
                 <el-input
                   v-model="addRoleForm.name"
                   auto-complete="off"
+                  size="small"
                 ></el-input>
               </el-form-item>
             </el-form>
@@ -75,15 +66,13 @@
           </div>
         </el-drawer>
 
-        <el-tooltip effect="dark" content="刷新" placement="top-start">
-          <el-button
-            type="primary"
-            icon="el-icon-refresh-right"
-            size="small"
-            @click="refresh()"
-            style="margin-left:10px"
-          ></el-button>
-        </el-tooltip>
+        <el-button
+          type="primary"
+          size="small"
+          @click="refresh()"
+          style="margin-left:10px"
+          >刷新</el-button
+        >
       </div>
     </div>
     <div class="roleManagementBody">
@@ -126,37 +115,39 @@
           </el-table-column>
           <el-table-column prop="operation" label="操作" width="400">
             <template slot-scope="scope">
-              <el-tooltip effect="dark" content="编辑" placement="top-start">
-                <i
-                  class="el-icon-edit-outline editIcon"
-                  @click="edit(scope.row.id)"
-                ></i>
-              </el-tooltip>
+              <el-button size="small" type="primary" @click="edit(scope.row.id)"
+                >编辑</el-button
+              >
               <el-drawer
                 title="编辑"
                 :visible.sync="editDrawer"
                 :with-header="false"
                 :wrapperClosable="false"
                 :close-on-press-escape="false"
-                size="40%"
+                size="30%"
                 ref="editDrawer"
               >
                 <div class="el-drawer-header">
                   <h3>编辑</h3>
                 </div>
                 <div class="el-drawer-content">
-                  <el-form :model="editForm" ref="editForm">
-                    <el-form-item label="角色名称">
+                  <el-form :model="editForm" ref="editForm" :rules="rules">
+                    <el-form-item label="角色名称" prop="name">
                       <el-input
                         v-model="editForm.name"
                         auto-complete="off"
+                        size="small"
                       ></el-input>
                     </el-form-item>
-                    <el-form-item label="是否有效">
-                      <el-input
+                    <el-form-item label="是否有效" prop="status">
+                      <el-select
                         v-model="editForm.status"
-                        :disabled="true"
-                      ></el-input>
+                        disabled
+                        size="small"
+                      >
+                        <el-option label="是" value="1"></el-option>
+                        <el-option label="否" value="0"></el-option>
+                      </el-select>
                     </el-form-item>
                   </el-form>
                 </div>
@@ -169,18 +160,12 @@
                   <el-button @click="cancelForm" plain>取消</el-button>
                 </div>
               </el-drawer>
-
-              <el-tooltip
-                effect="dark"
-                content="设置菜单"
-                placement="top-start"
-                v-if="scope.row.status == 1"
+              <el-button
+                size="small"
+                type="success"
+                @click="setting(scope.row.id)"
+                >设置菜单</el-button
               >
-                <i
-                  class=" el-icon-setting settingIcon"
-                  @click="setting(scope.row.id)"
-                ></i>
-              </el-tooltip>
               <el-dialog
                 title="菜单列表"
                 :visible.sync="menuDialog"
@@ -200,28 +185,20 @@
                   >
                 </div>
               </el-dialog>
-              <el-tooltip
-                effect="dark"
-                content="停用"
-                placement="top-start"
+              <el-button
+                size="small"
+                type="danger"
                 v-if="scope.row.status == 1"
+                @click="blockUp(scope.row.id)"
+                >停用</el-button
               >
-                <i
-                  class="el-icon-circle-close closeIcon"
-                  @click="blockUp(scope.row.id, scope.row.type)"
-                ></i>
-              </el-tooltip>
-              <el-tooltip
-                effect="dark"
-                content="启用"
-                placement="top-start"
+              <el-button
+                size="small"
+                type="warning"
                 v-if="scope.row.status == 0"
+                @click="launch(scope.row.id)"
+                >启用</el-button
               >
-                <i
-                  class="el-icon-circle-check checkIcon"
-                  @click="launch(scope.row.id)"
-                ></i>
-              </el-tooltip>
             </template>
           </el-table-column>
         </el-table>
@@ -348,12 +325,7 @@ export default {
       const params = { id };
       api.systemManageService.roleManageDetail(params).then(res => {
         if (res.code == "00") {
-          this.editForm.name = res.data.name;
-          if (res.data.status === "1") {
-            this.editForm.status = "是";
-          } else if (res.data.status === "0") {
-            this.editForm.status = "否";
-          }
+          this.editForm = res.data;
         }
       });
     },
@@ -364,15 +336,21 @@ export default {
       const name = editForm.name,
         id = this.editId,
         params = { id, name };
-      api.systemManageService.roleManageSaveEdit(params).then(res => {
-        if (res.code == "00") {
-          this.reload();
-          this.editDrawer = false;
-          this.$notify.success({
-            message: "编辑成功",
-            showClose: false,
-            duration: 1000
+      this.$refs["editForm"].validate(valid => {
+        if (valid) {
+          api.systemManageService.roleManageSaveEdit(params).then(res => {
+            if (res.code == "00") {
+              this.reload();
+              this.editDrawer = false;
+              this.$notify.success({
+                message: "编辑成功",
+                showClose: false,
+                duration: 1000
+              });
+            }
           });
+        } else {
+          return false;
         }
       });
     },
@@ -536,6 +514,13 @@ export default {
 .roleManagement .operateBox {
   margin-left: 20px;
 }
+.roleManagement .searchBox .el-input,
+.roleManagement .searchBox .el-select {
+  width: auto;
+}
+.roleManagement .el-select {
+  width: 100%;
+}
 .editIcon,
 .settingIcon,
 .closeIcon,
@@ -545,11 +530,8 @@ export default {
   margin-right: 10px;
   cursor: pointer;
 }
-.roleManagement .el-input {
-  width: auto;
-}
-.roleManagement .el-drawer .el-input {
-  width: 80%;
+.roleManagement .el-drawer-footer {
+  width: 30%;
 }
 .roleManagementBase {
   margin-top: 20px;

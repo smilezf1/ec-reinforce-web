@@ -41,22 +41,13 @@
         </el-form>
       </div>
       <div class="operateBox">
-        <el-tooltip effect="dark" content="查询" placement="top-start">
-          <el-button
-            type="primary"
-            icon="el-icon-search"
-            size="small"
-            @click="search(ruleForm)"
-          ></el-button>
-        </el-tooltip>
-        <el-tooltip effect="dark" content="刷新" placement="top-start">
-          <el-button
-            type="primary"
-            icon="el-icon-refresh-right"
-            size="small"
-            @click="refresh()"
-          ></el-button>
-        </el-tooltip>
+        <el-button type="primary" size="small" @click="search(ruleForm)"
+          >查询</el-button
+        >
+
+        <el-button type="primary" size="small" @click="refresh()"
+          >刷新</el-button
+        >
         <el-button
           type="primary"
           size="small"
@@ -72,7 +63,7 @@
           :close-on-press-escape="false"
           ref="addUserDrawer"
           @close="resetForm('addUserForm')"
-          size="40%"
+          size="30%"
         >
           <div class="el-drawer-header">
             <h3>新增用户</h3>
@@ -84,30 +75,21 @@
               :rules="editRules"
               :label-position="labelPosition"
             >
-              <el-form-item prop="trueName">
-                <label slot="label">
-                  用&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;户&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名</label
-                >
+              <el-form-item prop="trueName" label="用户名">
                 <el-input
                   size="small"
                   v-model="addUserForm.trueName"
                   autocomplete="off"
                 ></el-input>
               </el-form-item>
-              <el-form-item prop="userName">
-                <label slot="label"
-                  >登&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;录&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名</label
-                >
+              <el-form-item prop="userName" label="登录名">
                 <el-input
                   size="small"
                   v-model="addUserForm.userName"
                   autocomplete="off"
                 ></el-input>
               </el-form-item>
-              <el-form-item prop="pass">
-                <label slot="label"
-                  >用&nbsp;&nbsp;户&nbsp;&nbsp;密&nbsp;&nbsp;码</label
-                >
+              <el-form-item prop="pass" label="用户密码">
                 <el-input
                   size="small"
                   show-password
@@ -115,10 +97,7 @@
                   auto-complete="off"
                 ></el-input>
               </el-form-item>
-              <el-form-item prop="checkPass">
-                <label slot="label"
-                  >确&nbsp;&nbsp;认&nbsp;&nbsp;密&nbsp;&nbsp;码</label
-                >
+              <el-form-item prop="checkPass" label="确认密码">
                 <el-input
                   size="small"
                   show-password
@@ -126,14 +105,10 @@
                   auto-complete="off"
                 ></el-input>
               </el-form-item>
-              <el-form-item prop="sex">
-                <label slot="label"
-                  >性&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;别</label
-                >
+              <el-form-item prop="sex" label="性别">
                 <el-select
                   v-model="addUserForm.sex"
                   size="small"
-                  style="width:80%"
                   placeholder="请选择性别"
                 >
                   <el-option
@@ -144,35 +119,25 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item prop="mobile">
-                <label slot="label"
-                  >手&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;机&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;号</label
-                >
+              <el-form-item prop="mobile" label="手机号">
                 <el-input
                   size="small"
                   v-model="addUserForm.mobile"
                   autocomplete="off"
                 ></el-input>
               </el-form-item>
-              <el-form-item prop="email">
-                <label slot="label"
-                  >电&nbsp;&nbsp;子&nbsp;&nbsp;邮&nbsp;&nbsp;箱</label
-                >
+              <el-form-item prop="email" label="电子邮箱">
                 <el-input
                   size="small"
                   v-model="addUserForm.email"
                   autocomplete="off"
                 ></el-input>
               </el-form-item>
-              <el-form-item prop="status">
-                <label slot="label"
-                  >是&nbsp;&nbsp;否&nbsp;&nbsp;有&nbsp;&nbsp;效</label
-                >
+              <el-form-item prop="status" label="是否有效">
                 <el-select
                   v-model="addUserForm.status"
                   placeholder="请选择"
                   size="small"
-                  style="width:80%"
                 >
                   <el-option
                     v-for="item in statusOptions"
@@ -208,14 +173,20 @@
               <span>{{ (curPage - 1) * limit + scope.$index + 1 }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="trueName" label="用户名" width="200">
+          <el-table-column
+            prop="trueName"
+            label="用户名"
+            width="120"
+            :show-overflow-tooltip="true"
+          >
           </el-table-column>
           <el-table-column
             prop="userName"
             label="登录名"
-            width="200"
+            width="120"
+            :show-overflow-tooltip="true"
           ></el-table-column>
-          <el-table-column prop="sex" label="性别" width="100">
+          <el-table-column prop="sex" label="性别" width="80">
             <template slot-scope="scope">
               <span v-if="scope.row.sex == '1'">男</span>
               <span v-else>女</span>
@@ -224,18 +195,18 @@
           <el-table-column
             prop="mobile"
             label="手机号"
-            width="200"
+            width="150"
           ></el-table-column>
           <el-table-column
             prop="email"
             label="电子邮箱"
-            width="200"
+            width="170"
             :show-overflow-tooltip="true"
           ></el-table-column>
           <el-table-column
             prop="status"
             label="是否有效"
-            width="150"
+            width="100"
             align="center"
           >
             <template slot-scope="scope">
@@ -249,15 +220,17 @@
             :show-overflow-tooltip="true"
             width="200"
           ></el-table-column>
-
-          <el-table-column prop="operate" label="操作" width="290">
+          <el-table-column
+            prop="updateTime"
+            label="更新时间"
+            :show-overflow-tooltip="true"
+            width="200"
+          ></el-table-column>
+          <el-table-column prop="operate" label="操作" width="400">
             <template slot-scope="scope">
-              <el-tooltip effect="dark" content="编辑" placement="top-start">
-                <i
-                  class="el-icon-edit-outline editIcon"
-                  @click="edit(scope.row.id)"
-                ></i>
-              </el-tooltip>
+              <el-button size="small" type="primary" @click="edit(scope.row.id)"
+                >编辑</el-button
+              >
               <el-drawer
                 title="编辑"
                 :visible.sync="editDrawer"
@@ -265,7 +238,7 @@
                 :wrapperClosable="false"
                 :close-on-press-escape="false"
                 ref="editDrawer"
-                size="40%"
+                size="30%"
               >
                 <div class="el-drawer-header">
                   <h3>编辑</h3>
@@ -277,30 +250,21 @@
                     :rules="editRules"
                     :label-position="labelPosition"
                   >
-                    <el-form-item prop="trueName">
-                      <label slot="label"
-                        >用&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;户&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名</label
-                      >
+                    <el-form-item prop="trueName" label="用户名">
                       <el-input
                         v-model="editForm.trueName"
                         autocomplete="off"
                         size="small"
                       ></el-input>
                     </el-form-item>
-                    <el-form-item prop="userName">
-                      <label slot="label"
-                        >登&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;录&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名</label
-                      >
+                    <el-form-item prop="userName" label="登录名">
                       <el-input
                         v-model="editForm.userName"
                         :disabled="true"
                         size="small"
                       ></el-input>
                     </el-form-item>
-                    <el-form-item prop="sex">
-                      <label slot="label"
-                        >性&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;别</label
-                      >
+                    <el-form-item prop="sex" label="性别">
                       <el-select v-model="editForm.sex" size="small">
                         <el-option
                           v-for="item in genderoptions"
@@ -310,30 +274,21 @@
                         ></el-option>
                       </el-select>
                     </el-form-item>
-                    <el-form-item prop="mobile">
-                      <label slot="label"
-                        >手&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;机&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;号</label
-                      >
+                    <el-form-item prop="mobile" label="手机号">
                       <el-input
                         size="small"
                         v-model="editForm.mobile"
                         autocomplete="off"
                       ></el-input>
                     </el-form-item>
-                    <el-form-item prop="email">
-                      <label slot="label"
-                        >电&nbsp;&nbsp;子&nbsp;&nbsp;邮&nbsp;&nbsp;箱</label
-                      >
+                    <el-form-item prop="email" label="电子邮箱">
                       <el-input
                         v-model="editForm.email"
                         autocomplete="off"
                         size="small"
                       ></el-input>
                     </el-form-item>
-                    <el-form-item prop="status">
-                      <label slot="label"
-                        >是&nbsp;&nbsp;否&nbsp;&nbsp;有&nbsp;&nbsp;效</label
-                      >
+                    <el-form-item prop="status" label="是否有效">
                       <el-select
                         size="small"
                         v-model="editForm.status"
@@ -359,16 +314,12 @@
                   <el-button plain @click="editFormCancel">取消</el-button>
                 </div>
               </el-drawer>
-              <el-tooltip
-                effect="dark"
-                content="重置密码"
-                placement="top-start"
+              <el-button
+                size="small"
+                type="warning"
+                @click="resetPassword(scope.row.id)"
+                >重置密码</el-button
               >
-                <i
-                  class="el-icon-unlock resetIcon"
-                  @click="resetPassword(scope.row.id)"
-                ></i>
-              </el-tooltip>
               <el-drawer
                 title="重置密码"
                 :visible.sync="resetPasswordDrawer"
@@ -376,7 +327,7 @@
                 :wrapperClosable="false"
                 :close-on-press-escape="false"
                 ref="resetPasswordDrawer"
-                size="40%"
+                size="30%"
               >
                 <div class="el-drawer-header">
                   <h3>重置密码</h3>
@@ -418,17 +369,13 @@
                   >
                 </div>
               </el-drawer>
-              <el-tooltip
-                effect="dark"
-                content="设置角色"
-                placement="top-start"
+              <el-button
+                size="small"
+                type="success"
                 v-if="scope.row.status == 1"
+                @click="setRole(scope.row.id)"
+                >设置角色</el-button
               >
-                <i
-                  class="el-icon-setting settingIcon"
-                  @click="setRole(scope.row.id)"
-                ></i>
-              </el-tooltip>
               <el-dialog
                 title="角色列表"
                 :visible.sync="dialogVisible"
@@ -447,31 +394,23 @@
                   >
                 </div>
               </el-dialog>
-              <el-tooltip
-                effect="dark"
-                content="停用"
-                placement="top-start"
+              <el-button
+                size="small"
+                type="danger"
                 v-if="
                   !(scope.row.userName == getLocalStorageUserName) &&
                     scope.row.status == 1
                 "
+                @click="blockUp(scope.row.id)"
+                >停用</el-button
               >
-                <i
-                  class="el-icon-close closeIcon"
-                  @click="blockUp(scope.row.id)"
-                ></i>
-              </el-tooltip>
-              <el-tooltip
-                effect="dark"
-                content="启用"
-                placement="top-start"
+              <el-button
+                type="danger"
+                size="small"
                 v-if="scope.row.status == 0"
+                @click="launch(scope.row.id)"
+                >启用</el-button
               >
-                <i
-                  class="el-icon-check closeIcon"
-                  @click="launch(scope.row.id)"
-                ></i>
-              </el-tooltip>
             </template>
           </el-table-column>
         </el-table>
@@ -684,25 +623,12 @@ export default {
     edit(id) {
       this.editDrawer = true;
       this.editId = id;
-      const params = { id };
-      api.systemManageService.userManageDetail(params).then(res => {
-        const data = res.data,
-          editForm = this.editForm;
-        editForm.trueName = data.trueName;
-        editForm.userName = data.userName;
-        editForm.sex = data.sex;
-        if (data.sex === "1") {
-          editForm.sex = "男";
-        } else if (data.sex === "0") {
-          editForm.sex = "女";
-        }
-        editForm.mobile = data.mobile;
-        editForm.email = data.email;
-        if (data.status === "1") {
-          editForm.status = "是";
-        } else if (data.status === "0") {
-          editForm.status = "否";
-        }
+      this.getUserDetailList(id);
+    },
+    //得到用户详细数据
+    getUserDetailList(id) {
+      api.systemManageService.userManageDetail({ id }).then(res => {
+        this.editForm = res.data;
       });
     },
     editFormCancel() {
@@ -711,16 +637,6 @@ export default {
     editFormSave(formName, form) {
       let id = this.editId,
         { trueName, userName, email, mobile, status, sex } = form;
-      if (form.sex === "男") {
-        sex = "1";
-      } else if (form.sex === "女") {
-        sex = "0";
-      }
-      if (form.status === "是") {
-        status = "1";
-      } else if (form.status === "否") {
-        status = "0";
-      }
       this.$refs[formName].validate(valid => {
         if (valid) {
           const params = { id, trueName, userName, email, mobile, status, sex };
@@ -910,11 +826,8 @@ export default {
 .searchBox .el-input {
   margin: 0px 5px 5px 0px;
 }
-.userManagement .el-input {
+.userManagement .searchBox .el-input {
   width: auto;
-}
-.userManagement .el-drawer .el-input {
-  width: 80%;
 }
 .userManagement .searchBox {
   margin-bottom: 15px;
@@ -924,6 +837,15 @@ export default {
   display: inline-block;
   box-sizing: border-box;
   margin-bottom: 15px;
+}
+.userManagement .el-drawer-footer {
+  width: 30%;
+}
+.userManagement .el-select {
+  width: 100%;
+}
+.userManagement .searchBox .el-select {
+  width: auto;
 }
 .editIcon,
 .resetIcon,

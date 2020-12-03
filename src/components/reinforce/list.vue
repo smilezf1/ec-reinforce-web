@@ -19,23 +19,16 @@
         </el-form>
       </div>
       <div class="operateBox">
-        <el-tooltip effect="dark" content="查询" placement="top-start">
-          <el-button
-            type="primary"
-            icon="el-icon-search"
-            size="small"
-            @click="search(ruleForm)"
-          ></el-button>
-        </el-tooltip>
-        <el-tooltip effect="dark" content="刷新" placement="top-start">
-          <el-button
-            type="primary"
-            icon="el-icon-refresh-right"
-            size="small"
-            @click="refresh()"
-            style="margin-left:10px"
-          ></el-button>
-        </el-tooltip>
+        <el-button type="primary" size="small" @click="search(ruleForm)"
+          >查询</el-button
+        >
+        <el-button
+          type="primary"
+          size="small"
+          @click="refresh()"
+          style="margin-left:10px"
+          >刷新</el-button
+        >
         <el-button
           type="primary"
           size="small"
@@ -625,7 +618,7 @@
           v-loading="loading"
           element-loading-text="加载中"
         >
-          <el-table-column type="index" label="序号" width="60">
+          <el-table-column type="index" label="序号" width="80">
             <template slot-scope="scope">
               <span>{{ (curPage - 1) * limit + scope.$index + 1 }}</span>
             </template>
@@ -633,7 +626,7 @@
           <el-table-column
             prop="appName"
             label="应用名称"
-            width="200"
+            width="180"
             :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
@@ -650,19 +643,19 @@
           <el-table-column
             prop="appFileName"
             label="文件名称"
-            width="200"
+            width="250"
             :show-overflow-tooltip="true"
           ></el-table-column>
           <el-table-column
             prop="reinforceStrategyName"
             label="策略名称"
-            width="200"
+            width="150"
             :show-overflow-tooltip="true"
           ></el-table-column>
           <el-table-column
             prop="appVersion"
             label="应用版本"
-            width="150"
+            width="120"
           ></el-table-column>
           <el-table-column
             prop="reinforceTaskStartTime"
@@ -673,7 +666,7 @@
           <el-table-column
             props="reinforceTaskStatus"
             label="加固状态"
-            width="170"
+            width="150"
           >
             <template slot-scope="scope" class="status">
               <span v-if="scope.row.reinforceTaskStatus === 1">
@@ -699,79 +692,65 @@
           <el-table-column
             prop="userName"
             label="创建人"
-            width="140"
+            width="150"
+            :show-overflow-tooltip="true"
           ></el-table-column>
-          <el-table-column prop="operate" label="操作" width="290">
+          <el-table-column prop="operate" label="操作" width="400">
             <template slot-scope="scope">
-              <el-tooltip effect="dark" content="详细" placement="top-start">
-                <i
-                  class="el-icon-tickets floderIcon"
-                  @click="detail(scope.row.id)"
-                ></i>
-              </el-tooltip>
-              <el-tooltip
-                effect="dark"
-                content="下载原包"
-                placement="top-start"
+              <el-button
+                size="small"
+                type="primary"
+                @click="detail(scope.row.id)"
+                >详细</el-button
               >
-                <i
-                  class="el-icon-download originalPackageIcon"
-                  @click="downloadOriginalPackage(scope.row)"
-                ></i>
-              </el-tooltip>
-              <el-tooltip effect="dark" placement="top-start">
-                <div slot="content" v-if="scope.row.channelStrategyId">
-                  下载多渠道包
-                </div>
-                <div slot="content" v-else>下载加固包</div>
-                <template v-if="scope.row.reinforceTaskStatus == 3">
-                  <!-- 下载多渠道包 -->
-                  <i
-                    v-if="scope.row.channelStrategyId"
-                    class="el-icon-sold-out reinforcePackageIcon"
-                    @click="downloadMultiChannelPackage(scope.row.id)"
-                  ></i>
-                  <!-- 下载加固包 -->
-                  <i
-                    v-else
-                    class="el-icon-sold-out reinforcePackageIcon"
-                    @click="downloadReinforcePackage(scope.row.id)"
-                  ></i>
-                </template>
-
-                <template v-else>
-                  <i class="el-icon-sold-out disabledIcon"></i>
-                </template>
-              </el-tooltip>
-              <el-tooltip effect="dark" content="日志" placement="top-start">
-                <template
-                  v-if="
+              <el-button
+                size="small"
+                type="success"
+                @click="downloadOriginalPackage(scope.row)"
+                >原包</el-button
+              >
+              <el-button
+                size="small"
+                type="success"
+                :disabled="scope.row.reinforceTaskStatus != 3"
+              >
+                <span
+                  v-if="scope.row.channelStrategyId"
+                  @click="downloadMultiChannelPackage(scope.row.id)"
+                  >多渠道包</span
+                >
+                <span
+                  v-else
+                  @click="downloadReinforcePackage(scope.row.id)"
+                  style="padding:10px 6px"
+                  >加固包</span
+                >
+              </el-button>
+              <el-button
+                v-if="getUserId == 1"
+                size="small"
+                type="warning"
+                @click="
+                  viewLog(
+                    scope.row.id,
+                    scope.row.appName,
+                    scope.row.reinforceTaskStatus
+                  )
+                "
+                :disabled="
+                  !(
                     scope.row.reinforceTaskStatus == 3 ||
-                      scope.row.reinforceTaskStatus == 4
-                  "
-                >
-                  <i
-                    class="el-icon-reading ticketsIcon"
-                    @click="
-                      viewLog(
-                        scope.row.id,
-                        scope.row.appName,
-                        scope.row.reinforceTaskStatus
-                      )
-                    "
-                  ></i>
-                </template>
-                <template v-else>
-                  <i class="el-icon-reading disabledIcon"></i>
-                </template>
-              </el-tooltip>
-              <el-tooltip effect="dark" content="删除" placement="top-start">
-                <i
-                  class="el-icon-delete deleteIcon"
-                  @click="deletePackage(scope.row.id)"
-                >
-                </i>
-              </el-tooltip>
+                    scope.row.reinforceTaskStatus == 4
+                  )
+                "
+                >日志</el-button
+              >
+              <el-button
+                size="small"
+                type="danger"
+                @click="deletePackage(scope.row.id)"
+                >删除</el-button
+              >
             </template>
           </el-table-column>
         </el-table>
@@ -854,6 +833,9 @@ export default {
     getLoadingNum() {
       return (this.loadingNum =
         this.uploadTaskNum - this.uploadFileItems.length);
+    },
+    getUserId() {
+      return localStorage.getItem("id");
     }
   },
   inject: ["reload"],

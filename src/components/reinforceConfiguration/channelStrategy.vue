@@ -14,22 +14,15 @@
         </el-form>
       </div>
       <div class="operateBox">
-        <el-tooltip effect="dark" content="查询" placement="top-start">
-          <el-button
-            type="primary"
-            icon="el-icon-search"
-            size="small"
-            @click="searchChannelStrategyName()"
-          ></el-button>
-        </el-tooltip>
-        <el-tooltip effect="dark" content="刷新" placement="top-start">
-          <el-button
-            type="primary"
-            icon="el-icon-refresh-right"
-            size="small"
-            @click="refresh()"
-          ></el-button>
-        </el-tooltip>
+        <el-button
+          type="primary"
+          size="small"
+          @click="searchChannelStrategyName()"
+          >查询</el-button
+        >
+        <el-button type="primary" size="small" @click="refresh()"
+          >刷新</el-button
+        >
         <el-button type="primary" size="small" @click="createChannelStrategy()"
           >新建渠道策略</el-button
         >
@@ -836,29 +829,29 @@
         ></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-tooltip effect="dark" content="修改" placement="top-start">
-              <i
-                class="el-icon-edit-outline editIcon"
-                @click="amendChannelStrategy(scope.row.id)"
-              ></i>
-            </el-tooltip>
-            <el-tooltip effect="dark" content="详细" placement="top-start">
-              <i
-                class="el-icon-tickets detailIcon"
-                @click="channelStrategyDetail(scope.row.id)"
-              ></i>
-            </el-tooltip>
-            <el-tooltip effect="dark" content="删除" placement="top-start">
-              <i
-                class="el-icon-delete deletIcon"
-                @click="
-                  deleteChannelStrategy(
-                    scope.row.id,
-                    scope.row.channel_strategy_name
-                  )
-                "
-              ></i>
-            </el-tooltip>
+            <el-button
+              size="small"
+              type="primary"
+              @click="amendChannelStrategy(scope.row.id)"
+              >修改</el-button
+            >
+            <el-button
+              size="small"
+              type="success"
+              @click="channelStrategyDetail(scope.row.id)"
+              >详细</el-button
+            >
+            <el-button
+              type="danger"
+              size="small"
+              @click="
+                deleteChannelStrategy(
+                  scope.row.id,
+                  scope.row.channel_strategy_name
+                )
+              "
+              >删除</el-button
+            >
           </template>
         </el-table-column>
       </el-table>

@@ -14,22 +14,14 @@
         </el-form>
       </div>
       <div class="operateBox">
-        <el-tooltip effect="dark" content="查询" placement="top-start">
-          <el-button
-            type="primary"
-            icon="el-icon-search"
-            size="small"
-            @click="search()"
-          ></el-button>
-        </el-tooltip>
-        <el-tooltip effect="dark" content="刷新" placement="top-start">
-          <el-button
-            type="primary"
-            icon="el-icon-refresh-right"
-            size="small"
-            @click="refresh()"
-          ></el-button>
-        </el-tooltip>
+        <el-button type="primary" size="small" @click="search()"
+          >查询</el-button
+        >
+
+        <el-button type="primary" size="small" @click="refresh()"
+          >刷新</el-button
+        >
+
         <el-button type="primary" size="small" @click="uploadSignature()"
           >上传签名</el-button
         >
@@ -220,12 +212,13 @@
           ></el-table-column>
           <el-table-column prop="operate" label="操作">
             <template slot-scope="scope">
-              <el-tooltip effect="dark" content="删除" placement="top-start">
-                <i
-                  class="el-icon-delete deleteIcon"
-                  @click="deleteSignature(scope.row.id, scope.row.signName)"
-                ></i>
-              </el-tooltip>
+              <el-button
+                size="small"
+                type="danger"
+                @click="deleteSignature(scope.row.id, scope.row.signName)"
+              >
+                删除</el-button
+              >
             </template>
           </el-table-column>
         </el-table>
