@@ -848,7 +848,7 @@ export default {
       const _this = this,
         userId = localStorage.getItem("id"),
         url = api.websocketUrl,
-        socket = new SockJsClient(url);
+        socket = new SockJsClient(url, null, { timeout: 15000 });
       this.stompClient = Stomp.over(socket);
       this.stompClient.connect(
         {},

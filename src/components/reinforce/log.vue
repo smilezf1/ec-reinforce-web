@@ -3,9 +3,6 @@
     <div class="logHeader">
       <p>当前位置:加固日志</p>
     </div>
-    <div class="logOperate">
-      <el-button type="primary" size="small" @click="back()">返回</el-button>
-    </div>
     <div class="logBody">
       <div class="logBodyTitle">
         <span>加固应用:&nbsp;&nbsp;{{ titleItem.appName }}&nbsp;&nbsp;</span>
@@ -19,12 +16,15 @@
         {{ listItem }}
       </div>
     </div>
+    <back></back>
   </div>
 </template>
 <script>
 import api from "../../request/api";
+import back from "../common/back";
 export default {
   name: "Log",
+  components: { back },
   data() {
     return {
       listItem: null,
@@ -55,6 +55,7 @@ export default {
   font-size: 14px;
 }
 .logBody {
+  width: 90%;
   box-shadow: 0px 0px 10px #00000021;
   margin: 10px 10px 0 0;
   padding: 20px;

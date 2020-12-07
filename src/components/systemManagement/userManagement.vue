@@ -80,6 +80,7 @@
                   size="small"
                   v-model="addUserForm.trueName"
                   autocomplete="off"
+                  maxlength="20"
                 ></el-input>
               </el-form-item>
               <el-form-item prop="userName" label="登录名">
@@ -87,6 +88,7 @@
                   size="small"
                   v-model="addUserForm.userName"
                   autocomplete="off"
+                  maxlength="20"
                 ></el-input>
               </el-form-item>
               <el-form-item prop="pass" label="用户密码">
@@ -431,44 +433,44 @@ export default {
   components: { pagination },
   mixins: [pageMixins],
   data() {
-    let validatePass = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请输入密码"));
-      } else {
-        if (this.resetPasswordForm.checkPass !== "") {
-          this.$refs.resetPasswordForm.validateField("checkPass");
+    const validatePass = (rule, value, callback) => {
+        if (value === "") {
+          callback(new Error("请输入密码"));
+        } else {
+          if (this.resetPasswordForm.checkPass !== "") {
+            this.$refs.resetPasswordForm.validateField("checkPass");
+          }
+          callback();
         }
-        callback();
-      }
-    };
-    let validatePass2 = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请再次输入密码"));
-      } else if (value !== this.resetPasswordForm.pass) {
-        callback(new Error("两次输入密码不一致!"));
-      } else {
-        callback();
-      }
-    };
-    let validatePass3 = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请输入密码"));
-      } else {
-        if (this.addUserForm.checkPass !== "") {
-          this.$refs.addUserForm.validateField("checkPass");
+      },
+      validatePass2 = (rule, value, callback) => {
+        if (value === "") {
+          callback(new Error("请再次输入密码"));
+        } else if (value !== this.resetPasswordForm.pass) {
+          callback(new Error("两次输入密码不一致!"));
+        } else {
+          callback();
         }
-        callback();
-      }
-    };
-    let validatePass4 = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请再次输入密码"));
-      } else if (value !== this.addUserForm.pass) {
-        callback(new Error("两次输入密码不一致!"));
-      } else {
-        callback();
-      }
-    };
+      },
+      validatePass3 = (rule, value, callback) => {
+        if (value === "") {
+          callback(new Error("请输入密码"));
+        } else {
+          if (this.addUserForm.checkPass !== "") {
+            this.$refs.addUserForm.validateField("checkPass");
+          }
+          callback();
+        }
+      },
+      validatePass4 = (rule, value, callback) => {
+        if (value === "") {
+          callback(new Error("请再次输入密码"));
+        } else if (value !== this.addUserForm.pass) {
+          callback(new Error("两次输入密码不一致!"));
+        } else {
+          callback();
+        }
+      };
     return {
       ruleForm: {
         trueName: "",
@@ -477,8 +479,8 @@ export default {
         email: "",
         status: ""
       },
-      curPage: 1, //当前页
-      limit: 10, //每页显示的条目个数
+      curPage: 1,
+      limit: 10,
       listItem: [],
       editDrawer: false,
       editId: null,
@@ -635,7 +637,7 @@ export default {
       this.editDrawer = false;
     },
     editFormSave(formName, form) {
-      let id = this.editId,
+      const id = this.editId,
         { trueName, userName, email, mobile, status, sex } = form;
       this.$refs[formName].validate(valid => {
         if (valid) {
@@ -763,6 +765,14 @@ export default {
               message: "更新成功",
               type: "success",
               duration: 1000
+
+
+
+
+
+
+
+              
             });
             this.reload();
             this.dialogVisible = false;

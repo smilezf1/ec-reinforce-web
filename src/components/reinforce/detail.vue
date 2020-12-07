@@ -3,9 +3,9 @@
     <div class="detailHeader">
       <p>当前位置:详情页面</p>
     </div>
-    <div class="detailOperate">
+    <!-- <div class="detailOperate">
       <el-button type="primary" size="small" @click="back()">返回</el-button>
-    </div>
+    </div> -->
     <div class="detailBody">
       <el-collapse v-model="activeNames">
         <el-collapse-item title="1.基本信息" name="1">
@@ -168,13 +168,16 @@
           </el-collapse-item>
         </template>
       </el-collapse>
+      <back></back>
     </div>
   </div>
 </template>
 <script>
 import api from "../../request/api";
+import back from "../common/back";
 export default {
   name: "Detail",
+  components: { back },
   data() {
     return {
       data: null,

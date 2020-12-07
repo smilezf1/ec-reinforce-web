@@ -130,7 +130,7 @@
                         size="small"
                       ></el-input>
                     </el-form-item>
-                    <el-form-item label="资源类型">
+                    <el-form-item label="资源类型" prop="type">
                       <el-select
                         v-model="form.type"
                         size="small"
@@ -140,14 +140,22 @@
                         <el-option label="链接" value="T"></el-option>
                       </el-select>
                     </el-form-item>
-                    <el-form-item label="资源图标">
+                    <el-form-item
+                      label="资源图标"
+                      prop="icon"
+                      v-if="form.type == 'M'"
+                    >
                       <el-input
                         v-model="form.icon"
                         auto-complete="off"
                         size="small"
                       ></el-input>
                     </el-form-item>
-                    <el-form-item label="资源路径">
+                    <el-form-item
+                      label="资源路径"
+                      prop="address"
+                      v-if="form.type == 'T'"
+                    >
                       <el-input
                         v-model="form.address"
                         auto-complete="off"
@@ -280,9 +288,10 @@ export default {
         address: ""
       },
       rules: {
-        name: [{ required: true, message: "请输入资源名称", trigger: "blur" }],
-        icon: [{ required: true, message: "请输入资源图标", trigger: "blur" }],
-        type: [{ required: true, message: "请输入资源类型", trigger: "blur" }]
+        name: { required: true, message: "请输入资源名称", trigger: "blur" },
+        icon: { required: true, message: "请输入资源图标", trigger: "blur" },
+        type: { required: true, message: "请输入资源类型", trigger: "blur" },
+        address: { required: true, message: "请输入资源路径", trigger: "blur" }
       },
       formLabelWidth: "80px",
       id: null,
