@@ -205,12 +205,15 @@
                         size="small"
                       ></el-input>
                     </el-form-item>
-                    <el-form-item label="资源类型">
-                      <el-input
-                        v-model="addLinkForm.type"
-                        :disabled="true"
-                        size="small"
-                      ></el-input>
+                    <el-form-item label="资源类型" prop="type">
+                      <el-select v-model="addLinkForm.type" size="small">
+                        <el-option
+                          label="目录"
+                          value="M"
+                          :disabled="true"
+                        ></el-option>
+                        <el-option label="链接" value="T"></el-option>
+                      </el-select>
                     </el-form-item>
                     <el-form-item label="资源图标">
                       <el-input
@@ -378,26 +381,13 @@ export default {
           form.icon = data.icon;
           form.address = data.address;
           this.id = data.id;
-          /* if (data.type === "M") {
-            form.type = "目录";
-          }
-          if (data.type === "T") {
-            form.type = "链接";
-          } */
           form.icon = data.icon;
         }
       });
     },
     save(formName, form) {
       const id = parseInt(this.id),
-        { name, icon, address } = form;
-      let type = null;
-      if (form.type === "目录") {
-        type = "M";
-      }
-      if (form.type === "链接") {
-        type = "T";
-      }
+        { name, icon, address, type } = form;
       this.$refs[formName].validate(valid => {
         if (valid) {
           const params = { id, name, icon, type, address };
@@ -452,13 +442,6 @@ export default {
     saveAddLink(formName, addLinkForm) {
       const { name, icon, address } = addLinkForm,
         pId = this.linkID;
-      let type = null;
-      if (addLinkForm.type == "目录") {
-        type = "M";
-      }
-      if (addLinkForm.type == "链接") {
-        type = "T";
-      }
       this.$refs[formName].validate(valid => {
         if (valid) {
           const params = { pId, name, icon, type, address };
