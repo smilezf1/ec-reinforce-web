@@ -380,16 +380,24 @@ export default {
     //设置菜单开始
     handleCheck(checkedNodes, checkedKeys) {
       this.checkedNodes = checkedKeys.checkedNodes;
+      this.setMenuList = [];
+      checkedKeys.checkedNodes.forEach(v => {
+        if (v.id.indexOf("T") != -1) {
+          this.setMenuList.push(v.id);
+        }
+      });
     },
     setting(id) {
       this.menuDialog = true;
       this.setMenuId = id;
       const params = { roleId: id };
       api.systemManageService.roleManageSettingMenu(params).then(res => {
-        let data = res.data;
-        (data = JSON.parse(JSON.stringify(data).replace(/name/g, "label"))),
-          (this.menuTreeData = this.toTreeData(data));
-        this.setMenuList = this.setSelectedList(this.menuTreeData);
+        if (res.code == "00") {
+          let data = res.data;
+          (data = JSON.parse(JSON.stringify(data).replace(/name/g, "label"))),
+            (this.menuTreeData = this.toTreeData(data));
+          this.setMenuList = this.setSelectedList(this.menuTreeData);
+        }
       });
     },
     setSelectedList(menuTreeData) {
@@ -399,41 +407,23 @@ export default {
           v.children.forEach((v, i) => {
             if (v.checked == true) {
               this.setMenuList.push(v.id);
-              this.setMenuList = Array.from(new Set(this.setMenuList));
             }
           });
         } else {
           if (v.checked == true) {
             this.setMenuList.push(v.id);
-            this.setMenuList = Array.from(new Set(this.setMenuList));
           }
         }
       });
       return this.setMenuList;
     },
     setMenuSave() {
-      const id = this.setMenuId,
-        nodes = this.checkedNodes;
-      let menuList = this.menuList,
-        selectedList = this.setMenuList;
-      if (nodes && nodes.length != 0) {
-        for (let i = 0; i < nodes.length; i++) {
-          if (nodes[i].id.indexOf("T")) {
-          } else {
-            nodes[i].id = nodes[i].id.replace("T", "");
-            menuList.push(nodes[i].id);
-            menuList = Array.from(new Set(menuList));
-          }
-        }
-      } else {
-        if (selectedList && selectedList.length != 0) {
-          for (let i = 0; i < selectedList.length; i++) {
-            selectedList[i] = selectedList[i].replace("T", "");
-            menuList.push(selectedList[i]);
-            menuList = Array.from(new Set(menuList));
-          }
-        }
-      }
+      const menuList = [],
+        id = this.setMenuId;
+      this.setMenuList.forEach(v => {
+        v = v.replace("T", "");
+        menuList.push(v);
+      });
       new this.$messageTips(({ confirm }) => {
         confirm({ content: "确定要更新菜单列表吗?" });
       }).then(() => {

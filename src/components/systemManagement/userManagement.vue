@@ -489,7 +489,6 @@ export default {
       addUserDrawer: false,
       dialogVisible: false,
       roleTreeData: [],
-      checkedNodes: [], //角色列表选中的数据
       roleList: [],
       setRoleList: [],
       options: [
@@ -602,7 +601,10 @@ export default {
     },
     //设置角色开始
     handleCheck(checkedNodes, checkedKeys) {
-      this.checkedNodes = checkedKeys.checkedNodes;
+      this.setRoleList = [];
+      checkedKeys.checkedNodes.forEach(v => {
+        this.setRoleList.push(v.id);
+      });
     },
     //设置角色结束
     search(ruleForm) {
@@ -690,18 +692,19 @@ export default {
     //保存新增的用户
     // status 1:有效 0:无效  sex 1:男 0:女
     saveaddUserForm(formName, form) {
-      const { trueName, userName, password, mobile, email, sex, status } = form;
+      const { trueName, userName, mobile, email, sex, status } = form;
       this.$refs[formName].validate(valid => {
         if (valid) {
-          const params = {
-            trueName,
-            userName,
-            password,
-            mobile,
-            email,
-            sex,
-            status
-          };
+          const password = md5(form.pass),
+            params = {
+              trueName,
+              userName,
+              mobile,
+              password,
+              email,
+              sex,
+              status
+            };
           api.systemManageService
             .userManageCheckUserName({ userName })
             .then(res => {
@@ -735,26 +738,17 @@ export default {
         let data = res.data;
         data = JSON.parse(JSON.stringify(data).replace(/name/g, "label"));
         this.roleTreeData = data;
+        this.setRoleList = [];
         this.roleTreeData.forEach((v, i) => {
           if (v.checked == true) {
             this.setRoleList.push(v.id);
-            this.setRoleList = Array.from(new Set(this.setRoleList));
           }
         });
       });
     },
     setRoleSave() {
       const id = this.setRoleId,
-        nodes = this.checkedNodes;
-      let roleList = this.roleList;
-      if (nodes && nodes.length != 0) {
-        for (var i = 0; i < nodes.length; i++) {
-          if (!nodes[i].parent) {
-            roleList.push(nodes[i].id);
-            roleList = Array.from(new Set(roleList));
-          }
-        }
-      }
+        roleList = this.setRoleList;
       new this.$messageTips(({ confirm }) => {
         confirm({ content: "确定要更新用户角色吗?" });
       }).then(res => {
@@ -765,14 +759,6 @@ export default {
               message: "更新成功",
               type: "success",
               duration: 1000
-
-
-
-
-
-
-
-              
             });
             this.reload();
             this.dialogVisible = false;
