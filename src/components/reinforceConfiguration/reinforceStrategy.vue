@@ -962,7 +962,7 @@
           element-loading-text="加载中"
           v-loading="loading"
         >
-          <el-table-column type="index" label="序号" width="100">
+          <el-table-column type="index" label="序号" min-width="10%">
             <template slot-scope="scope">
               <span>{{ (curPage - 1) * limit + scope.$index + 1 }}</span>
             </template>
@@ -970,24 +970,24 @@
           <el-table-column
             prop="reinforce_strategy_name"
             label="策略名称"
-            width="300"
+            min-width="20%"
           ></el-table-column>
           <el-table-column
             prop="reinforce_strategy_count"
             label="策略数量"
-            width="200"
+            min-width="20%"
           ></el-table-column>
           <el-table-column
             prop="create_time"
             label="创建时间"
-            width="300"
+            min-width="20%"
           ></el-table-column>
           <el-table-column
             prop="user_name"
             label="创建人"
-            width="300"
+            min-width="20%"
           ></el-table-column>
-          <el-table-column label="操作" width="460">
+          <el-table-column label="操作" min-width="40%">
             <template slot-scope="scope">
               <el-button
                 size="small"

@@ -6,7 +6,7 @@
     <div class="dashboardBody">
       <template>
         <el-table :data="listItem" ref="listItem">
-          <el-table-column type="index" label="序号" width="100">
+          <el-table-column type="index" label="序号" min-width="10%">
             <template slot-scope="scope">
               <span>{{ (curPage - 1) * limit + scope.$index + 1 }}</span>
             </template>
@@ -14,7 +14,7 @@
           <el-table-column
             prop="appName"
             label="应用名称"
-            width="260"
+            min-width="20%"
             :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
@@ -31,26 +31,29 @@
           <el-table-column
             prop="appFileName"
             label="文件名称"
+            min-width="20%"
             :show-overflow-tooltip="true"
           >
           </el-table-column>
           <el-table-column
             prop="reinforceStrategyName"
             label="策略名称"
+            min-width="15%"
             :show-overflow-tooltip="true"
           ></el-table-column>
           <el-table-column
             prop="appVersion"
             label="应用版本"
-            width="230"
+            min-width="10%"
+            :show-overflow-tooltip="true"
           ></el-table-column>
           <el-table-column
             prop="reinforceTaskStartTime"
             label="加固开始时间"
-            width="200"
+            min-width="20%"
             :show-overflow-tooltip="true"
           ></el-table-column>
-          <el-table-column prop="status" label="加固状态" width="200">
+          <el-table-column prop="status" label="加固状态" min-width="13%">
             <template slot-scope="scope">
               <span v-if="scope.row.reinforceTaskStatus === 1">
                 <img src="../../assets/wait.png" class="status" />
@@ -73,7 +76,7 @@
           <el-table-column
             prop="userName"
             label="创建人"
-            width="200"
+            min-width="20%"
           ></el-table-column>
         </el-table>
       </template>

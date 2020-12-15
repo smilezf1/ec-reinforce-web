@@ -191,7 +191,7 @@
           element-loading-text="加载中"
           v-loading="loading"
         >
-          <el-table-column type="index" label="序号" width="60">
+          <el-table-column type="index" label="序号" min-width="15%">
             <template slot-scope="scope">
               <span>{{ (curPage - 1) * limit + scope.$index + 1 }}</span>
             </template>
@@ -199,18 +199,26 @@
           <el-table-column
             prop="signName"
             label="签名名称"
+            min-width="30%"
             :show-overflow-tooltip="true"
           ></el-table-column>
           <el-table-column
             prop="signAliasName"
             label="签名别名"
+            :show-overflow-tooltip="true"
+            min-width="30%"
           ></el-table-column>
-          <el-table-column prop="userName" label="创建人"></el-table-column>
+          <el-table-column
+            prop="userName"
+            label="创建人"
+            min-width="30%"
+          ></el-table-column>
           <el-table-column
             prop="createTime"
             label="签名创建时间"
+            min-width="30%"
           ></el-table-column>
-          <el-table-column prop="operate" label="操作">
+          <el-table-column prop="operate" label="操作" min-width="40%">
             <template slot-scope="scope">
               <el-button
                 size="small"

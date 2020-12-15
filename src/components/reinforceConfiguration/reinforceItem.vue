@@ -7,7 +7,7 @@
     <div class="reinforceItemBody">
       <template>
         <el-table :data="listItem">
-          <el-table-column type="index" label="序号">
+          <el-table-column type="index" label="序号" min-width="10%">
             <template slot-scope="scope">
               <span>{{ (curPage - 1) * limit + scope.$index + 1 }}</span>
             </template>
@@ -15,15 +15,18 @@
           <el-table-column
             prop="reinforce_item_name"
             label="加固项名称"
+            min-width="30%"
             :show-overflow-tooltip="true"
           ></el-table-column>
           <el-table-column
             prop="reinforce_item_describe"
             label="加固项描述"
+            min-width="30%"
           ></el-table-column>
           <el-table-column
             prop="create_time"
             label="创建时间"
+            min-width="30%"
           ></el-table-column>
         </el-table>
       </template>

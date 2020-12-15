@@ -62,7 +62,7 @@
     <div class="menuManagementBody">
       <template>
         <el-table ref="menusTable" :row-style="showRow" :data="menusTable">
-          <el-table-column prop="name" label="资源名称">
+          <el-table-column prop="name" label="资源名称" min-width="30%">
             <template slot-scope="scope">
               <span :class="['type' + scope.row.type]">
                 <i
@@ -84,7 +84,7 @@
               </span>
             </template>
           </el-table-column>
-          <el-table-column prop="address" label="资源路径">
+          <el-table-column prop="address" label="资源路径" min-width="30%">
             <template slot-scope="scope">
               {{ scope.row.address }}
             </template>
@@ -93,18 +93,19 @@
             prop="icon"
             label="资源图标"
             :show-overflow-tooltip="true"
+            min-width="30%"
           >
             <template slot-scope="scope">
               <span>{{ scope.row.icon }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="type" label="资源类型">
+          <el-table-column prop="type" label="资源类型" min-width="30%">
             <template slot-scope="scope">
               <span v-if="scope.row.type === 'M'">目录</span>
               <span v-if="scope.row.type === 'T'">链接</span>
             </template>
           </el-table-column>
-          <el-table-column prop="operation" label="操作">
+          <el-table-column prop="operation" label="操作" min-width="40%">
             <template slot-scope="scope">
               <el-button size="small" type="primary" @click="edit(scope.row.id)"
                 >编辑</el-button
@@ -303,28 +304,25 @@ export default {
   },
   inject: ["reload"],
   methods: {
-    toTreeData(data) {
-      //删除所有的children,以防止多次调用
-      data.forEach(item => {
-        delete item.children;
-      });
-      let map = {}; //构建map
-      data.forEach(i => {
-        map[i.id] = i; //构建以id为键 当前数据为值
-      });
-      let treeData = [];
-      data.forEach(child => {
-        const mapItem = map[child.pId]; //判断当前数据的pId是否存在map中
-        if (mapItem) {
-          //不是最顶层的数据
-          //注:这里map中的数据是引用了data的它的指向还是data,当mapItem改变时,arr也会改变
-          (mapItem.children || (mapItem.children = [])).push(child); //判断mapItem是否存在child
-        } else {
-          //顶层数据
-          treeData.push(child);
+    listToTree(list) {
+      let map = {};
+      list.forEach(item => {
+        if (!map[item.id]) {
+          map[item.id] = item;
         }
       });
-      return treeData;
+      list.forEach(item => {
+        if (item.pId != -1) {
+          map[item.pId].children
+            ? map[item.pId].children.push(item)
+            : (map[item.pId].children = [item]);
+        }
+      });
+      return list.filter(item => {
+        if (item.pId == -1) {
+          return item;
+        }
+      });
     },
     showRow(row) {
       const show = row.row.parent
@@ -337,18 +335,15 @@ export default {
     },
     //树节点开关操作
     openToggle(item) {
-      //展开和关闭样式的变换方法
       Vue.set(item, "open", !item.open);
-      //展开的时候,显示子节点,关闭的时候隐藏子节点,遍历所有的子节点,加入到menusTable
       for (let j = 0; j < this.menusTable.length; j++) {
-        //找到父节点的id,然后依次把子节点放到数组里面父节点里面
         if (this.menusTable[j].id !== item.id) {
           continue;
         }
         if (item.open) {
           let menusTable = this.menusTable;
           item.children.forEach((child, index) => {
-            menusTable.splice(j + index + 1, 0, child); //添加子节点
+            menusTable.splice(j + index + 1, 0, child);
           });
         } else {
           this.menusTable.splice(j + 1, item.children.length);
@@ -466,8 +461,7 @@ export default {
       new this.$messageTips(({ alert }) => {
         alert({ content: "确定要停用吗?", tip: "确定停用" });
       }).then(() => {
-        const params = { id };
-        api.systemManageService.menuManageBlockUp(params).then(res => {
+        api.systemManageService.menuManageBlockUp({ id }).then(res => {
           if (res.code == "00") {
             this.reload();
             this.$notify({
@@ -485,8 +479,7 @@ export default {
       new this.$messageTips(({ alert }) => {
         alert({ content: "确定要启用吗", tip: "确定启用" });
       }).then(() => {
-        const params = { id };
-        api.systemManageService.menuManageLaunch(params).then(res => {
+        api.systemManageService.menuManageLaunch({ id }).then(res => {
           if (res.code == "00") {
             this.reload();
             this.$notify.success({
@@ -502,7 +495,7 @@ export default {
   created() {
     api.systemManageService.menuManageList().then(res => {
       if (res.code == "00") {
-        this.menusTable = this.toTreeData(res.data);
+        this.menusTable = this.listToTree(res.data);
       }
     });
   }

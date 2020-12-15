@@ -36,6 +36,9 @@ export default {
 };
 </script>
 <style>
+.Home {
+  min-height: 100%;
+}
 .content-box {
   width: 100%;
   position: absolute;
@@ -43,8 +46,9 @@ export default {
   box-sizing: border-box;
 }
 .content {
+  min-width: 1200px;
   padding: 10px 10px 40px 20px;
-  overflow-y: auto;
+  overflow: auto;
   margin-top: 60px;
 }
 </style>

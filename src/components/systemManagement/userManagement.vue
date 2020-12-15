@@ -170,7 +170,7 @@
           v-loading="loading"
           element-loading-text="加载中"
         >
-          <el-table-column type="index" label="序号" width="100">
+          <el-table-column type="index" label="序号" min-width="10%">
             <template slot-scope="scope">
               <span>{{ (curPage - 1) * limit + scope.$index + 1 }}</span>
             </template>
@@ -178,17 +178,17 @@
           <el-table-column
             prop="trueName"
             label="用户名"
-            width="120"
+            min-width="10%"
             :show-overflow-tooltip="true"
           >
           </el-table-column>
           <el-table-column
             prop="userName"
             label="登录名"
-            width="120"
+            min-width="15%"
             :show-overflow-tooltip="true"
           ></el-table-column>
-          <el-table-column prop="sex" label="性别" width="80">
+          <el-table-column prop="sex" label="性别" min-width="10%">
             <template slot-scope="scope">
               <span v-if="scope.row.sex == '1'">男</span>
               <span v-else>女</span>
@@ -197,18 +197,19 @@
           <el-table-column
             prop="mobile"
             label="手机号"
-            width="150"
+            min-width="15%"
+            :show-overflow-tooltip="true"
           ></el-table-column>
           <el-table-column
             prop="email"
             label="电子邮箱"
-            width="170"
+            min-width="15%"
             :show-overflow-tooltip="true"
           ></el-table-column>
           <el-table-column
             prop="status"
             label="是否有效"
-            width="100"
+            min-width="10%"
             align="center"
           >
             <template slot-scope="scope">
@@ -220,15 +221,15 @@
             prop="createTime"
             label="创建时间"
             :show-overflow-tooltip="true"
-            width="200"
+            min-width="15%"
           ></el-table-column>
           <el-table-column
             prop="updateTime"
             label="更新时间"
             :show-overflow-tooltip="true"
-            width="200"
+            min-width="15%"
           ></el-table-column>
-          <el-table-column prop="operate" label="操作" width="400">
+          <el-table-column prop="operate" label="操作" min-width="40%">
             <template slot-scope="scope">
               <el-button size="small" type="primary" @click="edit(scope.row.id)"
                 >编辑</el-button
@@ -362,7 +363,7 @@
                   <el-button
                     type="primary"
                     @click="
-                      saveresetPassword('resetPasswordForm', resetPasswordForm)
+                      saveResetPassword('resetPasswordForm', resetPasswordForm)
                     "
                     >保存</el-button
                   >
@@ -668,7 +669,7 @@ export default {
     cancelresetPassword() {
       this.resetPasswordDrawer = false;
     },
-    saveresetPassword(formName, form) {
+    saveResetPassword(formName, form) {
       const id = this.resetPasswordId,
         { pass: password, checkPass } = form,
         params = { id, password: md5(password), checkPass: md5(checkPass) };
@@ -826,10 +827,19 @@ export default {
   width: auto;
 }
 .userManagement .searchBox {
+  width: 75%;
   margin-bottom: 15px;
   display: inline-block;
 }
+.userManagement .searchBox .el-input,
+.userManagement .searchBox .el-select {
+  width: 18%;
+}
+.userManagement .searchBox .el-select .el-input {
+  width: 100%;
+}
 .userManagement .operateBox {
+  width: 23%;
   display: inline-block;
   box-sizing: border-box;
   margin-bottom: 15px;
@@ -838,10 +848,10 @@ export default {
   width: 30%;
 }
 .userManagement .el-select {
-  width: 100%;
+  /* width: 100%; */
 }
 .userManagement .searchBox .el-select {
-  width: auto;
+  /*  width: auto; */
 }
 .editIcon,
 .resetIcon,

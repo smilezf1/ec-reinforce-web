@@ -616,9 +616,10 @@
           :data="listItem"
           ref="listItem"
           v-loading="loading"
+          style="overlow:auto"
           element-loading-text="加载中"
         >
-          <el-table-column type="index" label="序号" width="80">
+          <el-table-column type="index" label="序号" min-width="10%">
             <template slot-scope="scope">
               <span>{{ (curPage - 1) * limit + scope.$index + 1 }}</span>
             </template>
@@ -626,7 +627,7 @@
           <el-table-column
             prop="appName"
             label="应用名称"
-            width="180"
+            min-width="13%"
             :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
@@ -643,30 +644,30 @@
           <el-table-column
             prop="appFileName"
             label="文件名称"
-            width="250"
+            min-width="15%"
             :show-overflow-tooltip="true"
           ></el-table-column>
           <el-table-column
             prop="reinforceStrategyName"
             label="策略名称"
-            width="150"
+            min-width="10%"
             :show-overflow-tooltip="true"
           ></el-table-column>
           <el-table-column
             prop="appVersion"
             label="应用版本"
-            width="120"
+            min-width="8%"
           ></el-table-column>
           <el-table-column
             prop="reinforceTaskStartTime"
             label="加固开始时间"
             :show-overflow-tooltip="true"
-            width="170"
+            min-width="14%"
           ></el-table-column>
           <el-table-column
             props="reinforceTaskStatus"
             label="加固状态"
-            width="150"
+            min-width="12%"
           >
             <template slot-scope="scope" class="status">
               <span v-if="scope.row.reinforceTaskStatus === 1">
@@ -692,10 +693,10 @@
           <el-table-column
             prop="userName"
             label="创建人"
-            width="150"
+            min-width="10%"
             :show-overflow-tooltip="true"
           ></el-table-column>
-          <el-table-column prop="operate" label="操作" width="400">
+          <el-table-column prop="operate" label="操作" min-width="45%">
             <template slot-scope="scope">
               <el-button
                 size="small"

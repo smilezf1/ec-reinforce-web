@@ -83,15 +83,15 @@
           v-loading="loading"
           element-loading-text="加载中"
         >
-          <el-table-column type="index" label="序号" width="150">
+          <el-table-column type="index" label="序号" min-width="10%">
             <template slot-scope="scope">
               <span>{{ (curPage - 1) * limit + scope.$index + 1 }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="name" label="角色名称" width="300">
+          <el-table-column prop="name" label="角色名称" min-width="20%">
             <template slot-scope="scope">{{ scope.row.name }}</template>
           </el-table-column>
-          <el-table-column prop="status" label="是否有效" width="200">
+          <el-table-column prop="status" label="是否有效" min-width="10%">
             <template slot-scope="scope">
               <span v-if="scope.row.status === '1'">是</span>
               <span v-if="scope.row.status === '0'">否</span>
@@ -101,7 +101,7 @@
             prop="createTime"
             label="创建时间"
             :show-overflow-tooltip="true"
-            width="300"
+            min-width="30%"
           >
             <template slot-scope="scope">{{ scope.row.createTime }}</template>
           </el-table-column>
@@ -109,11 +109,11 @@
             prop="updateTime"
             label="更新时间"
             :show-overflow-tooltip="true"
-            width="300"
+            min-width="30%"
           >
             <template slot-scope="scope">{{ scope.row.updateTime }}</template>
           </el-table-column>
-          <el-table-column prop="operation" label="操作" width="400">
+          <el-table-column prop="operation" label="操作" min-width="40%">
             <template slot-scope="scope">
               <el-button size="small" type="primary" @click="edit(scope.row.id)"
                 >编辑</el-button
@@ -393,6 +393,7 @@ export default {
       const params = { roleId: id };
       api.systemManageService.roleManageSettingMenu(params).then(res => {
         if (res.code == "00") {
+          console.log(this.menuTreeData);
           let data = res.data;
           (data = JSON.parse(JSON.stringify(data).replace(/name/g, "label"))),
             (this.menuTreeData = this.toTreeData(data));

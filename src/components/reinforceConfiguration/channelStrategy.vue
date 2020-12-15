@@ -802,7 +802,7 @@
         v-loading="loading"
         element-loading-text="加载中"
       >
-        <el-table-column type="index" label="序号" width="60">
+        <el-table-column type="index" label="序号" min-width="10%">
           <template slot-scope="scope">
             <span>{{ (curPage - 1) * limit + scope.$index + 1 }}</span>
           </template>
@@ -810,24 +810,25 @@
         <el-table-column
           prop="channel_strategy_name"
           label="渠道策略名称"
+          min-width="30%"
           :show-overflow-tooltip="true"
         ></el-table-column>
-        <!--  <el-table-column
-          prop="channel_strategy_describe"
-          label="渠道策略描述"
-          :show-overflow-tooltip="true"
-        ></el-table-column> -->
         <el-table-column
           prop="channel_strategy_count"
           label="渠道策略数量"
+          min-width="30%"
         ></el-table-column>
-        <el-table-column prop="create_time" label="创建时间"></el-table-column>
+        <el-table-column
+          prop="create_time"
+          label="创建时间"
+          min-width="30%"
+        ></el-table-column>
         <el-table-column
           prop="user_name"
-          label="创建人
-        "
+          label="创建人"
+          min-width="30%"
         ></el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="操作" min-width="40%">
           <template slot-scope="scope">
             <el-button
               size="small"
