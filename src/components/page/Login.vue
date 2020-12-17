@@ -38,7 +38,9 @@
               <el-col :span="7">
                 <img
                   :src="
-                    this.api.baseUrl + '/captcha/getCaptchaCode?guid=' + Guid
+                    this.api.baseUrl +
+                      '/captcha/getCaptchaCode?guid=' +
+                      initialGuid
                   "
                   @click="getVerifyCode()"
                   class="verifyCode"
@@ -81,14 +83,14 @@ export default {
         verCode: [{ required: true, message: "请输入验证码", trigger: "blur" }]
       },
       verifyCode: "",
-      Guid: this.guid.getGuid()
+      initialGuid: this.guid.getGuid()
     };
   },
   methods: {
     ...mapMutations(["changeLogin"]),
     submitForm(formName) {
       const _this = this,
-        guid = _this.Guid,
+        guid = _this.initialGuid,
         { userName, password, verCode } = this.ruleForm;
       this.$refs[formName].validate(valid => {
         if (valid) {
@@ -115,22 +117,19 @@ export default {
                   }
                 });
               } else {
-                _this.Guid = this.guid.getGuid();
+                _this.initialGuid = this.guid.getGuid();
               }
             })
             .catch(error => {});
         } else {
           _this.$message.error("必填项不能为空");
-          _this.Guid = this.guid.getGuid();
+          _this.initialGuid = this.guid.getGuid();
           return false;
         }
       });
     },
     getVerifyCode(event) {
-      this.$refs.captcha.src =
-        this.api.baseUrl +
-        "/captcha/getCaptchaCode?guid=" +
-        this.guid.getGuid();
+      this.initialGuid = this.guid.getGuid();
     }
   },
   created() {
