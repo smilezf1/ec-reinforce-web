@@ -3,9 +3,6 @@
     <div class="detailHeader">
       <p>当前位置:详情页面</p>
     </div>
-    <!-- <div class="detailOperate">
-      <el-button type="primary" size="small" @click="back()">返回</el-button>
-    </div> -->
     <div class="detailBody">
       <el-collapse v-model="activeNames">
         <el-collapse-item title="1.基本信息" name="1">
@@ -209,13 +206,11 @@ export default {
         if (data.reinforceSign) {
           this.signatureItem.push(data.reinforceSign);
         }
-        if (data.reinforceStrategyDetail) {
-          this.strategyItem.push(data.reinforceStrategyDetail);
-        }
         if (data.channelStrategyDto) {
           this.multipleChannel.push(data.channelStrategyDto);
         }
         if (data.reinforceStrategyDetail) {
+          this.strategyItem.push(data.reinforceStrategyDetail);
           this.reinforceListItem =
             data.reinforceStrategyDetail.reinforceItemList;
           this.h5ItemList = data.reinforceStrategyDetail.h5ItemList;

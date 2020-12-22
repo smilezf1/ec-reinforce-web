@@ -303,7 +303,7 @@ export default {
     },
     //查询签名
     search() {
-      let signName = this.ruleForm.signatureName,
+      const signName = this.ruleForm.signatureName,
         queryInfo = { signName },
         _this = this;
       _this.loading = true;
@@ -318,13 +318,13 @@ export default {
     },
     //上传签名开始
     uploadSignatureFile(file) {
-      let params = new FormData(),
+      const params = new FormData(),
         _this = this;
       params.append("file", file.file);
       //进度条配置
-      let config = {
+      const config = {
         onUploadProgress: ProgressEvent => {
-          let progressPercent =
+          const progressPercent =
             ((ProgressEvent.loaded / ProgressEvent.total) * 100) | 0;
           file.onProgress({ percent: progressPercent });
         }
@@ -377,7 +377,6 @@ export default {
     getSignatureAlias(signaturePwd, signatureAddress, signatureIndex) {
       const _this = this,
         params = { signPwd: signaturePwd, signFilePath: signatureAddress };
-      api.signatureService.getSignatureAlias;
       api.signatureService.getSignatureAlias(params).then(res => {
         if (res.code === "500") {
           _this.signatureItemForm[signatureIndex].signatureAliasBox = false;
@@ -398,11 +397,12 @@ export default {
     },
     //是否显示保存按钮
     showSaveSignatureBox() {
-      let _this = this,
+      const _this = this,
         signatureItemList = _this.signatureItemForm;
       signatureItemList.forEach((v, i) => {
         _this.$refs["signatureItemForm"][i].validate(valid => {
-          let signatureAliasBox = _this.signatureItemForm[0].signatureAliasBox;
+          const signatureAliasBox =
+            _this.signatureItemForm[0].signatureAliasBox;
           if (valid && signatureAliasBox) {
             _this.saveSignatureBox = true;
           } else {
@@ -414,7 +414,7 @@ export default {
     },
     //检查签名名称是否重复
     checkSignName() {
-      let _this = this,
+      const _this = this,
         signName = _this.signatureItemForm[0]["signatureName"];
       if (signName) {
         api.signatureService.checkSignName({ signName }).then(res => {
@@ -428,13 +428,15 @@ export default {
     },
     //保存上传的签名
     saveSignature() {
-      let _this = this,
+      const _this = this,
         data = _this.signatureItemForm[0],
-        signName = data.signatureName,
-        signPwd = data.signaturePwd,
-        signAliasName = data.signatureAliasNameValue,
-        signAliasPwd = data.signatureAliasPwd,
-        signFilePath = data.signatureAddress;
+        {
+          signatureName: signName,
+          signaturePwd: signPwd,
+          signatureAliasNameValue: signAliasName,
+          signatureAliasPwd: signAliasPwd,
+          signatureAddress: signFilePath
+        } = data;
       api.signatureService
         .saveSignature({
           signName,

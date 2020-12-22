@@ -924,11 +924,23 @@ export default {
           channelKeyData,
           channelStrategyParameteList
         } = _this.channelStrategyList[index];
-        for (let i = 0; i < channelKeyData.length; i++) {
+        for (
+          let i = 0, channelKeyLen = channelKeyData.length;
+          i < channelKeyLen;
+          i++
+        ) {
           _this.$set(channelKeyData[i], "disabled", false);
         }
-        for (let j = 0; j < channelStrategyParameteList.length; j++) {
-          for (let k = 0; k < channelKeyData.length; k++) {
+        for (
+          let j = 0, channelStrategyLen = channelStrategyParameteList.length;
+          j < channelStrategyLen;
+          j++
+        ) {
+          for (
+            let k = 0, channelKeyDataLen = channelKeyData.length;
+            k < channelKeyDataLen;
+            k++
+          ) {
             if (
               channelStrategyParameteList[j].channelKey ==
               channelKeyData[k].value
@@ -943,11 +955,23 @@ export default {
           channelKeyData,
           channelDetails
         } = _this.channelStrategyParticulars.itemDetailDtoList[index];
-        for (let i = 0; i < channelKeyData.length; i++) {
+        for (
+          let i = 0, channelKeyLen = channelKeyData.length;
+          i < channelKeyLen;
+          i++
+        ) {
           _this.$set(channelKeyData[i], "disabled", false);
         }
-        for (let j = 0; j < channelDetails.length; j++) {
-          for (let k = 0; k < channelKeyData.length; k++) {
+        for (
+          let j = 0, channelDetailLen = channelDetails.length;
+          j < channelDetailLen;
+          j++
+        ) {
+          for (
+            let k = 0, channelKeyDataLen = channelKeyData.length;
+            k < channelKeyDataLen;
+            k++
+          ) {
             if (channelDetails[j].channelKey == channelKeyData[k].value) {
               _this.$set(channelKeyData[k], "disabled", true);
             }
@@ -1484,6 +1508,9 @@ export default {
   width: 100%;
   height: 230px;
   margin-top: 20px;
+}
+.channelStrategyForm {
+  padding: 20px 0;
 }
 .channelStrategyItemContent .appName {
   line-height: 40px;

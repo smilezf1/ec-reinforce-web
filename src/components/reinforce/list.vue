@@ -425,7 +425,13 @@
                                 :default-checked-keys="
                                   addRoleFormArray[index].flatSoArray
                                 "
-                                @check-change="getSoCheckedNodes(index)"
+                                @check-change="
+                                  getCheckedNodes(
+                                    $refs.soTree,
+                                    'flatSoArray',
+                                    index
+                                  )
+                                "
                               >
                               </el-tree>
                             </template>
@@ -449,7 +455,13 @@
                                 :default-checked-keys="
                                   addRoleFormArray[index].flatH5Array
                                 "
-                                @check-change="getH5CheckedNodes(index)"
+                                @check-change="
+                                  getCheckedNodes(
+                                    $refs.h5Tree,
+                                    'flatH5Array',
+                                    index
+                                  )
+                                "
                               ></el-tree>
                             </template>
                           </el-form-item>
@@ -463,37 +475,46 @@
                           <el-form-item
                             label="是否多渠道打包:"
                             style="width:60%;display:inline-block"
-                            prop="radio1"
+                            prop="multipleChannelRadio"
                           >
                             <el-radio-group
-                              v-model="addRoleFormArray[index].radio1"
+                              v-model="
+                                addRoleFormArray[index].multipleChannelRadio
+                              "
                               style="margin-left:8%"
                             >
                               <el-radio
-                                label="是"
+                                label="1"
                                 @change="
                                   channelPackChange(
-                                    addRoleFormArray[index].radio1,
+                                    addRoleFormArray[index]
+                                      .multipleChannelRadio,
                                     item.data.appPackage,
                                     index
                                   )
                                 "
-                              ></el-radio>
+                                >是</el-radio
+                              >
                               <el-radio
-                                label="否"
+                                label="0"
                                 @change="
                                   channelPackChange(
-                                    addRoleFormArray[index].radio1,
+                                    addRoleFormArray[index]
+                                      .multipleChannelRadio,
                                     item.data.appPackage,
                                     index
                                   )
                                 "
-                              ></el-radio>
+                                >否</el-radio
+                              >
                             </el-radio-group>
                           </el-form-item>
 
                           <template
-                            v-if="addRoleFormArray[index].radio1 == '是'"
+                            v-if="
+                              addRoleFormArray[index].multipleChannelRadio ==
+                                '1'
+                            "
                           >
                             <el-form-item
                               label="多渠道打包策略"
@@ -524,28 +545,28 @@
                         <p class="signature">
                           <el-form-item
                             style="width:60%;display:inline-block"
-                            prop="radio2"
+                            prop="signatureRadio"
                           >
                             <label slot="label">是否签名:</label>
                             <el-radio-group
-                              v-model="addRoleFormArray[index].radio2"
+                              v-model="addRoleFormArray[index].signatureRadio"
                               style="margin-left:18%"
                             >
                               <el-radio
-                                label="是"
+                                label="1"
                                 @change="
                                   signatureChange(
-                                    addRoleFormArray[index].radio2,
+                                    addRoleFormArray[index].signatureRadio,
                                     index
                                   )
                                 "
                                 >是</el-radio
                               >
                               <el-radio
-                                label="否"
+                                label="0"
                                 @change="
                                   signatureChange(
-                                    addRoleFormArray[index].radio2,
+                                    addRoleFormArray[index].signatureRadio,
                                     index
                                   )
                                 "
@@ -554,7 +575,7 @@
                             </el-radio-group>
                           </el-form-item>
                           <template
-                            v-if="addRoleFormArray[index].radio2 == '是'"
+                            v-if="addRoleFormArray[index].signatureRadio == '1'"
                           >
                             <!-- 签名策略 -->
                             <el-form-item prop="curPrinter5">
@@ -803,10 +824,12 @@ export default {
         curPrinter6: [
           { required: true, message: "请选择签名版本", trigger: "blur" }
         ],
-        radio1: [
+        multipleChannelRadio: [
           { required: true, message: "是否多渠道打包", trigger: "blur" }
         ],
-        radio2: [{ required: true, message: "是否签名", trigger: "blur" }]
+        signatureRadio: [
+          { required: true, message: "是否签名", trigger: "blur" }
+        ]
       },
       strategyName: "",
       addTaskDrawer: false,
@@ -900,19 +923,23 @@ export default {
     handleProgress(event, file, fileList) {
       this.uploadTaskNum = fileList.length;
     },
-    getSoCheckedNodes(index) {
-      const _this = this;
-      _this.$refs.soTree.forEach((v, i) => {
+    //选中Tree节点
+    getCheckedNodes(tree, type, index) {
+      tree.forEach((v, i) => {
         const result = v.getCheckedNodes().map(v => v.value);
-        _this.addRoleFormArray[index].flatSoArray = result;
+        this.$set(this.addRoleFormArray[index], type, result);
       });
     },
-    getH5CheckedNodes(index) {
-      const _this = this;
-      _this.$refs.h5Tree.forEach((v, i) => {
-        const result = v.getCheckedNodes().map(v => v.value);
-        _this.addRoleFormArray[index].flatH5Array = result;
-      });
+    //去除数组中的空值
+    replaceEmptyItem(arr) {
+      return arr.filter(v => v);
+    },
+    //得到activeNames数组集合
+    setActiveNames(arr) {
+      for (let i = 0, len = arr.length; i < len; i++) {
+        this.activeNames.push(i + 1);
+        this.activeNames = Array.from(new Set(this.activeNames));
+      }
     },
     handleCheckedChange(checked, index, checkboxType, value, id) {
       const _this = this;
@@ -936,9 +963,11 @@ export default {
         } else {
           _this.addRoleFormArray[index].signMd5Items = [{ value }];
         }
-      } else if (checkboxType === "SO") {
+      }
+      if (checkboxType === "SO") {
         _this.addRoleFormArray[index].soChecked = checked;
-      } else if (checkboxType == "H5") {
+      }
+      if (checkboxType == "H5") {
         _this.addRoleFormArray[index].h5Checked = checked;
       }
     },
@@ -957,8 +986,9 @@ export default {
       }
     },
     deleteSignature(index, addIndex, addItem) {
-      if (this.addRoleFormArray[index].signMd5Items.indexOf(addItem) > -1) {
-        this.addRoleFormArray[index].signMd5Items.splice(addIndex, 1);
+      const signMd5Items = this.addRoleFormArray[index].signMd5Items;
+      if (signMd5Items.indexOf(addItem) > -1) {
+        signMd5Items.splice(addIndex, 1);
       }
     },
     //获取后台数据
@@ -997,7 +1027,120 @@ export default {
     addReinforceTask() {
       this.addTaskDrawer = true;
     },
-
+    //上传-----开始
+    addFileToFormData(file) {
+      const params = new FormData(),
+        _this = this;
+      params.append("file", file.file);
+      //进度条配置
+      const config = {
+        onUploadProgress: ProgressEvent => {
+          const progressPercent =
+            ((ProgressEvent.loaded / ProgressEvent.total) * 100) | 0;
+          file.onProgress({ percent: progressPercent });
+        }
+      };
+      api.uploadService.uploadFile(params, config).then(res => {
+        if (res) {
+          if (res.code == "01" || res.code == "99" || res.code == "500") {
+            _this.addTaskDrawer = false;
+            _this.$refs.upload.clearFiles();
+          }
+          if (res.code == "00") {
+            _this.saveReinforceTaskBox = false;
+            if (res.data) {
+              let data = res.data,
+                keyData = data.appPath,
+                packageData = data.appPackage,
+                keyTreeData = [],
+                packageTreeData = [],
+                dataItem = { data, keyTreeData, packageTreeData };
+              this.addRoleFormArray.push({
+                curPrinter1: "",
+                curPrinter2: "",
+                curPrinter3: "",
+                curPrinter4: "",
+                curPrinter5: "",
+                curPrinter6: "",
+                multipleChannelRadio: "0",
+                signatureRadio: "0",
+                strategyItemDto: {},
+                strategyItemDtoTest: [],
+                signMd5Items: [{ value: "" }],
+                choiceItem: [],
+                choiceTamperItem: [],
+                choiceDebugItem: [],
+                md5Checked: false,
+                soChecked: false,
+                h5Checked: false,
+                soDisabled: false,
+                h5Disabled: false,
+                soItemList: [],
+                h5ItemList: [],
+                md5List: [],
+                addSignatureClick: false,
+                flatSoArray: [],
+                flatH5Array: [],
+                tamperArray: "",
+                choiceArray: [],
+                showReinforceItem: false,
+                strategyType: 1,
+                strategyDescribe: ""
+              });
+              api.reinforceService
+                .getParseApkInfoByFileKey(keyData)
+                .then(res => {
+                  if (res.code == "00") {
+                    const data = res.data;
+                    this.amendOriginTree(data.soItems);
+                    this.amendOriginTree(data.h5Items);
+                    this.isDisabled(
+                      data.soItems,
+                      this.addRoleFormArray,
+                      "soDisabled"
+                    );
+                    this.isDisabled(
+                      data.h5Items,
+                      this.addRoleFormArray,
+                      "h5Disabled"
+                    );
+                    keyTreeData.push(data);
+                  }
+                });
+              const params = { packageName: packageData };
+              api.reinforceService
+                .getStrategyByPackageName(params)
+                .then(res => {
+                  if (res.code == "00") {
+                    packageTreeData.push(res.data);
+                  }
+                });
+              this.uploadFileItems.push(dataItem);
+              this.setActiveNames(this.uploadFileItems);
+              this.uploadShow = false;
+            }
+            //查询加固项tree
+            api.reinforceService
+              .getReinforceItemTree({ reinforceItem: {} })
+              .then(res => {
+                this.reinforceItemData = res.data;
+                this.reinforceItemData.forEach((v, i) => {
+                  if (v.children) {
+                    this.checkedItem.push(v);
+                  } else {
+                    this.radioItem.push(v);
+                  }
+                });
+              });
+          }
+        } else {
+          _this.$refs.upload.clearFiles();
+          _this.addTaskDrawer = false;
+          _this.$notify.error({ title: "错误", message: "应用解析错误" });
+        }
+      });
+    },
+    //上传结束---
     //保存加固任务
     saveReinforceTask(formName, form) {
       const _this = this,
@@ -1007,11 +1150,6 @@ export default {
         const addRoleFormArray = _this.addRoleFormArray[i];
         _this.$refs["addRoleForm"][i].validate((valid, message) => {
           if (!valid) {
-            if (message.radio1) {
-              _this.$message.error("请选择是否多渠道打包!");
-            } else if (message.radio2) {
-              _this.$message.error("请选择是否签名!");
-            }
             if (message.curPrinter1) {
               _this.$message.error("请选择加固策略!");
             }
@@ -1021,14 +1159,14 @@ export default {
         if (addRoleFormArray.choiceArray.includes(23)) {
           if (!addRoleFormArray.flatSoArray.length) {
             _this.$message.error("请选择SO文件");
-            allValid = false;
           }
+          allValid = false;
         }
         if (addRoleFormArray.choiceArray.includes(24)) {
           if (!addRoleFormArray.flatH5Array.length) {
             _this.$message.error("请选择H5文件");
-            allValid = false;
           }
+          allValid = false;
         }
         if (addRoleFormArray.choiceArray.includes(13)) {
           const signMd5Items =
@@ -1055,9 +1193,6 @@ export default {
           formItem.signMd5Items.forEach((v, i) => {
             signMd5Items.push(v.value);
           });
-          const signMd5ItemsData = signMd5Items.filter(v => v);
-          formItem.flatSoArray = formItem.flatSoArray.filter(v => v);
-          formItem.flatH5Array = formItem.flatH5Array.filter(v => v);
           formItem.choiceArray = formItem.choiceArray.concat(
             formItem.tamperArray
           );
@@ -1076,9 +1211,9 @@ export default {
             signType: formItem.curPrinter6,
             strategyItemDto: {
               reinforceItemList: [...new Set(formItem.choiceArray)],
-              signMd5Items: signMd5ItemsData,
-              soItemList: formItem.flatSoArray,
-              h5ItemList: formItem.flatH5Array,
+              signMd5Items: this.replaceEmptyItem(signMd5Items),
+              soItemList: this.replaceEmptyItem(formItem.flatSoArray),
+              h5ItemList: this.replaceEmptyItem(formItem.flatH5Array),
               id: formItem.curPrinter1
             }
           };
@@ -1117,123 +1252,6 @@ export default {
         this.addTaskDrawer = false;
       }
     },
-    //上传-----开始
-    addFileToFormData(file) {
-      const params = new FormData(),
-        _this = this;
-      params.append("file", file.file);
-      //进度条配置
-      const config = {
-        onUploadProgress: ProgressEvent => {
-          const progressPercent =
-            ((ProgressEvent.loaded / ProgressEvent.total) * 100) | 0;
-          file.onProgress({ percent: progressPercent });
-        }
-      };
-      api.uploadService.uploadFile(params, config).then(res => {
-        if (res) {
-          if (res.code == "01" || res.code == "99" || res.code == "500") {
-            _this.addTaskDrawer = false;
-            _this.$refs.upload.clearFiles();
-          }
-          if (res.code == "00") {
-            _this.saveReinforceTaskBox = false;
-            if (res.data) {
-              let data = res.data,
-                keyData = data.appPath,
-                packageData = data.appPackage,
-                keyTreeData = [],
-                packageTreeData = [],
-                dataItem = { data, keyTreeData, packageTreeData };
-              this.addRoleFormArray.push({
-                curPrinter1: "",
-                curPrinter2: "",
-                curPrinter3: "",
-                curPrinter4: "",
-                curPrinter5: "",
-                curPrinter6: "",
-                radio1: "",
-                radio2: "",
-                strategyItemDto: {},
-                strategyItemDtoTest: [],
-                signMd5Items: [{ value: "" }],
-                choiceItem: [],
-                choiceTamperItem: [],
-                choiceDebugItem: [],
-                md5Checked: false,
-                soChecked: false,
-                h5Checked: false,
-                soDisabled: false,
-                h5Disabled: false,
-                soItemList: [],
-                h5ItemList: [],
-                md5List: [],
-                addSignatureClick: false,
-                flatSoArray: [],
-                flatH5Array: [],
-                tamperArray: "",
-                choiceArray: [],
-                showReinforceItem: false,
-                strategyType: 1,
-                strategyDescribe: ""
-              });
-              api.reinforceService
-                .getParseApkInfoByFileKey(keyData)
-                .then(res => {
-                  if (res.code == "00") {
-                    let data = res.data;
-                    this.amendOriginTree(data.soItems);
-                    this.amendOriginTree(data.h5Items);
-                    if (data.soItems.length == 0) {
-                      this.addRoleFormArray.forEach((v, i) => {
-                        v.soDisabled = true;
-                      });
-                    }
-                    if (data.h5Items.length == 0) {
-                      this.addRoleFormArray.forEach((v, i) => {
-                        v.h5Disabled = true;
-                      });
-                    }
-                    keyTreeData.push(data);
-                  }
-                });
-              const params = { packageName: packageData };
-              api.reinforceService
-                .getStrategyByPackageName(params)
-                .then(res => {
-                  if (res.code == "00") {
-                    packageTreeData.push(res.data);
-                  }
-                });
-              this.uploadFileItems.push(dataItem);
-              for (var i = 0; i < this.uploadFileItems.length; i++) {
-                this.activeNames.push(i + 1);
-                this.activeNames = Array.from(new Set(this.activeNames));
-              }
-              this.uploadShow = false;
-            }
-            //查询加固项tree
-            api.reinforceService
-              .getReinforceItemTree({ reinforceItem: {} })
-              .then(res => {
-                this.reinforceItemData = res.data;
-                this.reinforceItemData.forEach((v, i) => {
-                  if (v.children) {
-                    this.checkedItem.push(v);
-                  } else {
-                    this.radioItem.push(v);
-                  }
-                });
-              });
-          }
-        } else {
-          _this.$refs.upload.clearFiles();
-          _this.addTaskDrawer = false;
-          _this.$notify.error({ title: "错误", message: "应用解析错误" });
-        }
-      });
-    },
-    //上传结束---
     //详情
     detail(id) {
       this.$router.push({ path: "/home/reinforce/detail", query: { id } });
@@ -1291,7 +1309,7 @@ export default {
         });
       });
     },
-    //修改原始SOH5数据
+    //修改原始SO,H5数据
     amendOriginTree(treeNodes) {
       const _this = this;
       if (treeNodes) {
@@ -1305,6 +1323,15 @@ export default {
         });
       }
     },
+    //h5,so是否禁止选中
+    isDisabled(arr, list, type) {
+      if (arr.length == 0) {
+        list.forEach((v, i) => {
+          this.$set(v, type, true);
+        });
+      }
+    },
+
     //根据用户选中的策略名称得到的树形结构选中的原始值
     traverseTree(treeNodes, flatArray) {
       const _this = this;
@@ -1358,7 +1385,6 @@ export default {
     strategyChange(id, index) {
       const _this = this;
       api.reinforceService.getStrategyDetail({ id }).then(res => {
-        _this.addRoleFormArray[index].showReinforceItem = true;
         if (res.code == "00") {
           _this.addRoleFormArray[index].showReinforceItem = true;
           let data = res.data,
@@ -1395,9 +1421,9 @@ export default {
                 return item.id;
               }
             });
-          result = result.filter(v => v);
-          choiceArray = choiceArray.filter(v => v);
-          choiceArray = choiceArray.concat(result);
+          choiceArray = this.replaceEmptyItem(choiceArray).concat(
+            this.replaceEmptyItem(result)
+          );
           _this.traverseTree(
             data.soItemList,
             _this.addRoleFormArray[index].flatSoArray
@@ -1413,7 +1439,7 @@ export default {
     },
     //是否多渠道打包
     channelPackChange(item, packageName, index) {
-      if (item == "是") {
+      if (item == "1") {
         api.reinforceService
           .getChannelByPackageName({ packageName })
           .then(res => {
@@ -1421,20 +1447,18 @@ export default {
               this.channelPackList = res.data;
             }
           });
-      }
-      if (item == "否") {
+      } else if (item == "0") {
         this.addRoleFormArray[index].curPrinter4 = "";
       }
     },
     //是否签名
     signatureChange(item, index) {
-      if (item == "是") {
+      if (item == "1") {
         const params = { limit: 20, pn: 1 };
         api.reinforceService.getSignatureList(params).then(res => {
           this.signatureList = res.data.items;
         });
-      }
-      if (item == "否") {
+      } else if (item == "0") {
         this.addRoleFormArray[index].curPrinter5 = "";
         this.addRoleFormArray[index].curPrinter6 = "";
       }
@@ -1473,7 +1497,7 @@ export default {
   background-color: #409eff;
   border-color: #409eff;
 }
-.reinfore .el-collapse-item__header.is-active {
+.reinfore .el-collapse-item__header {
   font-weight: 700;
   font-size: 16px;
 }
@@ -1556,7 +1580,6 @@ export default {
 }
 
 .el-drawer-content .el-collapse {
-  margin-top: 10px;
   border-top: none !important;
   border-bottom: none !important;
 }
@@ -1581,7 +1604,7 @@ export default {
   text-align: left !important;
 }
 .addApplicationForm {
-  padding: 20px;
+  padding: 20px 0px;
   font-size: 14px;
   border: none;
 }

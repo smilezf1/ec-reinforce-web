@@ -56,7 +56,9 @@
 
   .el-drawer {
     box-sizing: border-box !important;
-    overflow-y: auto !important;
+    width: 40% !important;
+    min-width: 30% !important;
+    overflow: auto !important;
   }
 
   .el-drawer-header {
@@ -76,7 +78,8 @@
   }
 
   .el-drawer-content {
-    margin: 50px 0 60px 0;
+    min-width: 600px;
+    margin: 30px 0 60px 0;
     position: relative;
     overflow: auto;
     padding: 20px;

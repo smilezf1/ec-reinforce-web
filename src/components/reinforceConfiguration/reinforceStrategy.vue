@@ -320,7 +320,9 @@
                           show-checkbox
                           node-key="label"
                           ref="soTree"
-                          @check-change="getSoCheckedNodes()"
+                          @check-change="
+                            getCheckedNodes($refs.soTree, 'soItemList')
+                          "
                         ></el-tree>
                       </template>
                       <!-- H5文件加固 -->
@@ -335,7 +337,9 @@
                           show-checkbox
                           node-key="label"
                           ref="h5Tree"
-                          @check-change="getH5CheckedNodes()"
+                          @check-change="
+                            getCheckedNodes($refs.h5Tree, 'h5ItemList')
+                          "
                         ></el-tree>
                       </template>
                     </el-form-item>
@@ -692,7 +696,9 @@
                             default-expand-all
                             ref="soTree"
                             :default-checked-keys="flatSoArray"
-                            @check-change="getSoCheckedNodes()"
+                            @check-change="
+                              getCheckedNodes($refs.soTree, 'soItemList')
+                            "
                           ></el-tree>
                         </template>
                       </template>
@@ -712,7 +718,9 @@
                             default-expand-all
                             ref="soTree"
                             :default-checked-keys="flatSoArray"
-                            @check-change="getSoCheckedNodes()"
+                            @check-change="
+                              getCheckedNodes($refs.soTree, 'soItemList')
+                            "
                           ></el-tree>
                         </template>
                       </template>
@@ -736,7 +744,9 @@
                             node-key="key"
                             style="height:150px;overflow:auto"
                             ref="h5Tree"
-                            @check-change="getH5CheckedNodes()"
+                            @check-change="
+                              getCheckedNodes($refs.h5Tree, 'h5ItemList')
+                            "
                             :default-checked-keys="flatH5Array"
                             default-expand-all
                           ></el-tree>
@@ -761,7 +771,9 @@
                             style="height:150px;overflow:auto"
                             ref="h5Tree"
                             :default-checked-keys="flatH5Array"
-                            @check-change="getH5CheckedNodes()"
+                            @check-change="
+                              getCheckedNodes($refs.h5Tree, 'h5ItemList')
+                            "
                             default-expand-all
                           ></el-tree>
                         </template>
@@ -1137,6 +1149,12 @@ export default {
     createStrategy() {
       this.createStrategyDrawer = true;
     },
+    //h5,so是否禁止选中
+    isDisabled(arr, type) {
+      if (arr.length == 0) {
+        this[type] = true;
+      }
+    },
     //上传策略开始
     createStrategyFile(file) {
       const _this = this,
@@ -1166,12 +1184,8 @@ export default {
           api.reinforceService.getParseApkInfoByFileKey(keyData).then(res => {
             if (res.code == "00") {
               const data = res.data;
-              if (data.soItems.length == 0) {
-                _this.soDisabled = true;
-              }
-              if (data.h5Items.length == 0) {
-                _this.h5Disabled = true;
-              }
+              this.isDisabled(data.soItems, "soDisabled");
+              this.isDisabled(data.h5Items, "h5Disabled");
               keyTreeData.push(data);
             }
           });
@@ -1205,35 +1219,26 @@ export default {
         } else {
           strategyItemForm.signMd5Items = [{ value }];
         }
-      } else if (checkboxType === "SO") {
+      }
+      if (checkboxType === "SO") {
         strategyItemForm.soChecked = checked;
         _this.soClick = true;
-      } else if (checkboxType === "H5") {
+      }
+      if (checkboxType === "H5") {
         strategyItemForm.h5Checked = checked;
         _this.h5Click = true;
       }
     },
-    //得到SO选中的值
-    getSoCheckedNodes() {
-      const _this = this;
-      _this.$refs.soTree.forEach((v, i) => {
+    //选中Tree节点(so,h5)
+    getCheckedNodes(tree, type) {
+      tree.forEach((v, i) => {
         const result = v.getCheckedNodes().map(v => v.value);
-        _this.strategyItemForm.soItemList = result;
+        this.$set(this.strategyItemForm, type, result);
       });
-      _this.strategyItemForm.soItemList = _this.strategyItemForm.soItemList.filter(
-        v => v
-      );
     },
-    //得到H5选中的值
-    getH5CheckedNodes() {
-      const _this = this;
-      _this.$refs.h5Tree.forEach((v, i) => {
-        const result = v.getCheckedNodes().map(v => v.value);
-        _this.strategyItemForm.h5ItemList = result;
-      });
-      _this.strategyItemForm.h5ItemList = _this.strategyItemForm.h5ItemList.filter(
-        v => v
-      );
+    //去除数组中的空值
+    replaceEmptyItem(arr) {
+      return arr.filter(v => v);
     },
     //添加签名
     addSignature(value, clicktype) {
@@ -1323,7 +1328,6 @@ export default {
           .checkStrategyName({ strategyName: reinforceStrategyName })
           .then(res => {
             if (res) {
-              //必填项都已经填写 请求异步 需写在这里
               if (allValid) {
                 let _this = this,
                   strategyItemForm = _this.strategyItemForm,
@@ -1353,8 +1357,12 @@ export default {
                     reinforceStrategyName:
                       strategyItemForm.reinforceStrategyName,
                     reinforceItemList: strategyItemForm.choiceItem,
-                    h5ItemList: strategyItemForm.h5ItemList,
-                    soItemList: strategyItemForm.soItemList,
+                    h5ItemList: this.replaceEmptyItem(
+                      strategyItemForm.h5ItemList
+                    ),
+                    soItemList: this.replaceEmptyItem(
+                      strategyItemForm.soItemList
+                    ),
                     signMd5Items: signMd5ItemsData,
                     reinforceInfo
                   };
@@ -1435,14 +1443,6 @@ export default {
               _this.setDisabled(_this.soArrayList, _this.amendSoDisabled);
               _this.setDisabled(_this.h5ArrayList, _this.amendH5Disabled);
               _this.setDisabled(_this.md5ArrayList, _this.amendH5Disabled);
-              /*  if (keyData.soItems.length == 0) {
-                _this.amendSoDisabled = true;
-              }
-              if (keyData.h5Items.length == 0) {
-                _this.amendH5Disabled = true;
-              } else {
-                _this.amendH5Disabled = false;
-              } */
               _this.strategyDetailItem = data;
               _this.disabledSoArrayList = data.soItemList;
               _this.disabledH5ArrayList = data.h5ItemList;
@@ -1530,7 +1530,6 @@ export default {
       _this.strategyItemForm.signMd5Items.forEach(v => {
         signMd5ItemsData.push(v.value);
       });
-      signMd5ItemsData = signMd5ItemsData.filter(v => v);
       //去空
       choiceItem.forEach(item => {
         if (item) {
@@ -1579,9 +1578,9 @@ export default {
           appVersion: strategyDetailItem.appVersion
         },
         reinforceItemList: _this.reinforceItemList,
-        soItemList: strategyItemForm.soItemList,
-        signMd5Items: signMd5ItemsData,
-        h5ItemList: strategyItemForm.h5ItemList
+        soItemList: this.replaceEmptyItem(strategyItemForm.soItemList),
+        signMd5Items: this.replaceEmptyItem(signMd5ItemsData),
+        h5ItemList: this.replaceEmptyItem(strategyItemForm.h5ItemList)
       };
       if (allValid) {
         api.reinforceService.saveStrategy(strategyItemDto).then(res => {
@@ -1690,6 +1689,9 @@ export default {
   width: 50%;
   display: block;
   margin: 10px 0;
+}
+.strategyItemForm {
+  padding: 20px 0;
 }
 .strategyItemForm .strategyItemTitle,
 .strategyDetailForm .strategyItemTitle,
