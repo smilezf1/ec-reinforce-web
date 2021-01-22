@@ -848,10 +848,7 @@ export default {
   width: 30%;
 }
 .userManagement .el-select {
-  /* width: 100%; */
-}
-.userManagement .searchBox .el-select {
-  /*  width: auto; */
+  width: 100%;
 }
 .editIcon,
 .resetIcon,

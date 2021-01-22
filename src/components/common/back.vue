@@ -1,6 +1,8 @@
 <template>
   <div class="back">
-    <i class="icon iconfont icon-fanhui goBack " @click="back()"></i>
+    <svg class="icon goBack" aria-hidden="true" @click="back()">
+      <use xlink:href="#icon-fanhui"></use>
+    </svg>
   </div>
 </template>
 <script>

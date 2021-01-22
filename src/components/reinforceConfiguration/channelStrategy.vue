@@ -133,10 +133,9 @@
                       content="最多只能添加50个渠道"
                       placement="top-start"
                     >
-                      <img
-                        src="../../assets/question.png"
-                        class="questionImg"
-                      />
+                      <svg class="icon" aria-hidden="true">
+                        <use xlink:href="#icon-question"></use>
+                      </svg>
                     </el-tooltip>
                   </div>
                 </h3>
@@ -564,7 +563,9 @@
                 </div>
                 <div class="channelStrategyItemTitleRight">
                   <el-tooltip content="最多只能添加50个渠道" placement="top">
-                    <img src="../../assets/question.png" class="questionImg" />
+                    <svg class="icon" aria-hidden="true">
+                      <use xlink:href="#icon-question"></use>
+                    </svg>
                   </el-tooltip>
                 </div>
               </h3>
@@ -1569,8 +1570,7 @@ export default {
   align-items: center;
   justify-content: space-between;
 }
-.channelStrategyItemTitleRight .questionImg {
-  width: 26px;
+.channelStrategyItemTitleRight .icon {
   cursor: pointer;
 }
 .channelStrategyItemTitle > span {

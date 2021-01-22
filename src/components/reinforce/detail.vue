@@ -1,170 +1,162 @@
+/*
 <template>
   <div class="Detail">
     <div class="detailHeader">
-      <p>当前位置:详情页面</p>
+      <p>
+        当前位置:详情页面
+      </p>
     </div>
     <div class="detailBody">
-      <el-collapse v-model="activeNames">
-        <el-collapse-item title="1.基本信息" name="1">
-          <div v-for="item in listItem" :key="item.id">
-            <el-row>
-              <el-col :span="12"
-                >应用名称:&nbsp;&nbsp;&nbsp;&nbsp;{{ item.appName }}</el-col
-              >
-              <el-col :span="12"
-                >应用头像:&nbsp;&nbsp;&nbsp;&nbsp;<img
-                  :src="'data:image/jpg;base64,' + item.appIcon"
-              /></el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="12"
-                >包&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名:&nbsp;&nbsp;&nbsp;&nbsp;{{
-                  item.appPackage
-                }}</el-col
-              >
-              <el-col :span="12"
-                >文件大小:&nbsp;&nbsp;&nbsp;&nbsp;{{
-                  item.appMbSize
-                }}
-                MB</el-col
-              >
-            </el-row>
-            <el-row>
-              <el-col :span="12"
-                >文件MD5:&nbsp;&nbsp;&nbsp;&nbsp;{{ item.md5 }}</el-col
-              >
-              <el-col :span="12"
-                >版本信息:&nbsp;&nbsp;&nbsp;&nbsp;{{ item.appVersion }}</el-col
-              >
-            </el-row>
-          </div>
-        </el-collapse-item>
-        <el-collapse-item title="2.策略信息" name="2">
-          <div v-for="item in strategyItem" :key="item.id">
-            <el-row>
-              <el-col :span="12"
-                >策略名称:&nbsp;&nbsp;&nbsp;&nbsp;{{
-                  item.reinforceStrategyName
-                }}</el-col
-              >
-              <el-col :span="12"
-                >已使用的加固功能:&nbsp;&nbsp;&nbsp;&nbsp;{{
-                  item.reinforceStrategyCount
-                }}</el-col
-              >
-            </el-row>
-            <el-row>
-              <el-col :span="24"
-                >策略描述:&nbsp;&nbsp;&nbsp;&nbsp;{{
-                  item.reinforceDescribe
-                }}</el-col
-              >
-            </el-row>
-            <el-row>
-              <el-col :span="24">
-                <el-collapse>
-                  <el-collapse-item title="2-1.加固项">
-                    <div v-for="item in reinforceListItem" :key="item.id">
-                      <el-row>
-                        <el-col :span="24">
-                          {{ item.reinforceItemName }}
-                          <el-tree
-                            v-if="item.reinforceItemName == 'SO高级加固'"
-                            :data="soItemList"
-                            default-expand-all
-                            style="height:200px;overflow-y:auto"
-                          >
-                          </el-tree>
-                          <el-tree
-                            v-if="item.reinforceItemName == 'H5文件加固'"
-                            :data="h5ItemList"
-                            default-expand-all
-                            style="height:200px;overflow-y:auto"
-                          ></el-tree>
-                        </el-col>
-                      </el-row>
-                    </div>
-                  </el-collapse-item>
-                </el-collapse>
-              </el-col>
-            </el-row>
-          </div>
-        </el-collapse-item>
-        <template v-if="data">
-          <el-collapse-item
-            title="3.多渠道策略信息"
-            name="3"
-            v-if="data.channelStrategyDto"
-          >
-            <div v-for="item in multipleChannel" :key="item.id">
+      <header>
+        <div class="basicInfo" v-if="basicInfoItem">
+          <p class="title">基本信息</p>
+          <div class="basicInfoBody">
+            <div class="basicInfoImg">
+              <img :src="'data:image/jpg;base64,' + basicInfoItem.appIcon" />
+            </div>
+            <div class="basicInfoText">
               <el-row>
-                <el-col :span="12"
-                  >策略名称:&nbsp;&nbsp;&nbsp;&nbsp;{{
-                    item.channelStrategyName
-                  }}</el-col
-                >
-                <el-col :span="12"
-                  >策略描述:&nbsp;&nbsp;&nbsp;&nbsp;{{
-                    item.channelStrategyDescribe
-                  }}</el-col
-                >
+                <el-col :span="12">
+                  <span>应用名称:{{ basicInfoItem.appName }}</span>
+                </el-col>
+                <el-col :span="12">
+                  <span>应用包名:{{ basicInfoItem.appPackage }}</span>
+                </el-col>
               </el-row>
               <el-row>
-                <el-col :span="12"
-                  >策略数量:&nbsp;&nbsp;&nbsp;&nbsp;{{
-                    item.channelStrategyCount
-                  }}</el-col
-                >
+                <el-col :span="12">
+                  <span>应用大小:{{ basicInfoItem.appMbSize }}MB</span>
+                </el-col>
+                <el-col :span="12">
+                  <span>应用版本:{{ basicInfoItem.appVersion }}</span>
+                </el-col>
               </el-row>
               <el-row>
-                <el-col :span="24">
-                  <el-collapse-item title="3-1.多渠道策略列表">
-                    <div
-                      v-for="subItem in item.itemDetailDtoList"
-                      :key="subItem.id"
-                    >
-                      <el-row>
-                        <el-col :span="12"
-                          >渠道名称:&nbsp;&nbsp;&nbsp;&nbsp;{{
-                            subItem.channelName
-                          }}</el-col
-                        >
-                        <el-col :span="12"
-                          >渠道状态:&nbsp;&nbsp;&nbsp;&nbsp;
-                          <span v-if="subItem.status == 1">已完成</span>
-                        </el-col>
-                      </el-row>
-                      <el-row>
-                        <el-col :span="24">
-                          <el-collapse-item title="渠道详细">
-                            <div
-                              v-for="grandItem in subItem.channelDetails"
-                              :key="grandItem.id"
-                            >
-                              <el-row>
-                                <el-col :span="12"
-                                  >渠道关键字:&nbsp;&nbsp;&nbsp;&nbsp;{{
-                                    grandItem.channelKey
-                                  }}</el-col
-                                >
-                                <el-col :span="12"
-                                  >渠道值:&nbsp;&nbsp;&nbsp;&nbsp;{{
-                                    grandItem.channelValue
-                                  }}</el-col
-                                >
-                              </el-row>
-                            </div>
-                          </el-collapse-item>
-                        </el-col>
-                      </el-row>
-                    </div>
-                  </el-collapse-item>
+                <el-col :span="12">
+                  <span>MD5:{{ basicInfoItem.md5 }}</span>
+                </el-col>
+                <el-col :span="12">
+                  <span>文件名:{{ basicInfoItem.appFileName }}</span>
                 </el-col>
               </el-row>
             </div>
-          </el-collapse-item>
+          </div>
+        </div>
+      </header>
+      <!--  <content>
+        <p class="title">加固功能</p>
+        <template v-if="reinforceItem">
+          <el-table
+            v-if="reinforceItem"
+            :data="reinforceItem"
+            style="width:100%"
+            row-key="id"
+            :tree-props="{ children: 'children' }"
+          >
+            <el-table-column
+              label="序号"
+              type="index"
+              width="60"
+            ></el-table-column>
+            <el-table-column
+              label="加固项"
+              property="reinforceItemName"
+              width="150"
+            ></el-table-column>
+            <el-table-column
+              label="描述"
+              property="reinforceItemDescribe"
+              width="700"
+            ></el-table-column>
+            <el-table-column label="结果">
+              <svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-duigou"></use>
+              </svg>
+            </el-table-column>
+            <el-table-column label="备注">
+            </el-table-column>
+          </el-table>
         </template>
-      </el-collapse>
+      </content> -->
+      <div class="cradBox">
+        <el-tabs type="border-card">
+          <el-tab-pane label="加固项" class="reinforceItemTabPane">
+            <template v-if="reinforceItem">
+              <el-table
+                v-if="reinforceItem"
+                :data="reinforceItem"
+                style="width:100%"
+                row-key="id"
+                :tree-props="{ children: 'children' }"
+              >
+                <el-table-column
+                  label="序号"
+                  type="index"
+                  width="60"
+                ></el-table-column>
+                <el-table-column
+                  label="加固项"
+                  property="reinforceItemName"
+                  width="150"
+                ></el-table-column>
+                <el-table-column
+                  label="描述"
+                  property="reinforceItemDescribe"
+                  width="700"
+                ></el-table-column>
+                <el-table-column label="结果">
+                  <svg class="icon" aria-hidden="true">
+                    <use xlink:href="#icon-duigou"></use>
+                  </svg>
+                </el-table-column>
+                <el-table-column label="备注"> </el-table-column>
+              </el-table>
+            </template>
+          </el-tab-pane>
+          <el-tab-pane label="加固策略信息">
+            <template v-if="reinforceStrategyInfoItem">
+              <el-row type="flex">
+                <el-col :span="2"><span>策略名称</span></el-col>
+                <el-col :span="22"
+                  ><span>
+                    {{ reinforceStrategyInfoItem.reinforceStrategyName }}
+                  </span></el-col
+                >
+              </el-row>
+              <el-row type="flex">
+                <el-col :span="2"><span>策略描述</span></el-col>
+                <el-col :span="22"
+                  ><span>{{
+                    reinforceStrategyInfoItem.reinforceDescribe
+                  }}</span></el-col
+                >
+              </el-row>
+              <el-row type="flex">
+                <el-col :span="2"><span>加固功能</span></el-col>
+                <el-col :span="22"
+                  ><span>{{
+                    reinforceStrategyInfoItem.reinforceStrategyCount
+                  }}</span></el-col
+                >
+              </el-row>
+              <el-row type="flex">
+                <el-col :span="2"><span>创建人</span></el-col>
+                <el-col :span="22">{{
+                  reinforceStrategyInfoItem.userName
+                }}</el-col>
+              </el-row>
+              <el-row type="flex">
+                <el-col :span="2"><span>创建时间</span></el-col>
+                <el-col :span="22">{{
+                  reinforceStrategyInfoItem.createTime
+                }}</el-col>
+              </el-row>
+            </template>
+          </el-tab-pane>
+          <el-tab-pane label="多渠道策略信息">多渠道策略信息</el-tab-pane>
+          <el-tab-pane label="签名信息">签名信息</el-tab-pane>
+        </el-tabs>
+      </div>
       <back></back>
     </div>
   </div>
@@ -177,20 +169,36 @@ export default {
   components: { back },
   data() {
     return {
-      data: null,
-      listItem: [],
-      signatureItem: [],
-      strategyItem: [],
-      multipleChannel: [],
-      reinforceListItem: {},
-      h5ItemList: [],
-      soItemList: [],
-      activeNames: ["1", "2", "3", "4"]
+      basicInfoItem: null,
+      reinforceStrategyInfoItem: null,
+      reinforceItem: null
     };
   },
   methods: {
     back() {
       window.history.back();
+    },
+    //将数据转化为树形结构
+    listToTree(array) {
+      let map = {};
+      array.forEach(item => {
+        if (!map[item.id]) {
+          map[item.id] = item;
+        }
+      });
+      array.forEach(item => {
+        item.remark = "";
+        if (map[item.parentId]) {
+          map[item.parentId].children
+            ? map[item.parentId].children.push(item)
+            : (map[item.parentId].children = [item]);
+        }
+      });
+      return array.filter(item => {
+        if (!item.parentId) {
+          return item;
+        }
+      });
     }
   },
   mounted() {
@@ -198,23 +206,17 @@ export default {
       params = { reinforceTaskId: id };
     api.reinforceService.getReinforceDetail(params).then(res => {
       const data = res.data;
-      this.data = data;
+      console.log(data, "data数据");
       if (res.code == "00") {
         if (data.reinforceInfo) {
-          this.listItem.push(data.reinforceInfo);
-        }
-        if (data.reinforceSign) {
-          this.signatureItem.push(data.reinforceSign);
-        }
-        if (data.channelStrategyDto) {
-          this.multipleChannel.push(data.channelStrategyDto);
+          this.basicInfoItem = data.reinforceInfo;
         }
         if (data.reinforceStrategyDetail) {
-          this.strategyItem.push(data.reinforceStrategyDetail);
-          this.reinforceListItem =
-            data.reinforceStrategyDetail.reinforceItemList;
-          this.h5ItemList = data.reinforceStrategyDetail.h5ItemList;
-          this.soItemList = data.reinforceStrategyDetail.soItemList;
+          this.reinforceStrategyInfoItem = data.reinforceStrategyDetail;
+          this.reinforceItem = data.reinforceStrategyDetail.reinforceItemList;
+          /*  this.listToTree(this.reinforceItem); */
+          /* console.log(this.reinforceItem, "reinforceItem"); */
+          console.log(this.reinforceStrategyInfoItem, "111");
         }
       }
     });
@@ -222,47 +224,88 @@ export default {
 };
 </script>
 <style>
-.detailHeader {
-  height: 50px;
-  line-height: 50px;
-  font-size: 14px;
-}
-.el-collapse {
+.detailBody {
   width: 90%;
+  color: #333;
 }
-.Detail .el-collapse-item__wrap {
-  border-bottom: none;
-}
-.el-collapse-item__header {
-  font-size: 17px;
-  background: #f2f5f7;
-  color: #515a6e;
+.detailBody header {
+  padding: 20px;
+  margin-top: 10px;
   font-size: 14px;
-  padding-left: 10px;
+  box-shadow: 0px 0px 10px #00000021;
+  display: flex;
+  color: #545454;
+  justify-content: space-between;
 }
-.el-collapse-item__content {
-  padding-left: 10px;
-  color: #515a6e !important;
-}
-.el-collapse-item {
-  font-size: 16px !important;
-}
-.detailBody .el-collapse img {
-  width: 50px;
-  border-radius: 3px;
-  vertical-align: middle;
-  margin-left: 15px;
+.detailBody .basicInfo,
+.detailBody .reinforceStrategyInfo {
+  flex-grow: 1;
 }
 .detailBody .el-row {
+  margin: 20px 0;
+}
+.detailBody header .basicInfoBody {
   display: flex;
   align-items: center;
-  padding: 20px 0;
-  border-bottom: 1px solid #ebeef5;
 }
-.detailBody .el-input__inner {
-  border: none;
+.detailBody header .basicInfoBody .basicInfoImg {
+  margin-right: 40px;
 }
-.Detail .detailOperate {
-  margin-bottom: 15px;
+.detailBody header .basicInfoBody .basicInfoImg img {
+  width: 150px;
+  margin-right: 10px;
+}
+.detailBody header .basicInfoText {
+  flex-grow: 2;
+}
+.detailBody header .title {
+  font-weight: 550;
+  font-size: 20px;
+  color: #353535;
+  display: inline-block;
+  margin-bottom: 20px;
+  font-weight: 300;
+}
+.detailBody .cradBox {
+  margin-top: 20px;
+}
+.detailBody content .title {
+  margin: 20px 0;
+  text-align: center;
+  color: #4a4a4a;
+  font-weight: 300;
+  font-size: 22px;
+}
+.detailBody .el-tabs__content {
+  font-size: 12px;
+}
+.detailBody .el-tabs__content {
+  /*  border: 1px solid rgb(220, 222, 226);
+  margin: 10px 0px 0px 15px; */
+}
+.detailBody .el-tabs__content .el-row:not(:last-child) {
+  border-bottom: 1px solid rgb(230, 230, 230);
+}
+.detailBody .el-tabs__content .el-col {
+  padding: 10px 0;
+  line-height: 20px;
+}
+.detailBody .el-tabs__content .el-row {
+  display: flex;
+  align-items: center;
+}
+.detailBody .el-tabs__content .el-row .el-col:first-of-type {
+  display: flex;
+  align-items: center;
+  font-weight: bolder;
+  color: rgb(0, 0, 0);
+  font-size: 12px;
+  border-right: 1px solid rgb(220, 222, 226);
+  margin-left: 20px;
+}
+.detailBody .el-tabs__content .el-row .el-col:last-of-type {
+  margin-left: 15px;
+  font-size: 12px;
+  color: #525252;
 }
 </style>

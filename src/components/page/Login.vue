@@ -14,14 +14,18 @@
           class="ruleForm"
         >
           <el-form-item prop="userName">
-            <img src="../../assets/user.png" class="icon" />
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-user-copy"></use>
+            </svg>
             <el-input
               v-model="ruleForm.userName"
               placeholder="用户名"
             ></el-input>
           </el-form-item>
           <el-form-item prop="password">
-            <img src="../../assets/pwd.png" class="icon" />
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-mima"></use>
+            </svg>
             <el-input
               v-model="ruleForm.password"
               type="password"
@@ -29,7 +33,9 @@
             ></el-input>
           </el-form-item>
           <el-form-item prop="verCode">
-            <img src="../../assets/code.png" class="icon" />
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-yanzhengma"></use>
+            </svg>
             <el-row>
               <el-col :span="15">
                 <el-input v-model="ruleForm.verCode" placeholder="图形验证码">
@@ -117,6 +123,7 @@ export default {
                   }
                 });
               } else {
+                _this.$message.error(res.message);
                 _this.initialGuid = this.guid.getGuid();
               }
             })
@@ -190,7 +197,7 @@ body,
   position: relative;
 }
 .user-login-main-box .ruleForm .icon {
-  width: 18px;
+  font-size: 17px;
   position: absolute;
   z-index: 2;
   top: 50%;

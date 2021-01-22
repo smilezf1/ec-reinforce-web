@@ -3,15 +3,7 @@ import router from '../router'
 import Vue from 'vue';
 let v = new Vue();
 //环境的切换
-//192.168.3.100:8080
-//192.168.3.58:9990
-if (process.env.NODE_ENV == 'development') {//开发环境
-    axios.defaults.baseURL = 'http://192.168.3.58:9990/manxi-reinforce';
-} else if (process.env.NODE_ENV == 'debug') { //测试环境
-    axios.defaults.baseURL = 'http://192.168.3.58:9990/manxi-reinforce';
-} else if (process.env.NODE_ENV == 'production') { //生产环境
-    axios.defaults.baseURL = 'http://192.168.3.58:9990/manxi-reinforce';
-}
+axios.defaults.baseURL = "http://192.168.3.58:9990/manxi-reinforce"
 axios.defaults.timeout = 200000;//设置超时时间
 axios.interceptors.request.use(config => {//请求拦截器
     if (localStorage.getItem('Authorization')) {
@@ -35,13 +27,15 @@ axios.interceptors.response.use(response => {//响应拦截器
             })
         }
     }
-    if (response.data.code === '500' || response.data.code === '01' || response.data.code === '99') {
-        v.$notify({
-            title: "警告",
-            message: response.data.message,
-            type: "warning",
-            duration: 2000
-        });
+    if (router.currentRoute.name != 'Login') {
+        if (response.data.code === '500' || response.data.code === '01' || response.data.code === '99') {
+            v.$notify({
+                title: "警告",
+                message: response.data.message,
+                type: "warning",
+                duration: 2000
+            });
+        }
     }
     return response;
 }, error => {

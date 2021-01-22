@@ -982,12 +982,13 @@
           <el-table-column
             prop="reinforce_strategy_name"
             label="策略名称"
-            min-width="20%"
+            min-width="25%"
+            :show-overflow-tooltip="true"
           ></el-table-column>
           <el-table-column
             prop="reinforce_strategy_count"
             label="策略数量"
-            min-width="20%"
+            min-width="15%"
           ></el-table-column>
           <el-table-column
             prop="create_time"

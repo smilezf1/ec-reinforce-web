@@ -690,23 +690,29 @@
             label="加固状态"
             min-width="12%"
           >
-            <template slot-scope="scope" class="status">
-              <span v-if="scope.row.reinforceTaskStatus === 1">
-                <img src="../../assets/wait.png" class="status" />
+            <template slot-scope="scope">
+              <span v-if="scope.row.reinforceTaskStatus === 1" class="status">
+                <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-jinxingzhong"></use>
+                </svg>
                 待加固</span
               >
-              <span v-if="scope.row.reinforceTaskStatus === 2">
-                <img src="../../assets/execute.png" class="status" />
+              <span v-if="scope.row.reinforceTaskStatus === 2" class="status">
+                <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-dengdaishenhe"></use>
+                </svg>
                 加固中
               </span>
-              <span v-if="scope.row.reinforceTaskStatus === 3"
-                ><img
-                  src="../../assets/correct.png"
-                  class="status"
-                />加固成功</span
+              <span v-if="scope.row.reinforceTaskStatus === 3" class="status">
+                <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-duigou"></use>
+                </svg>
+                加固成功</span
               >
-              <span v-if="scope.row.reinforceTaskStatus === 4">
-                <img src="../../assets/error.png" class="status" />
+              <span v-if="scope.row.reinforceTaskStatus === 4" class="status">
+                <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-error"></use>
+                </svg>
                 加固失败</span
               >
             </template>
@@ -1016,11 +1022,10 @@ export default {
     },
     //查询加固服务
     search(form) {
-      const _this = this;
-      _this.loading = true;
+      this.loading = true;
       this.getData();
       setTimeout(function() {
-        _this.loading = false;
+        this.loading = false;
       }, 500);
     },
     //新增加固任务
@@ -1440,28 +1445,38 @@ export default {
     //是否多渠道打包
     channelPackChange(item, packageName, index) {
       if (item == "1") {
-        api.reinforceService
-          .getChannelByPackageName({ packageName })
-          .then(res => {
-            if (res.code == "00") {
-              this.channelPackList = res.data;
-            }
-          });
+        this.getChannelPackList(packageName);
       } else if (item == "0") {
         this.addRoleFormArray[index].curPrinter4 = "";
       }
+    },
+    //得到多渠道打包集合
+    getChannelPackList(packageName) {
+      api.reinforceService
+        .getChannelByPackageName({ packageName })
+        .then(res => {
+          if (res.code == "00") {
+            this.channelPackList = res.data;
+          }
+        });
     },
     //是否签名
     signatureChange(item, index) {
       if (item == "1") {
         const params = { limit: 20, pn: 1 };
-        api.reinforceService.getSignatureList(params).then(res => {
-          this.signatureList = res.data.items;
-        });
+        this.getSignatureList(params);
       } else if (item == "0") {
         this.addRoleFormArray[index].curPrinter5 = "";
         this.addRoleFormArray[index].curPrinter6 = "";
       }
+    },
+    //得到签名列表
+    getSignatureList(params) {
+      api.reinforceService.getSignatureList(params).then(res => {
+        if (res.code == "00") {
+          this.signatureList = res.data.items;
+        }
+      });
     }
   },
   beforeMount() {
@@ -1550,12 +1565,6 @@ export default {
 }
 .reinfore .searchForm .el-input {
   margin-right: 5px;
-}
-.el-table__body .status {
-  width: 25px;
-  height: 25px;
-  margin-right: 5px;
-  border: none;
 }
 .el-date-editor--datetime .el-input__inner {
   height: 32px;
@@ -1653,7 +1662,12 @@ export default {
 .reinfore .operateBox {
   margin-left: 20px;
 }
-
+.reinfore .el-table__row .cell .status {
+  display: flex;
+}
+.reinfore .el-table__row .cell .status .icon {
+  margin-right: 3px;
+}
 .el-radio__input.is-checked .el-radio__inner {
   border-color: #409eff;
   background: #409eff;

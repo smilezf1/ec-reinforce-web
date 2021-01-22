@@ -55,20 +55,32 @@
           ></el-table-column>
           <el-table-column prop="status" label="加固状态" min-width="13%">
             <template slot-scope="scope">
-              <span v-if="scope.row.reinforceTaskStatus === 1">
-                <img src="../../assets/wait.png" class="status" />
+              <span v-if="scope.row.reinforceTaskStatus === 1" class="status">
+                <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-jinxingzhong"></use>
+                </svg>
                 待加固
               </span>
-              <span v-if="scope.row.reinforceTaskStatus === 2">
-                <img src="../../assets/execute.png" class="status" />
+              <span v-if="scope.row.reinforceTaskStatus === 2" class="status">
+                <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-dengdaishenhe"></use>
+                </svg>
                 加固中
               </span>
-              <span v-if="scope.row.reinforceTaskStatus === 3">
-                <img src="../../assets/correct.png" class="status" />
+              <span
+                v-if="scope.row.reinforceTaskStatus === 3"
+                class="status
+              "
+              >
+                <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-duigou"></use>
+                </svg>
                 加固成功
               </span>
-              <span v-if="scope.row.reinforceTaskStatus === 4">
-                <img src="../../assets/error.png" class="status" />
+              <span v-if="scope.row.reinforceTaskStatus === 4" class="status">
+                <svg class="icon" aria-hidden="true">
+                  <use xlink:href="#icon-error"></use>
+                </svg>
                 加固失败
               </span>
             </template>
@@ -144,9 +156,11 @@ export default {
   border-radius: 3px;
   vertical-align: middle;
 }
-.dashboard .status {
-  width: 25px;
-  height: 25px;
+.dashboard .el-table__row .cell .status {
+  display: flex;
+}
+.dashboard .el-table__row .cell .status .icon {
+  margin-right: 3px;
 }
 .pagingBox {
   margin-top: 20px;

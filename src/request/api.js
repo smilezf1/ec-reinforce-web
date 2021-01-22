@@ -1,8 +1,6 @@
 const baseUrl = "http://192.168.3.58:9990/manxi-reinforce",
     websocketUrl = "http://192.168.3.58:9990/manxi-reinforce/websocket"
-//http://192.168.3.100:8080/manxi-reinforce
 import { fetchGet, fetchPost, uploadFile } from './http'
-import { rsort } from 'semver';
 let userService = {
     //登录
     login(params) {
