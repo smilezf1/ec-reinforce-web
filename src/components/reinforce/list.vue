@@ -729,6 +729,7 @@
                 size="small"
                 type="primary"
                 @click="detail(scope.row.id)"
+                :disabled="scope.row.reinforceTaskStatus != 3"
                 >详细</el-button
               >
               <el-button
@@ -1147,7 +1148,7 @@ export default {
     },
     //上传结束---
     //保存加固任务
-    saveReinforceTask(formName, form) {
+    saveReinforceTask() {
       const _this = this,
         taskList = _this.addRoleFormArray;
       let allValid = true;
@@ -1157,21 +1158,22 @@ export default {
           if (!valid) {
             if (message.curPrinter1) {
               _this.$message.error("请选择加固策略!");
+              allValid = false;
             }
-            allValid = false;
           }
         });
         if (addRoleFormArray.choiceArray.includes(23)) {
           if (!addRoleFormArray.flatSoArray.length) {
             _this.$message.error("请选择SO文件");
+            allValid = false;
           }
-          allValid = false;
         }
         if (addRoleFormArray.choiceArray.includes(24)) {
+          console.log(addRoleFormArray.flatH5Array.length, "h5文件");
           if (!addRoleFormArray.flatH5Array.length) {
             _this.$message.error("请选择H5文件");
+            allValid = false;
           }
-          allValid = false;
         }
         if (addRoleFormArray.choiceArray.includes(13)) {
           const signMd5Items =

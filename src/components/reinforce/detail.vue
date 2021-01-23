@@ -43,41 +43,6 @@
           </div>
         </div>
       </header>
-      <!--  <content>
-        <p class="title">加固功能</p>
-        <template v-if="reinforceItem">
-          <el-table
-            v-if="reinforceItem"
-            :data="reinforceItem"
-            style="width:100%"
-            row-key="id"
-            :tree-props="{ children: 'children' }"
-          >
-            <el-table-column
-              label="序号"
-              type="index"
-              width="60"
-            ></el-table-column>
-            <el-table-column
-              label="加固项"
-              property="reinforceItemName"
-              width="150"
-            ></el-table-column>
-            <el-table-column
-              label="描述"
-              property="reinforceItemDescribe"
-              width="700"
-            ></el-table-column>
-            <el-table-column label="结果">
-              <svg class="icon" aria-hidden="true">
-                <use xlink:href="#icon-duigou"></use>
-              </svg>
-            </el-table-column>
-            <el-table-column label="备注">
-            </el-table-column>
-          </el-table>
-        </template>
-      </content> -->
       <div class="cradBox">
         <el-tabs type="border-card">
           <el-tab-pane label="加固项" class="reinforceItemTabPane">
@@ -85,76 +50,164 @@
               <el-table
                 v-if="reinforceItem"
                 :data="reinforceItem"
-                style="width:100%"
                 row-key="id"
                 :tree-props="{ children: 'children' }"
               >
-                <el-table-column
-                  label="序号"
-                  type="index"
-                  width="60"
-                ></el-table-column>
+                <el-table-column label="序号" type="index"></el-table-column>
                 <el-table-column
                   label="加固项"
                   property="reinforceItemName"
-                  width="150"
                 ></el-table-column>
                 <el-table-column
                   label="描述"
                   property="reinforceItemDescribe"
-                  width="700"
                 ></el-table-column>
                 <el-table-column label="结果">
                   <svg class="icon" aria-hidden="true">
                     <use xlink:href="#icon-duigou"></use>
                   </svg>
                 </el-table-column>
-                <el-table-column label="备注"> </el-table-column>
+                <el-table-column label="自定义" property="custom">
+                  <template slot-scope="scope">
+                    <span v-if="!scope.row.custom">无</span>
+                    <span v-else>
+                      <el-tree
+                        :data="scope.row.custom"
+                        default-expand-all
+                        style="height:70px;overflow:auto"
+                      ></el-tree>
+                    </span>
+                  </template>
+                </el-table-column>
               </el-table>
             </template>
           </el-tab-pane>
-          <el-tab-pane label="加固策略信息">
-            <template v-if="reinforceStrategyInfoItem">
-              <el-row type="flex">
-                <el-col :span="2"><span>策略名称</span></el-col>
-                <el-col :span="22"
-                  ><span>
-                    {{ reinforceStrategyInfoItem.reinforceStrategyName }}
-                  </span></el-col
-                >
-              </el-row>
-              <el-row type="flex">
-                <el-col :span="2"><span>策略描述</span></el-col>
-                <el-col :span="22"
-                  ><span>{{
-                    reinforceStrategyInfoItem.reinforceDescribe
-                  }}</span></el-col
-                >
-              </el-row>
-              <el-row type="flex">
-                <el-col :span="2"><span>加固功能</span></el-col>
-                <el-col :span="22"
-                  ><span>{{
-                    reinforceStrategyInfoItem.reinforceStrategyCount
-                  }}</span></el-col
-                >
-              </el-row>
-              <el-row type="flex">
-                <el-col :span="2"><span>创建人</span></el-col>
-                <el-col :span="22">{{
-                  reinforceStrategyInfoItem.userName
-                }}</el-col>
-              </el-row>
-              <el-row type="flex">
-                <el-col :span="2"><span>创建时间</span></el-col>
-                <el-col :span="22">{{
-                  reinforceStrategyInfoItem.createTime
-                }}</el-col>
-              </el-row>
-            </template>
+          <el-tab-pane
+            label="加固策略信息"
+            class="reinforceStrategyInfoItemTabPane"
+            v-if="reinforceStrategyInfoItem"
+          >
+            <el-row type="flex">
+              <el-col :span="2"><span>策略名称</span></el-col>
+              <el-col :span="22"
+                ><span>
+                  {{ reinforceStrategyInfoItem.reinforceStrategyName }}
+                </span></el-col
+              >
+            </el-row>
+            <el-row type="flex">
+              <el-col :span="2"><span>策略描述</span></el-col>
+              <el-col :span="22"
+                ><span>{{
+                  reinforceStrategyInfoItem.reinforceDescribe
+                }}</span></el-col
+              >
+            </el-row>
+            <el-row type="flex">
+              <el-col :span="2"><span>加固功能</span></el-col>
+              <el-col :span="22"
+                ><span>{{
+                  reinforceStrategyInfoItem.reinforceStrategyCount
+                }}</span></el-col
+              >
+            </el-row>
+            <el-row type="flex">
+              <el-col :span="2"><span>创建人</span></el-col>
+              <el-col :span="22">{{
+                reinforceStrategyInfoItem.userName
+              }}</el-col>
+            </el-row>
+            <el-row type="flex">
+              <el-col :span="2"><span>创建时间</span></el-col>
+              <el-col :span="22">{{
+                reinforceStrategyInfoItem.createTime
+              }}</el-col>
+            </el-row>
           </el-tab-pane>
-          <el-tab-pane label="多渠道策略信息">多渠道策略信息</el-tab-pane>
-          <el-tab-pane label="签名信息">签名信息</el-tab-pane>
+          <el-tab-pane
+            label="多渠道策略信息"
+            class="multipleChannelStrategyInfoTabPane"
+            v-if="multipleChannelStrategyItem"
+          >
+            <el-row type="flex">
+              <el-col :span="2"><span>多渠道名称</span></el-col>
+              <el-col :span="22"
+                ><span>{{
+                  multipleChannelStrategyItem.channelStrategyName
+                }}</span></el-col
+              >
+            </el-row>
+            <el-row type="flex">
+              <el-col :span="2"><span>多渠道描述</span></el-col>
+              <el-col :span="22"
+                ><span>{{
+                  multipleChannelStrategyItem.channelStrategyDescribe
+                }}</span></el-col
+              >
+            </el-row>
+            <el-row type="flex">
+              <el-col :span="2"><span>多渠道数量</span></el-col>
+              <el-col :span="22"
+                ><span>{{
+                  multipleChannelStrategyItem.channelStrategyCount
+                }}</span></el-col
+              >
+            </el-row>
+            <el-row type="flex">
+              <el-col :span="2"><span>包名</span></el-col>
+              <el-col :span="22">{{
+                multipleChannelStrategyItem.appPackage
+              }}</el-col>
+            </el-row>
+            <el-row type="flex">
+              <el-col :span="2"><span>创建时间</span></el-col>
+              <el-col :span="22">{{
+                multipleChannelStrategyItem.createTime
+              }}</el-col>
+            </el-row>
+          </el-tab-pane>
+          <el-tab-pane
+            label="签名信息"
+            class="signatureInfoTabPane"
+            v-if="reinforceSignItem"
+          >
+            <el-row type="flex">
+              <el-col :span="2"><span>签名名称</span></el-col>
+              <el-col :span="22"
+                ><span>{{ reinforceSignItem.signName }}</span></el-col
+              >
+            </el-row>
+            <el-row type="flex">
+              <el-col :span="2"><span>签名密码</span></el-col>
+              <el-col :span="22"
+                ><span>{{ reinforceSignItem.signPwd }}</span></el-col
+              >
+            </el-row>
+            <el-row type="flex">
+              <el-col :span="2"><span>签名别名</span></el-col>
+              <el-col :span="22"
+                ><span>{{ reinforceSignItem.signAliasName }}</span></el-col
+              >
+            </el-row>
+            <el-row type="flex">
+              <el-col :span="2"><span>别名密码</span></el-col>
+              <el-col :span="22"
+                ><span>{{ reinforceSignItem.signAliasPwd }}</span></el-col
+              >
+            </el-row>
+            <el-row type="flex">
+              <el-col :span="2"><span>创建人</span></el-col>
+              <el-col :span="22"
+                ><span>{{ reinforceSignItem.userName }}</span></el-col
+              >
+            </el-row>
+            <el-row type="flex">
+              <el-col :span="2"><span>创建时间</span></el-col>
+              <el-col :span="22"
+                ><span>{{ reinforceSignItem.createTime }}</span></el-col
+              >
+            </el-row>
+          </el-tab-pane>
         </el-tabs>
       </div>
       <back></back>
@@ -171,55 +224,61 @@ export default {
     return {
       basicInfoItem: null,
       reinforceStrategyInfoItem: null,
-      reinforceItem: null
+      reinforceItem: null,
+      reinforceSignItem: null,
+      multipleChannelStrategyItem: null
     };
   },
   methods: {
     back() {
       window.history.back();
-    },
-    //将数据转化为树形结构
-    listToTree(array) {
-      let map = {};
-      array.forEach(item => {
-        if (!map[item.id]) {
-          map[item.id] = item;
-        }
-      });
-      array.forEach(item => {
-        item.remark = "";
-        if (map[item.parentId]) {
-          map[item.parentId].children
-            ? map[item.parentId].children.push(item)
-            : (map[item.parentId].children = [item]);
-        }
-      });
-      return array.filter(item => {
-        if (!item.parentId) {
-          return item;
-        }
-      });
     }
   },
   mounted() {
     const id = this.$route.query.id,
       params = { reinforceTaskId: id };
     api.reinforceService.getReinforceDetail(params).then(res => {
-      const data = res.data;
-      console.log(data, "data数据");
+      const data = res.data,
+        reinforceStrategyDetail = data.reinforceStrategyDetail;
       if (res.code == "00") {
         if (data.reinforceInfo) {
           this.basicInfoItem = data.reinforceInfo;
         }
-        if (data.reinforceStrategyDetail) {
-          this.reinforceStrategyInfoItem = data.reinforceStrategyDetail;
-          this.reinforceItem = data.reinforceStrategyDetail.reinforceItemList;
-          /*  this.listToTree(this.reinforceItem); */
-          /* console.log(this.reinforceItem, "reinforceItem"); */
-          console.log(this.reinforceStrategyInfoItem, "111");
+        if (reinforceStrategyDetail) {
+          const soItemList = reinforceStrategyDetail.soItemList,
+            h5ItemList = reinforceStrategyDetail.h5ItemList;
+          this.reinforceStrategyInfoItem = reinforceStrategyDetail;
+          this.reinforceItem = reinforceStrategyDetail.reinforceItemList;
+          this.reinforceSignItem = data.reinforceSign;
+          this.multipleChannelStrategyItem = data.channelStrategyDto;
+          this.arrayAddProperty(this.reinforceItem, "custom");
+          this.setMd5OrH5Value(this.reinforceItem, "custom", soItemList, "SO");
+          this.setMd5OrH5Value(this.reinforceItem, "custom", h5ItemList, "H5");
         }
       }
     });
+  },
+  methods: {
+    arrayAddProperty(array, property, value, type) {
+      array.forEach(item => {
+        this.$set(item, property, "");
+      });
+      return array;
+    },
+    //设置h5,md5值
+    setMd5OrH5Value(array, property, value, type) {
+      array.forEach(item => {
+        if (value && value[0]) {
+          if (
+            value[0].label.indexOf(type) != -1 &&
+            item.reinforceItemName.indexOf(type) != -1
+          ) {
+            this.$set(item, property, value);
+          }
+        }
+      });
+      return array;
+    }
   }
 };
 </script>
@@ -241,12 +300,12 @@ export default {
 .detailBody .reinforceStrategyInfo {
   flex-grow: 1;
 }
-.detailBody .el-row {
-  margin: 20px 0;
-}
 .detailBody header .basicInfoBody {
   display: flex;
   align-items: center;
+}
+.detailBody header .basicInfoBody .el-row {
+  margin: 20px 0;
 }
 .detailBody header .basicInfoBody .basicInfoImg {
   margin-right: 40px;
@@ -279,9 +338,18 @@ export default {
 .detailBody .el-tabs__content {
   font-size: 12px;
 }
+.detailBody .reinforceItemTabPane .el-table__row {
+  height: 70px;
+  /* box-sizing: border-box;
+  border: 1px solid red; */
+}
+.detailBody .reinforceStrategyInfoItemTabPane,
+.detailBody .multipleChannelStrategyInfoTabPane,
+.detailBody .signatureInfoTabPane {
+  border: 1px solid rgb(220, 222, 226);
+}
 .detailBody .el-tabs__content {
-  /*  border: 1px solid rgb(220, 222, 226);
-  margin: 10px 0px 0px 15px; */
+  margin: 10px;
 }
 .detailBody .el-tabs__content .el-row:not(:last-child) {
   border-bottom: 1px solid rgb(230, 230, 230);
@@ -297,11 +365,11 @@ export default {
 .detailBody .el-tabs__content .el-row .el-col:first-of-type {
   display: flex;
   align-items: center;
+  justify-content: center;
   font-weight: bolder;
   color: rgb(0, 0, 0);
   font-size: 12px;
   border-right: 1px solid rgb(220, 222, 226);
-  margin-left: 20px;
 }
 .detailBody .el-tabs__content .el-row .el-col:last-of-type {
   margin-left: 15px;

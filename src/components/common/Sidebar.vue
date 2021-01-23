@@ -63,24 +63,20 @@ export default {
   },
   methods: {
     toTreeData(data) {
-      //删除所有的children,以防止多次调用
       data.forEach(item => {
         delete item.children;
       });
-      const map = {}; //构建map
+      const map = {};
       data.forEach(i => {
-        map[i.id] = i; //构建以id为键 当前数据为值
+        map[i.id] = i;
       });
       const treeData = [];
       data.forEach((child, index) => {
-        const mapItem = map[child.pId]; //判断当前数据的pId是否存在map中
+        const mapItem = map[child.pId];
         if (mapItem) {
-          //不是最顶层的数据
-          //注:这里map中的数据是引用了data的它的指向还是data,当mapItem改变时,arr也会改变
-          (mapItem.children || (mapItem.children = [])).push(child); //判断mapItem是否存在child
+          (mapItem.children || (mapItem.children = [])).push(child);
           mapItem.children.name = index - index;
         } else {
-          //顶层数据
           treeData.push(child);
         }
       });
@@ -96,7 +92,7 @@ export default {
   top: 60px;
   bottom: 0;
   box-sizing: border-box;
-  z-index: 2;
+  z-index: 99;
   overflow-y: auto;
 }
 .sidebar > ul {
