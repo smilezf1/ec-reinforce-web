@@ -2,7 +2,7 @@
   <div class="Home">
     <Header></Header>
     <Slidebar></Slidebar>
-    <div class="content-box" :class="{ 'content-collapse': collapse }">
+    <div class="contentBox" :class="{ 'content-collapse': collapse }">
       <div class="content">
         <keep-alive :include="getCacheComponents">
           <router-view></router-view>
@@ -39,13 +39,13 @@ export default {
 .Home {
   min-height: 100%;
 }
-.content-box {
+.contentBox {
   width: 100%;
   position: absolute;
   padding-left: 280px;
   box-sizing: border-box;
 }
-.content {
+.Home .contentBox > .content {
   min-width: 1200px;
   padding: 10px 10px 40px 20px;
   overflow: auto;

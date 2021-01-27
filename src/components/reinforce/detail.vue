@@ -45,126 +45,162 @@
       </header>
       <div class="cradBox">
         <el-tabs type="border-card">
-          <el-tab-pane label="加固项" class="reinforceItemTabPane">
-            <template v-if="reinforceItem">
-              <el-table
-                v-if="reinforceItem"
-                :data="reinforceItem"
-                row-key="id"
-                :tree-props="{ children: 'children' }"
-              >
-                <el-table-column label="序号" type="index"></el-table-column>
-                <el-table-column
-                  label="加固项"
-                  property="reinforceItemName"
-                ></el-table-column>
-                <el-table-column
-                  label="描述"
-                  property="reinforceItemDescribe"
-                ></el-table-column>
-                <el-table-column label="结果">
-                  <svg class="icon" aria-hidden="true">
-                    <use xlink:href="#icon-duigou"></use>
-                  </svg>
-                </el-table-column>
-                <el-table-column label="自定义" property="custom">
-                  <template slot-scope="scope">
-                    <span v-if="!scope.row.custom">无</span>
-                    <span v-else>
-                      <el-tree
-                        :data="scope.row.custom"
-                        default-expand-all
-                        style="height:70px;overflow:auto"
-                      ></el-tree>
-                    </span>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </template>
-          </el-tab-pane>
           <el-tab-pane
             label="加固策略信息"
             class="reinforceStrategyInfoItemTabPane"
             v-if="reinforceStrategyInfoItem"
           >
-            <el-row type="flex">
-              <el-col :span="2"><span>策略名称</span></el-col>
-              <el-col :span="22"
-                ><span>
-                  {{ reinforceStrategyInfoItem.reinforceStrategyName }}
-                </span></el-col
-              >
-            </el-row>
-            <el-row type="flex">
-              <el-col :span="2"><span>策略描述</span></el-col>
-              <el-col :span="22"
-                ><span>{{
-                  reinforceStrategyInfoItem.reinforceDescribe
-                }}</span></el-col
-              >
-            </el-row>
-            <el-row type="flex">
-              <el-col :span="2"><span>加固功能</span></el-col>
-              <el-col :span="22"
-                ><span>{{
-                  reinforceStrategyInfoItem.reinforceStrategyCount
-                }}</span></el-col
-              >
-            </el-row>
-            <el-row type="flex">
-              <el-col :span="2"><span>创建人</span></el-col>
-              <el-col :span="22">{{
-                reinforceStrategyInfoItem.userName
-              }}</el-col>
-            </el-row>
-            <el-row type="flex">
-              <el-col :span="2"><span>创建时间</span></el-col>
-              <el-col :span="22">{{
-                reinforceStrategyInfoItem.createTime
-              }}</el-col>
-            </el-row>
+            <div class="reinforceStrategy">
+              <el-row type="flex">
+                <el-col :span="2"><span>策略名称</span></el-col>
+                <el-col :span="22"
+                  ><span>
+                    {{ reinforceStrategyInfoItem.reinforceStrategyName }}
+                  </span></el-col
+                >
+              </el-row>
+              <el-row type="flex">
+                <el-col :span="2"><span>策略描述</span></el-col>
+                <el-col :span="22"
+                  ><span>{{
+                    reinforceStrategyInfoItem.reinforceDescribe
+                  }}</span></el-col
+                >
+              </el-row>
+              <el-row type="flex">
+                <el-col :span="2"><span>加固功能</span></el-col>
+                <el-col :span="22"
+                  ><span>{{
+                    reinforceStrategyInfoItem.reinforceStrategyCount
+                  }}</span></el-col
+                >
+              </el-row>
+              <el-row type="flex">
+                <el-col :span="2"><span>创建人</span></el-col>
+                <el-col :span="22">{{
+                  reinforceStrategyInfoItem.userName
+                }}</el-col>
+              </el-row>
+              <el-row type="flex">
+                <el-col :span="2"><span>创建时间</span></el-col>
+                <el-col :span="22">{{
+                  reinforceStrategyInfoItem.createTime
+                }}</el-col>
+              </el-row>
+            </div>
+            <div class="reinforceItem">
+              <p class="reinforceItemTitle">加固项</p>
+              <div class="reinforceItemContent">
+                <template v-if="reinforceItem">
+                  <el-table
+                    v-if="reinforceItem"
+                    :data="reinforceItem"
+                    row-key="id"
+                    :tree-props="{ children: 'children' }"
+                  >
+                    <el-table-column
+                      label="序号"
+                      type="index"
+                    ></el-table-column>
+                    <el-table-column
+                      label="加固项"
+                      property="reinforceItemName"
+                    ></el-table-column>
+                    <el-table-column
+                      label="描述"
+                      property="reinforceItemDescribe"
+                    ></el-table-column>
+                    <el-table-column label="结果">
+                      <svg class="icon" aria-hidden="true">
+                        <use xlink:href="#icon-duigou"></use>
+                      </svg>
+                    </el-table-column>
+                    <el-table-column label="自定义" property="custom">
+                      <template slot-scope="scope">
+                        <span v-if="!scope.row.custom">无</span>
+                        <span v-else>
+                          <el-tree
+                            :data="scope.row.custom"
+                            default-expand-all
+                            style="height:70px;overflow:auto"
+                          ></el-tree>
+                        </span>
+                      </template>
+                    </el-table-column>
+                  </el-table>
+                </template>
+              </div>
+            </div>
           </el-tab-pane>
           <el-tab-pane
             label="多渠道策略信息"
             class="multipleChannelStrategyInfoTabPane"
             v-if="multipleChannelStrategyItem"
           >
-            <el-row type="flex">
-              <el-col :span="2"><span>多渠道名称</span></el-col>
-              <el-col :span="22"
-                ><span>{{
-                  multipleChannelStrategyItem.channelStrategyName
-                }}</span></el-col
-              >
-            </el-row>
-            <el-row type="flex">
-              <el-col :span="2"><span>多渠道描述</span></el-col>
-              <el-col :span="22"
-                ><span>{{
-                  multipleChannelStrategyItem.channelStrategyDescribe
-                }}</span></el-col
-              >
-            </el-row>
-            <el-row type="flex">
-              <el-col :span="2"><span>多渠道数量</span></el-col>
-              <el-col :span="22"
-                ><span>{{
-                  multipleChannelStrategyItem.channelStrategyCount
-                }}</span></el-col
-              >
-            </el-row>
-            <el-row type="flex">
-              <el-col :span="2"><span>包名</span></el-col>
-              <el-col :span="22">{{
-                multipleChannelStrategyItem.appPackage
-              }}</el-col>
-            </el-row>
-            <el-row type="flex">
-              <el-col :span="2"><span>创建时间</span></el-col>
-              <el-col :span="22">{{
-                multipleChannelStrategyItem.createTime
-              }}</el-col>
-            </el-row>
+            <div class="multipleChannelStrategyBasicInfo">
+              <el-row type="flex">
+                <el-col :span="2"><span>多渠道名称</span></el-col>
+                <el-col :span="22"
+                  ><span>{{
+                    multipleChannelStrategyItem.channelStrategyName
+                  }}</span></el-col
+                >
+              </el-row>
+              <el-row type="flex">
+                <el-col :span="2"><span>多渠道描述</span></el-col>
+                <el-col :span="22"
+                  ><span>{{
+                    multipleChannelStrategyItem.channelStrategyDescribe
+                  }}</span></el-col
+                >
+              </el-row>
+              <el-row type="flex">
+                <el-col :span="2"><span>多渠道数量</span></el-col>
+                <el-col :span="22"
+                  ><span>{{
+                    multipleChannelStrategyItem.channelStrategyCount
+                  }}</span></el-col
+                >
+              </el-row>
+              <el-row type="flex">
+                <el-col :span="2"><span>包名</span></el-col>
+                <el-col :span="22">{{
+                  multipleChannelStrategyItem.appPackage
+                }}</el-col>
+              </el-row>
+              <el-row type="flex">
+                <el-col :span="2"><span>创建时间</span></el-col>
+                <el-col :span="22">{{
+                  multipleChannelStrategyItem.createTime
+                }}</el-col>
+              </el-row>
+            </div>
+            <div class="multipleChannelStrategyDetailInfo">
+              <h3 class="title">多渠道详细</h3>
+              <div class="content">
+                <ul
+                  v-for="item in multipleChannelStrategyItem.itemDetailDtoList"
+                  :key="item.id"
+                >
+                  <p>
+                    <span>渠道名称:</span><span>{{ item.channelName }}</span>
+                  </p>
+                  <li
+                    v-for="parameterItem in item.channelDetails"
+                    :key="parameterItem.id"
+                  >
+                    <p>
+                      <span>key:</span
+                      ><span>{{ parameterItem.channelKey }}</span>
+                    </p>
+                    <p>
+                      <span>value:</span
+                      ><span>{{ parameterItem.channelValue }}</span>
+                    </p>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </el-tab-pane>
           <el-tab-pane
             label="签名信息"
@@ -318,12 +354,11 @@ export default {
   flex-grow: 2;
 }
 .detailBody header .title {
-  font-weight: 550;
-  font-size: 20px;
+  font-weight: 700;
+  font-size: 16px;
   color: #353535;
   display: inline-block;
   margin-bottom: 20px;
-  font-weight: 300;
 }
 .detailBody .cradBox {
   margin-top: 20px;
@@ -340,13 +375,29 @@ export default {
 }
 .detailBody .reinforceItemTabPane .el-table__row {
   height: 70px;
-  /* box-sizing: border-box;
-  border: 1px solid red; */
 }
-.detailBody .reinforceStrategyInfoItemTabPane,
-.detailBody .multipleChannelStrategyInfoTabPane,
+.detailBody .reinforceItemTitle {
+  margin: 20px 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+.detailBody .reinforceStrategy,
+.detailBody .multipleChannelStrategyBasicInfo,
 .detailBody .signatureInfoTabPane {
   border: 1px solid rgb(220, 222, 226);
+}
+.detailBody .multipleChannelStrategyDetailInfo .content p {
+  margin: 20px 0;
+  font-size: 14px;
+}
+.detailBody .multipleChannelStrategyDetailInfo .content ul {
+  width: 45%;
+  display: inline-block;
+}
+.detailBody .multipleChannelStrategyDetailInfo .title {
+  margin: 15px 0px 10px 0px;
+  font-size: 16px;
+  font-weight: 700;
 }
 .detailBody .el-tabs__content {
   margin: 10px;
